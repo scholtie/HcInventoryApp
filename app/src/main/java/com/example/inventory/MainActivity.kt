@@ -18,10 +18,7 @@ package com.example.inventory
 import android.os.Bundle
 import android.os.Environment
 import android.view.Menu
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.navigation.NavController
@@ -43,18 +40,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        /*val spinner: Spinner = findViewById(R.id.rolesSpinner)
-// Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter.createFromResource(
-            this,
-            R.array.roles_array,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            // Specify the layout to use when the list of choices appears
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // Apply the adapter to the spinner
-            spinner.adapter = adapter
-        }*/
         super.onCreate(savedInstanceState)
 
         // Retrieve NavController from the NavHostFragment
@@ -71,7 +56,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         findViewById<FloatingActionButton>(R.id.deleteActionButton).setOnClickListener { view -> exportCSV() }
     }*/
 
-   private fun exportCSV(){
+    private fun exportCSV(){
         val database: ItemRoomDatabase by lazy { ItemRoomDatabase.getDatabase(this) }
         val exportDir = File(Environment.DIRECTORY_DOWNLOADS)// your path where you want save your file
         if (!exportDir.exists()) {
@@ -104,22 +89,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     }
 
-   /* private fun getCSVFileName() : String =
-        "ItemRoomExample.csv"
-
-    private fun exportDatabaseToCSVFile() {
-        val csvFile = generateFile(this, getCSVFileName())
-        if (csvFile != null) {
-                (shownFragment as DirectorsListFragment).exportDirectorsToCSVFile(csvFile)
-
-
-            Toast.makeText(this, getString(R.string.csv_file_generated_text), Toast.LENGTH_LONG).show()
-            val intent = goToFileIntent(this, csvFile)
-            startActivity(intent)
-        } else {
-            Toast.makeText(this, getString(R.string.csv_file_not_generated_text), Toast.LENGTH_LONG).show()
-        }
-    }*/
+    /* private fun getCSVFileName() : String =
+         "ItemRoomExample.csv"
+     private fun exportDatabaseToCSVFile() {
+         val csvFile = generateFile(this, getCSVFileName())
+         if (csvFile != null) {
+                 (shownFragment as DirectorsListFragment).exportDirectorsToCSVFile(csvFile)
+             Toast.makeText(this, getString(R.string.csv_file_generated_text), Toast.LENGTH_LONG).show()
+             val intent = goToFileIntent(this, csvFile)
+             startActivity(intent)
+         } else {
+             Toast.makeText(this, getString(R.string.csv_file_not_generated_text), Toast.LENGTH_LONG).show()
+         }
+     }*/
 
 
     /**

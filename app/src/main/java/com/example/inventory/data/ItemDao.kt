@@ -28,6 +28,12 @@ interface ItemDao {
     @get:Query("SELECT * FROM item")
     val allDirectors: LiveData<List<Item>>
 
+    @Query("delete from item")
+    suspend fun clear()
+
+    @Query("select count(barcode) from item")
+    suspend fun getCount(): Int
+
     @Query("SELECT * FROM item")
     fun getAll(): List<Item>
 

@@ -29,6 +29,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.inventory.data.Item
 import com.example.inventory.data.ItemDao
@@ -39,8 +40,7 @@ import com.example.inventory.service.CSVWriter
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
-import java.io.File
-import java.io.FileWriter
+import java.io.*
 
 /**
  * Main fragment displaying details for all items in the database.
@@ -48,6 +48,7 @@ import java.io.FileWriter
 class ItemListFragment : Fragment() {
 
     lateinit var item: Item
+    val args:ItemListFragmentArgs by navArgs()
 
     private val viewModel: InventoryViewModel by activityViewModels {
         InventoryViewModelFactory(
@@ -66,11 +67,13 @@ class ItemListFragment : Fragment() {
     ): View? {
         _binding = ItemListFragmentBinding.inflate(inflater, container, false)
         return binding.root
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val myUser = args.user
         val adapter = ItemListAdapter {
             val action =
                 ItemListFragmentDirections.actionItemListFragmentToItemDetailFragment(it.id)
@@ -96,24 +99,88 @@ class ItemListFragment : Fragment() {
             val action = ItemListFragmentDirections.actionItemListFragmentToBarcodeTest()
             this.findNavController().navigate(action)
         }
+        binding.safeArgsTestText.setText(myUser)
         /*binding.deleteActionButton.setOnClickListener {
             showExportConfirmationDialog()
         }*/
+        if (myUser == "Saturn" ){binding.floatingActionButton.isEnabled = false }
+        binding.deleteActionButton.setOnClickListener { showExportConfirmationDialog() }
+        binding.allItemsDbButton.setOnClickListener {
+            val action = ItemListFragmentDirections.actionItemListFragmentToAddAllProductsFragment()
+            this.findNavController().navigate(action)
+        }
     }
 
-    /*private fun showExportConfirmationDialog() {
+    private fun showExportConfirmationDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(android.R.string.dialog_alert_title))
             .setMessage(getString(R.string.export_question))
             .setCancelable(false)
             .setNegativeButton(getString(R.string.no)) { _, _ -> }
-            .setPositiveButton(getString(R.string.yes)) { _, _ ->
+            .setPositiveButton(getString(R.string.yes)) { _, _ -> exportDatabase()
             }
             .show()
-    }*/
+    }
 
 
     private fun nukeTable() {
         findNavController().navigateUp()
     }
+    private fun exportCSV(){
+        val database: ItemRoomDatabase by lazy { ItemRoomDatabase.getDatabase(requireActivity()) }
+        val exportDir = File(Environment.DIRECTORY_DOWNLOADS)// your path where you want save your file
+        if (!exportDir.exists()) {
+            exportDir.mkdirs()
+        }
+
+        val file = File(exportDir, "item.csv")//$TABLE_NAME.csv is like user.csv or any name you want to save
+        try {
+            file.createNewFile()
+            val csvWrite = CSVWriter(FileWriter(file))
+            val curCSV = database.query("SELECT * FROM item", null)// query for get all data of your database table
+            csvWrite.writeNext(curCSV.columnNames)
+            while (curCSV.moveToNext()) {
+                //Which column you want to export
+                val arrStr = arrayOfNulls<String>(curCSV.columnCount)
+                for (i in 0 until curCSV.columnCount - 1) {
+                    when (i) {
+                        20, 22 -> {
+                        }
+                        else -> arrStr[i] = curCSV.getString(i)
+                    }
+                }
+                csvWrite.writeNext(arrStr)
+            }
+            csvWrite.close()
+            curCSV.close()
+        } catch (sqlEx: Exception) {
+            //Timber.e(sqlEx)
+        }
+
+    }
+    fun exportDatabase(){
+        val sd = Environment.getExternalStorageDirectory()
+
+        // Get the Room database storage path using SupportSQLiteOpenHelper
+        ItemRoomDatabase.getDatabase(requireActivity()).openHelper.writableDatabase.path
+
+        if (sd.canWrite()) {
+            val currentDBPath = ItemRoomDatabase.getDatabase(requireActivity()).openHelper.writableDatabase.path
+            val backupDBPath = "mydb.csv"      //you can modify the file type you need to export
+            val currentDB = File(currentDBPath)
+            val backupDB = File(sd, backupDBPath)
+            if (currentDB.exists()) {
+                try {
+                    val src = FileInputStream(currentDB).channel
+                    val dst = FileOutputStream(backupDB).channel
+                    dst.transferFrom(src, 0, src.size())
+                    src.close()
+                    dst.close()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
 }

@@ -17,7 +17,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/itemListFragment">
+    app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/itemListFragment"
@@ -33,6 +33,16 @@
         <action
             android:id="@+id/action_itemListFragment_to_barcodeTest"
             app:destination="@id/barcodeTest" />
+        <argument
+            android:name="user"
+            app:argType="string"
+            android:defaultValue="null" />
+        <action
+            android:id="@+id/action_itemListFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_itemListFragment_to_addAllProductsFragment"
+            app:destination="@id/addAllProductsFragment" />
     </fragment>
     <fragment
         android:id="@+id/itemDetailFragment"
@@ -68,4 +78,21 @@
         android:id="@+id/barcodeTest"
         android:name="com.example.inventory.BarcodeTest"
         android:label="BarcodeTest" />
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.inventory.LoginFragment"
+        android:label="LoginFragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_itemListFragment"
+            app:destination="@id/itemListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addAllProductsFragment"
+        android:name="com.example.inventory.AddAllProductsFragment"
+        android:label="AddAllProductsFragment" >
+        <argument
+            android:name="product_id"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
 </navigation>

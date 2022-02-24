@@ -6,13 +6,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AllProductsDao {
     @Query("SELECT * FROM allProducts")
-    fun getAll(): List<Item>
+    fun getAll(): List<AllProducts>
 
     @Query("SELECT * from allProducts ORDER BY name ASC")
-    fun getItems(): Flow<List<Item>>
+    fun getItems(): Flow<List<AllProducts>>
 
     @Query("SELECT * from allProducts WHERE id = :id")
-    fun getItem(id: Int): Flow<Item>
+    fun getItem(id: Int): Flow<AllProducts>
 
     // Specify the conflict strategy as IGNORE, when the user tries to add an
     // existing Item into the database Room ignores the conflict.

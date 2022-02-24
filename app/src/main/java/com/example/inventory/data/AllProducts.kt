@@ -9,11 +9,11 @@ data class AllProducts(
     @PrimaryKey
     val id: Int = 0,
     @ColumnInfo(name = "name")
-    val itemName: String,
+    val productName: String,
     @ColumnInfo(name = "barcode")
-    val itemBarcode: String,
+    val productBarcode: String,
     @ColumnInfo(name = "price")
-    val itemPrice: Double,
+    val productPrice: Double,
     @ColumnInfo(name = "quantity")
-    val quantityInStock: Int,
+    val productQuantityInStock: Int,
 )

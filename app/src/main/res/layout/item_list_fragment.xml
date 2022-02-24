@@ -88,6 +88,19 @@
         app:tint="@android:color/white" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/allItemsDbButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="@string/add_new_item"
+        android:src="@android:drawable/ic_input_add"
+        app:backgroundTint="#F44336"
+        app:layout_constraintBottom_toTopOf="@+id/floatingActionButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@android:color/white" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/deleteActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -104,6 +117,7 @@
         android:id="@+id/barcodeTestActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:contentDescription="@string/add_new_item"
         android:src="@drawable/ic_baseline_qr_code_scanner_24"
         app:backgroundTint="#2252FF"
@@ -111,5 +125,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:tint="@android:color/white" />
+
+    <TextView
+        android:id="@+id/safeArgsTestText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/allItemsDbButton"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

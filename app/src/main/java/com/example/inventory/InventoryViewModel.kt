@@ -17,6 +17,8 @@
 package com.example.inventory
 
 import androidx.lifecycle.*
+import com.example.inventory.data.AllProducts
+import com.example.inventory.data.AllProductsDao
 import com.example.inventory.data.Item
 import com.example.inventory.data.ItemDao
 import kotlinx.coroutines.launch

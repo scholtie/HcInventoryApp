@@ -61,4 +61,7 @@
     <string name="login_failed">"Bejelentkezés sikertelen"</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="remember_me">Emlékezz rám</string>
+    <string name="bejelentkezes">Bejelentkezés</string>
+    <string name="title_activity_login2">LoginActivity2</string>
 </resources>
