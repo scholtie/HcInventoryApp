@@ -20,7 +20,6 @@ import androidx.lifecycle.*
 import com.example.inventory.data.AllProducts
 import com.example.inventory.data.AllProductsDao
 import com.example.inventory.data.Item
-import com.example.inventory.data.ItemDao
 import kotlinx.coroutines.launch
 import java.io.Console
 
@@ -28,34 +27,25 @@ import java.io.Console
  * View Model to keep a reference to the Inventory repository and an up-to-date list of all items.
  *
  */
-class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
+class AllProductsViewModel(private val allProductsDao: AllProductsDao) : ViewModel() {
 
     // Cache all items form the database using LiveData.
-    val allItems: LiveData<List<Item>> = itemDao.getItems().asLiveData()
-    //val itemsList: LiveData<List<Item>>
+    val allItems: LiveData<List<AllProducts>> = allProductsDao.getItems().asLiveData()
 
     /**
      * Returns true if stock is available to sell, false otherwise.
      */
-    fun isStockAvailable(item: Item): Boolean {
-        return (item.quantityInStock > 0)
-    }
-
-    /*init {
-        itemsList = itemDao.allItems
-    }*/
-
     /**
      * Updates an existing Item in the database.
      */
-    fun updateItem(
-        itemId: Int,
-        itemName: String,
-        itemBarcode: String,
-        itemPrice: String,
-        itemCount: String
+    fun updateAllProducts(
+        productId: Int,
+        productName: String,
+        productBarcode: String,
+        productPrice: String,
+        productCount: String
     ) {
-        val updatedItem = getUpdatedItemEntry(itemId, itemName, itemBarcode, itemPrice, itemCount)
+        val updatedItem = getUpdatedItemEntry(productId, productName, productBarcode, productPrice, productCount)
         updateItem(updatedItem)
     }
 
@@ -63,37 +53,26 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
     /**
      * Launching a new coroutine to update an item in a non-blocking way
      */
-    private fun updateItem(item: Item) {
+    private fun updateItem(allProducts: AllProducts) {
         viewModelScope.launch {
-            itemDao.update(item)
-        }
-    }
-
-    /**
-     * Decreases the stock by one unit and updates the database.
-     */
-    fun sellItem(item: Item) {
-        if (item.quantityInStock > 0) {
-            // Decrease the quantity by 1
-            val newItem = item.copy(quantityInStock = item.quantityInStock - 1)
-            updateItem(newItem)
+            allProductsDao.update(allProducts)
         }
     }
 
     /**
      * Inserts the new Item into database.
      */
-    fun addNewItem(itemName: String, itemBarcode: String, itemPrice: String, itemCount: String) {
-        val newItem = getNewItemEntry(itemName, itemBarcode, itemPrice, itemCount)
+    fun addNewItem(productName: String, productBarcode: String, productPrice: String, productCount: String) {
+        val newItem = getNewItemEntry(productName, productBarcode, productPrice, productCount)
         insertItem(newItem)
     }
 
     /**
      * Launching a new coroutine to insert an item in a non-blocking way
      */
-    private fun insertItem(item: Item) {
+    private fun insertItem(allProducts: AllProducts) {
         viewModelScope.launch {
-            itemDao.insert(item)
+            allProductsDao.insert(allProducts)
         }
     }
 
@@ -104,24 +83,24 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
     /**
      * Launching a new coroutine to delete an item in a non-blocking way
      */
-    fun deleteItem(item: Item) {
+    fun deleteItem(allProducts: AllProducts) {
         viewModelScope.launch {
-            itemDao.delete(item)
+            allProductsDao.delete(allProducts)
         }
     }
 
     /**
      * Retrieve an item from the repository.
      */
-    fun retrieveItem(id: Int): LiveData<Item> {
-        return itemDao.getItem(id).asLiveData()
+    fun retrieveItem(id: Int): LiveData<AllProducts> {
+        return allProductsDao.getItem(id).asLiveData()
     }
 
     /**
      * Returns true if the EditTexts are not empty
      */
-    fun isEntryValid(itemName: String, itemBarcode: String, itemPrice: String, itemCount: String): Boolean {
-        if (itemName.isBlank() || itemBarcode.isBlank() || itemPrice.isBlank() || itemCount.isBlank()) {
+    fun isEntryValid(productName: String, productBarcode: String, productPrice: String, productCount: String): Boolean {
+        if (productName.isBlank() || productBarcode.isBlank() || productPrice.isBlank() || productCount.isBlank()) {
             return false
         }
         return true
@@ -131,12 +110,12 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
      * Returns an instance of the [Item] entity class with the item info entered by the user.
      * This will be used to add a new entry to the Inventory database.
      */
-    private fun getNewItemEntry(itemName: String, itemBarcode: String, itemPrice: String, itemCount: String): Item {
-        return Item(
-            itemName = itemName,
-            itemBarcode = itemBarcode,
-            itemPrice = itemPrice.toDouble(),
-            quantityInStock = itemCount.toInt()
+    private fun getNewItemEntry(productName: String, productBarcode: String, productPrice: String, productCount: String): AllProducts {
+        return AllProducts(
+            productName = productName,
+            productBarcode = productBarcode,
+            productPrice = productPrice.toDouble(),
+            productQuantityInStock = productCount.toInt()
         )
     }
 
@@ -145,18 +124,18 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
      * Returns an instance of the [Item] entity class with the item info updated by the user.
      */
     private fun getUpdatedItemEntry(
-        itemId: Int,
-        itemName: String,
-        itemBarcode: String,
-        itemPrice: String,
-        itemCount: String
-    ): Item {
-        return Item(
-            id = itemId,
-            itemName = itemName,
-            itemBarcode = itemBarcode,
-            itemPrice = itemPrice.toDouble(),
-            quantityInStock = itemCount.toInt()
+        productId: Int,
+        productName: String,
+        productBarcode: String,
+        productPrice: String,
+        productCount: String
+    ): AllProducts {
+        return AllProducts(
+            id = productId,
+            productName = productName,
+            productBarcode = productBarcode,
+            productPrice = productPrice.toDouble(),
+            productQuantityInStock = productCount.toInt()
         )
     }
 }
@@ -164,11 +143,11 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
 /**
  * Factory class to instantiate the [ViewModel] instance.
  */
-class InventoryViewModelFactory(private val itemDao: ItemDao) : ViewModelProvider.Factory {
+class AllProductsViewModelFactory(private val allProductsDao: AllProductsDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(InventoryViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(AllProductsViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return InventoryViewModel(itemDao) as T
+            return AllProductsViewModel(allProductsDao) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

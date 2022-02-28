@@ -12,14 +12,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.inventory.data.AllProducts
-import com.example.inventory.data.Item
 import com.example.inventory.databinding.FragmentAddAllProductsBinding
-import com.example.inventory.databinding.FragmentAddItemBinding
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+/*private const val ARG_PARAM1 = "param1"
+private const val ARG_PARAM2 = "param2"*/
 
 /**
  * A simple [Fragment] subclass.
@@ -28,15 +26,15 @@ private const val ARG_PARAM2 = "param2"
  */
 class AddAllProductsFragment : Fragment() {
 
-    private val viewModel: InventoryViewModel by activityViewModels {
-        InventoryViewModelFactory(
+    private val viewModel: AllProductsViewModel by activityViewModels {
+        AllProductsViewModelFactory(
             (activity?.application as InventoryApplication).database
-                .itemDao()
+                .allProductsDao()
         )
     }
     private val navigationArgs: ItemDetailFragmentArgs by navArgs()
 
-    lateinit var item: Item
+    private lateinit var product: AllProducts
 
     // Binding object instance corresponding to the fragment_add_item.xml layout
     // This property is non-null between the onCreateView() and onDestroyView() lifecycle callbacks,
@@ -48,7 +46,7 @@ class AddAllProductsFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentAddAllProductsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -90,7 +88,7 @@ class AddAllProductsFragment : Fragment() {
                 binding.itemPrice.text.toString(),
                 binding.itemCount.text.toString(),
             )
-            val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
+            val action = AddAllProductsFragmentDirections.actionAddAllProductsFragmentToItemListFragment()
             findNavController().navigate(action)
         }
     }
@@ -100,14 +98,14 @@ class AddAllProductsFragment : Fragment() {
      */
     private fun updateItem() {
         if (isEntryValid()) {
-            viewModel.updateItem(
-                this.navigationArgs.productId,
+            viewModel.updateAllProducts(
+                this.navigationArgs.itemId,
                 this.binding.itemName.text.toString(),
                 this.binding.itemBarcode.text.toString(),
                 this.binding.itemPrice.text.toString(),
                 this.binding.itemCount.text.toString()
             )
-            val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
+            val action = AddAllProductsFragmentDirections.actionAddAllProductsFragmentToItemListFragment()
             findNavController().navigate(action)
         }
     }
@@ -121,9 +119,9 @@ class AddAllProductsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val id = navigationArgs.productId
+        val id = navigationArgs.itemId
         if (id > 0) {
-            viewModel.retrieveProduct(id).observe(this.viewLifecycleOwner) { selectedProduct ->
+            viewModel.retrieveItem(id).observe(this.viewLifecycleOwner) { selectedProduct ->
                 product = selectedProduct
                 bind(product)
             }

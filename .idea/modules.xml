@@ -5,7 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/InventoryApp.iml" filepath="$PROJECT_DIR$/.idea/modules/InventoryApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/BarcodeScannerLibrary/InventoryApp.BarcodeScannerLibrary.iml" filepath="$PROJECT_DIR$/.idea/modules/BarcodeScannerLibrary/InventoryApp.BarcodeScannerLibrary.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/InventoryApp.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/InventoryApp.app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dbexporterlibrary/InventoryApp.dbexporterlibrary.iml" filepath="$PROJECT_DIR$/.idea/modules/dbexporterlibrary/InventoryApp.dbexporterlibrary.iml" />
     </modules>
   </component>
 </project>

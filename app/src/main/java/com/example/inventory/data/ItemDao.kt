@@ -25,8 +25,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ItemDao {
 
-    @get:Query("SELECT * FROM item")
-    val allDirectors: LiveData<List<Item>>
+    @get:Query("SELECT * FROM item ORDER BY name ASC")
+    val allItems: LiveData<List<Item>>
 
     @Query("delete from item")
     suspend fun clear()

@@ -17,25 +17,18 @@ package com.example.inventory
 
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
-import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.inventory.data.Item
 import com.example.inventory.databinding.FragmentAddItemBinding
-import com.example.inventory.service.BarcodeReceiver
-import com.example.inventory.service.CSVWriter
-import com.zebra.scannercontrol.SDKHandler
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileWriter
 
 /**
  * Fragment to add or update an item in the Inventory database.
@@ -92,6 +85,7 @@ class AddItemFragment : Fragment() {
             itemPrice.setText(price, TextView.BufferType.SPANNABLE)
             itemCount.setText(item.quantityInStock.toString(), TextView.BufferType.SPANNABLE)
             saveAction.setOnClickListener { updateItem() }
+            showItemWithBarcodeAction.setOnClickListener{ showItemWithBarcode() }
         }
     }
 
@@ -128,6 +122,16 @@ class AddItemFragment : Fragment() {
         }
     }
 
+    private fun showItemWithBarcode(){
+        if (binding.itemBarcode.text.toString() == "a")
+        {
+            Toast.makeText(activity, "a", Toast.LENGTH_SHORT).show()
+        }
+        else{
+            Toast.makeText(activity, "nem a", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     /**
      * Called when the view is created.
      * The itemId Navigation argument determines the edit item  or add new item.
@@ -146,6 +150,9 @@ class AddItemFragment : Fragment() {
         } else {
             binding.saveAction.setOnClickListener {
                 addNewItem()
+            }
+            binding.showItemWithBarcodeAction.setOnClickListener {
+                showItemWithBarcode()
             }
         }
     }

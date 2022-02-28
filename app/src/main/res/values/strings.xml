@@ -21,6 +21,7 @@
     <string name="item_name_req">Tétel Név <font color='#FF0000'>*</font></string>
     <string name="item_price_req">Tétel Ár <font color='#FF0000'>*</font></string>
     <string name="save_action">Mentés</string>
+    <string name="showItemWithBarcod_action">Azonos vonalkód tétel</string>
     <string name="item_detail_fragment_title">Tétel Adatok</string>
     <string name="add_fragment_title">Tétel Hozzáadása</string>
     <string name="edit_fragment_title">Tétel Szerkesztése</string>
@@ -64,4 +65,7 @@
     <string name="remember_me">Emlékezz rám</string>
     <string name="bejelentkezes">Bejelentkezés</string>
     <string name="title_activity_login2">LoginActivity2</string>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

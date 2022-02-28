@@ -24,10 +24,11 @@ import androidx.room.RoomDatabase
 /**
  * Database class with a singleton INSTANCE object.
  */
-@Database(entities = [Item::class], version = 7, exportSchema = false)
+@Database(entities = [Item::class, AllProducts::class], version = 8, exportSchema = false)
 abstract class ItemRoomDatabase : RoomDatabase() {
 
     abstract fun itemDao(): ItemDao
+    abstract fun allProductsDao(): AllProductsDao
     //abstract fun importDao(): ImportDao
 
     companion object {

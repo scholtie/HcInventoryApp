@@ -15,12 +15,18 @@
  */
 package com.example.inventory
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Environment
+import android.util.AttributeSet
 import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.*
+import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -38,6 +44,7 @@ import kotlin.math.exp
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var navController: NavController
+    private var shownFragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,10 +58,39 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         /*wireUpUI()*/
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.overflow, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_export_to_csv_file -> {
+                exportDatabaseToCSVFile()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     /*private fun wireUpUI()
     {
         findViewById<FloatingActionButton>(R.id.deleteActionButton).setOnClickListener { view -> exportCSV() }
     }*/
+    private fun exportDatabaseToCSVFile() {
+        val csvFile = generateFile(this, "items.csv")
+        if (csvFile != null) {
+            //(ItemListFragment().exportDirectorsToCSVFile(csvFile))
+            Toast.makeText(this, getString(R.string.csv_file_generated_text), Toast.LENGTH_LONG).show()
+            //val intent = goToFileIntent(this, csvFile)
+            //startActivity(intent)
+        } else {
+            Toast.makeText(this, getString(R.string.csv_file_not_generated_text), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun getCSVFileName() : String =
+        "itemsdb.csv"
 
     private fun exportCSV(){
         val database: ItemRoomDatabase by lazy { ItemRoomDatabase.getDatabase(this) }

@@ -16,30 +16,26 @@
 
 package com.example.inventory
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.RoomMasterTable.TABLE_NAME
 import com.example.inventory.data.Item
-import com.example.inventory.data.ItemDao
 import com.example.inventory.data.ItemRoomDatabase
 import com.example.inventory.databinding.ItemListFragmentBinding
-import com.example.inventory.extension.showToast
 import com.example.inventory.service.CSVWriter
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.*
 import java.io.*
 
 /**
@@ -48,6 +44,8 @@ import java.io.*
 class ItemListFragment : Fragment() {
 
     lateinit var item: Item
+    //private lateinit var inventoryViewModel: InventoryViewModel
+    private lateinit var allItems: List<Item>
     val args:ItemListFragmentArgs by navArgs()
 
     private val viewModel: InventoryViewModel by activityViewModels {
@@ -60,6 +58,15 @@ class ItemListFragment : Fragment() {
     private var _binding: ItemListFragmentBinding? = null
     private val binding get() = _binding!!
 
+    /*override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        initData()
+    }*/
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -69,6 +76,15 @@ class ItemListFragment : Fragment() {
         return binding.root
 
     }
+
+   /* private fun initData() {
+        inventoryViewModel = ViewModelProvider(this)[InventoryViewModel::class.java]
+        inventoryViewModel.allItems.observe(this,
+            Observer { items: List<Item> ->
+                allItems = items
+            }
+        )
+    }*/
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -117,7 +133,7 @@ class ItemListFragment : Fragment() {
             .setMessage(getString(R.string.export_question))
             .setCancelable(false)
             .setNegativeButton(getString(R.string.no)) { _, _ -> }
-            .setPositiveButton(getString(R.string.yes)) { _, _ -> exportDatabase()
+            .setPositiveButton(getString(R.string.yes)) { _, _ ->
             }
             .show()
     }
@@ -126,7 +142,7 @@ class ItemListFragment : Fragment() {
     private fun nukeTable() {
         findNavController().navigateUp()
     }
-    private fun exportCSV(){
+    /*private fun exportCSV(){
         val database: ItemRoomDatabase by lazy { ItemRoomDatabase.getDatabase(requireActivity()) }
         val exportDir = File(Environment.DIRECTORY_DOWNLOADS)// your path where you want save your file
         if (!exportDir.exists()) {
@@ -179,6 +195,31 @@ class ItemListFragment : Fragment() {
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
+            }
+        }
+    }*/
+
+    /*private fun exportDatabaseToCSVFile() {
+        val csvFile = generateFile(requireActivity(), getCSVFileName())
+        if (csvFile != null) {
+            exportDirectorsToCSVFile(csvFile)
+            Toast.makeText(requireActivity(), getString(R.string.csv_file_generated_text), Toast.LENGTH_LONG).show()
+            val intent = goToFileIntent(requireActivity(), csvFile)
+            startActivity(intent)
+        } else {
+            Toast.makeText(requireActivity(), getString(R.string.csv_file_not_generated_text), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun getCSVFileName() : String =
+        "itemsdb.csv"*/
+
+    fun exportDirectorsToCSVFile(csvFile: File) {
+        csvWriter().open(csvFile, append = false) {
+            // Header
+            writeRow(listOf("[id]", "Name", "Barcode", "Price", "Quantity"))
+            allItems.forEachIndexed { index, item ->
+                writeRow(listOf(index, item.itemName, item.itemBarcode, item.itemPrice, item.quantityInStock))
             }
         }
     }

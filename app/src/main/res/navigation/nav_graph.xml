@@ -91,8 +91,11 @@
         android:name="com.example.inventory.AddAllProductsFragment"
         android:label="AddAllProductsFragment" >
         <argument
-            android:name="product_id"
+            android:name="item_id"
             app:argType="integer"
             android:defaultValue="-1" />
+        <action
+            android:id="@+id/action_addAllProductsFragment_to_itemListFragment"
+            app:destination="@id/itemListFragment" />
     </fragment>
 </navigation>
