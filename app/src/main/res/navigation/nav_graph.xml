@@ -73,6 +73,9 @@
             app:destination="@id/itemListFragment"
             app:popUpTo="@id/itemListFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_addItemFragment_to_addAllProductsFragment"
+            app:destination="@id/addAllProductsFragment" />
     </fragment>
     <activity
         android:id="@+id/barcodeTest"
@@ -97,5 +100,9 @@
         <action
             android:id="@+id/action_addAllProductsFragment_to_itemListFragment"
             app:destination="@id/itemListFragment" />
+        <argument
+            android:name="product_barcode"
+            app:argType="string"
+            android:defaultValue="null" />
     </fragment>
 </navigation>

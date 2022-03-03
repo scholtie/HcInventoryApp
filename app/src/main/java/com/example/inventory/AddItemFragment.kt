@@ -27,8 +27,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.inventory.data.AllProducts
 import com.example.inventory.data.Item
 import com.example.inventory.databinding.FragmentAddItemBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.lang.Exception
 
 /**
  * Fragment to add or update an item in the Inventory database.
@@ -43,9 +46,15 @@ class AddItemFragment : Fragment() {
                 .itemDao()
         )
     }
+    private val allProductsViewModel : AllProductsViewModel by activityViewModels{
+        AllProductsViewModelFactory(
+            (activity?.application as InventoryApplication).database.
+        allProductsDao())
+    }
     private val navigationArgs: ItemDetailFragmentArgs by navArgs()
 
     lateinit var item: Item
+    lateinit var barcode: AllProducts
 
     // Binding object instance corresponding to the fragment_add_item.xml layout
     // This property is non-null between the onCreateView() and onDestroyView() lifecycle callbacks,
@@ -89,6 +98,12 @@ class AddItemFragment : Fragment() {
         }
     }
 
+    private fun bindBarcode(barcode: AllProducts) {
+        binding.apply { itemName.setText(barcode.productName, TextView.BufferType.SPANNABLE)
+            itemPrice.setText(barcode.productPrice.toString(), TextView.BufferType.SPANNABLE)
+        }
+    }
+
     /**
      * Inserts the new Item into database and navigates up to list fragment.
      */
@@ -122,14 +137,38 @@ class AddItemFragment : Fragment() {
         }
     }
 
-    private fun showItemWithBarcode(){
-        if (binding.itemBarcode.text.toString() == "a")
+    private fun showItemWithBarcode() {
+        val barcodeValue = binding.itemBarcode.text.toString()
+            allProductsViewModel.retrieveMatchingBarcode(barcodeValue)
+                .observe(this.viewLifecycleOwner) { barcodeTest ->
+                    try {
+                        barcode = barcodeTest
+                        bindBarcode(barcode)
+                    } catch (e: Exception){
+                        showNewItemConfirmationDialog()
+                    }
+
+                }
+        /*if (binding.itemBarcode.text.toString() == "a")
         {
             Toast.makeText(activity, "a", Toast.LENGTH_SHORT).show()
         }
         else{
             Toast.makeText(activity, "nem a", Toast.LENGTH_SHORT).show()
-        }
+        }*/
+    }
+
+    private fun showNewItemConfirmationDialog() {
+        val productBarcode = binding.itemBarcode.getText().toString()
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(android.R.string.dialog_alert_title))
+            .setMessage(getString(R.string.newItem_question))
+            .setCancelable(false)
+            .setNegativeButton(getString(R.string.no)) { _, _ -> }
+            .setPositiveButton(getString(R.string.yes)) { _, _ -> val action = AddItemFragmentDirections.actionAddItemFragmentToAddAllProductsFragment(0, productBarcode)
+                findNavController().navigate(action)
+            }
+            .show()
     }
 
     /**
@@ -140,7 +179,6 @@ class AddItemFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         val id = navigationArgs.itemId
         if (id > 0) {
             viewModel.retrieveItem(id).observe(this.viewLifecycleOwner) { selectedItem ->
@@ -155,6 +193,7 @@ class AddItemFragment : Fragment() {
                 showItemWithBarcode()
             }
         }
+
     }
 
     /**

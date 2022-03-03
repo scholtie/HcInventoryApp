@@ -38,6 +38,7 @@
         android:layout_width="209dp"
         android:layout_height="66dp"
         android:layout_marginTop="16dp"
+        android:enabled="false"
         android:text="@string/bejelentkezes"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"

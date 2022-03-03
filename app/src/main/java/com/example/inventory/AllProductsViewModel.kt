@@ -59,6 +59,10 @@ class AllProductsViewModel(private val allProductsDao: AllProductsDao) : ViewMod
         }
     }
 
+    fun retrieveMatchingBarcode(barcode: String): LiveData<AllProducts>{
+        return allProductsDao.searchBarcode(barcode).asLiveData()
+    }
+
     /**
      * Inserts the new Item into database.
      */

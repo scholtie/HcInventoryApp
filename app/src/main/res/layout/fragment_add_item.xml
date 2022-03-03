@@ -9,6 +9,15 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin">
 
+        <TextView
+            android:id="@+id/textViewTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="TextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/item_name_label"
             android:layout_width="0dp"
@@ -93,6 +102,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:hint="@string/barcode"
             app:layout_constraintBottom_toTopOf="@+id/save_action"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -102,7 +112,9 @@
                 android:id="@+id/item_barcode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/barcode" />
+                android:inputType="text"
+                android:singleLine="true"/>
+
         </com.google.android.material.textfield.TextInputLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

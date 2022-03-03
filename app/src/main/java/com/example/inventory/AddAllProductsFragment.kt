@@ -33,6 +33,7 @@ class AddAllProductsFragment : Fragment() {
         )
     }
     private val navigationArgs: ItemDetailFragmentArgs by navArgs()
+    private val args: AddAllProductsFragmentArgs by navArgs()
 
     private lateinit var product: AllProducts
 
@@ -120,6 +121,8 @@ class AddAllProductsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val id = navigationArgs.itemId
+        val barcode = args.productBarcode
+        binding.itemBarcode.setText(barcode)
         if (id > 0) {
             viewModel.retrieveItem(id).observe(this.viewLifecycleOwner) { selectedProduct ->
                 product = selectedProduct

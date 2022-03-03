@@ -31,9 +31,13 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
+import com.example.inventory.data.Item
+import com.example.inventory.data.ItemDao
 import com.example.inventory.data.ItemRoomDatabase
+import com.example.inventory.data.rePopulateDb
 import com.example.inventory.extension.showToast
 import com.example.inventory.service.CSVWriter
+import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
@@ -44,6 +48,7 @@ import kotlin.math.exp
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var navController: NavController
+    lateinit var allItems: List<Item>
     private var shownFragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +61,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         // Set up the action bar for use with the NavController
         //findViewById<Button>(R.id.floatingActionButton).setOnClickListener { exportCSV() }
         /*wireUpUI()*/
+        title = "HCLeltar"
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -65,11 +71,21 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_re_create_database -> {
+                reCreateDatabase()
+                true
+            }
             R.id.action_export_to_csv_file -> {
                 exportDatabaseToCSVFile()
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun reCreateDatabase() {
+        GlobalScope.launch(Dispatchers.IO) {
+            rePopulateDb(ItemRoomDatabase.getDatabase(this@MainActivity))
         }
     }
 
@@ -80,7 +96,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private fun exportDatabaseToCSVFile() {
         val csvFile = generateFile(this, "items.csv")
         if (csvFile != null) {
-            //(ItemListFragment().exportDirectorsToCSVFile(csvFile))
+            ItemListFragment().exportDirectorsToCSVFile(csvFile)
             Toast.makeText(this, getString(R.string.csv_file_generated_text), Toast.LENGTH_LONG).show()
             //val intent = goToFileIntent(this, csvFile)
             //startActivity(intent)

@@ -117,6 +117,8 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
         return itemDao.getItem(id).asLiveData()
     }
 
+
+
     /**
      * Returns true if the EditTexts are not empty
      */

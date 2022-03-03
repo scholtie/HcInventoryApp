@@ -31,6 +31,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.RoomMasterTable.TABLE_NAME
 import com.example.inventory.data.Item
+import com.example.inventory.data.ItemDao
 import com.example.inventory.data.ItemRoomDatabase
 import com.example.inventory.databinding.ItemListFragmentBinding
 import com.example.inventory.service.CSVWriter
@@ -47,13 +48,13 @@ class ItemListFragment : Fragment() {
     //private lateinit var inventoryViewModel: InventoryViewModel
     private lateinit var allItems: List<Item>
     val args:ItemListFragmentArgs by navArgs()
+    //abstract val allItems:List<Item>
 
     private val viewModel: InventoryViewModel by activityViewModels {
         InventoryViewModelFactory(
             (activity?.application as InventoryApplication).database.itemDao()
         )
     }
-
 
     private var _binding: ItemListFragmentBinding? = null
     private val binding get() = _binding!!
@@ -63,9 +64,10 @@ class ItemListFragment : Fragment() {
         initData()
     }*/
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    /*override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-    }
+        //initData()
+    }*/
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -77,14 +79,8 @@ class ItemListFragment : Fragment() {
 
     }
 
-   /* private fun initData() {
-        inventoryViewModel = ViewModelProvider(this)[InventoryViewModel::class.java]
-        inventoryViewModel.allItems.observe(this,
-            Observer { items: List<Item> ->
-                allItems = items
-            }
-        )
-    }*/
+   /*private fun initData() {
+       }*/
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -99,11 +95,18 @@ class ItemListFragment : Fragment() {
         binding.recyclerView.adapter = adapter
         // Attach an observer on the allItems list to update the UI automatically when the data
         // changes.
+        /*viewModel.allItems.observe(this.viewLifecycleOwner
+        ) { items: List<Item> ->
+            allItems = items
+        }*/
+
         viewModel.allItems.observe(this.viewLifecycleOwner) { items ->
             items.let {
                 adapter.submitList(it)
             }
         }
+
+
 
         binding.floatingActionButton.setOnClickListener {
             val action = ItemListFragmentDirections.actionItemListFragmentToAddItemFragment(
@@ -215,10 +218,16 @@ class ItemListFragment : Fragment() {
         "itemsdb.csv"*/
 
     fun exportDirectorsToCSVFile(csvFile: File) {
+        viewModel.allItems.observe(this.viewLifecycleOwner) { items ->
+            items.let {
+                allItems = items
+            }
+        }
+
         csvWriter().open(csvFile, append = false) {
             // Header
             writeRow(listOf("[id]", "Name", "Barcode", "Price", "Quantity"))
-            allItems.forEachIndexed { index, item ->
+            allItems.forEachIndexed{ index, item ->
                 writeRow(listOf(index, item.itemName, item.itemBarcode, item.itemPrice, item.quantityInStock))
             }
         }

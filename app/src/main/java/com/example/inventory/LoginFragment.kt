@@ -65,6 +65,7 @@ class LoginFragment : Fragment() {
             // Apply the adapter to the spinner
             spinner.adapter = adapter
         }
+        binding.loginBtn.setEnabled(true)
 
         binding.loginBtn.setOnClickListener {
             val currentUser = binding.userSpinner.getSelectedItem().toString()
