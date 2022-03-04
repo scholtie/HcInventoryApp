@@ -80,9 +80,9 @@ class AllProductsViewModel(private val allProductsDao: AllProductsDao) : ViewMod
         }
     }
 
-    fun deleteAll()
+    suspend fun deleteAll()
     {
-
+        allProductsDao.clear()
     }
     /**
      * Launching a new coroutine to delete an item in a non-blocking way

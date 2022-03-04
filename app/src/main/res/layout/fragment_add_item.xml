@@ -9,6 +9,29 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin">
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnDecreaseQuantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:clickable="true"
+            app:backgroundTint="#F44336"
+            app:layout_constraintBottom_toTopOf="@+id/item_barcode_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/item_price_label"
+            app:srcCompat="@drawable/ic_baseline_remove_24" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnIncreaseQuantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:clickable="true"
+            app:layout_constraintBottom_toTopOf="@+id/item_barcode_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/item_price_label"
+            app:srcCompat="@drawable/ic_baseline_add_24" />
+
         <TextView
             android:id="@+id/textViewTest"
             android:layout_width="wrap_content"
@@ -22,7 +45,7 @@
             android:id="@+id/item_name_label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin"
+            android:layout_marginTop="24dp"
             android:hint="@string/item_name_req"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,6 +55,7 @@
                 android:id="@+id/item_name"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:enabled="false"
                 android:inputType="textAutoComplete|textCapWords"
                 android:singleLine="true" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -40,7 +64,7 @@
             android:id="@+id/item_price_label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin"
+            android:layout_marginTop="24dp"
             android:hint="@string/item_price_req"
             app:layout_constraintBottom_toTopOf="@+id/item_count_label"
             app:layout_constraintEnd_toEndOf="parent"
@@ -52,6 +76,7 @@
                 android:id="@+id/item_price"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:enabled="false"
                 android:inputType="numberDecimal"
                 android:singleLine="true" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -60,26 +85,30 @@
             android:id="@+id/item_count_label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="16dp"
             android:hint="@string/quantity_req"
             app:layout_constraintBottom_toTopOf="@+id/item_barcode_label"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnIncreaseQuantity"
+            app:layout_constraintStart_toEndOf="@+id/btnDecreaseQuantity"
             app:layout_constraintTop_toBottomOf="@+id/item_price_label">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/item_count"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:editable="false"
                 android:inputType="number"
                 android:singleLine="true" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/save_action"
             android:layout_width="379dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:text="@string/save_action"
             app:layout_constraintBottom_toBottomOf="@+id/showItemWithBarcode_action"
             app:layout_constraintEnd_toEndOf="parent"
@@ -101,7 +130,7 @@
             android:id="@+id/item_barcode_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:hint="@string/barcode"
             app:layout_constraintBottom_toTopOf="@+id/save_action"
             app:layout_constraintEnd_toEndOf="parent"
@@ -113,7 +142,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
-                android:singleLine="true"/>
+                android:singleLine="true" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

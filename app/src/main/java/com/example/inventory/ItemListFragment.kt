@@ -108,6 +108,7 @@ class ItemListFragment : Fragment() {
 
 
 
+        binding.floatingActionButton2.setOnClickListener { exportDatabaseToCSVFile() }
         binding.floatingActionButton.setOnClickListener {
             val action = ItemListFragmentDirections.actionItemListFragmentToAddItemFragment(
                 getString(R.string.add_fragment_title)
@@ -216,6 +217,18 @@ class ItemListFragment : Fragment() {
 
     private fun getCSVFileName() : String =
         "itemsdb.csv"*/
+
+    private fun exportDatabaseToCSVFile() {
+        val csvFile = generateFile(requireContext(), "items.csv")
+        if (csvFile != null) {
+            ItemListFragment().exportDirectorsToCSVFile(csvFile)
+            Toast.makeText(requireContext(), getString(R.string.csv_file_generated_text), Toast.LENGTH_LONG).show()
+            //val intent = goToFileIntent(this, csvFile)
+            //startActivity(intent)
+        } else {
+            Toast.makeText(requireContext(), getString(R.string.csv_file_not_generated_text), Toast.LENGTH_LONG).show()
+        }
+    }
 
     fun exportDirectorsToCSVFile(csvFile: File) {
         viewModel.allItems.observe(this.viewLifecycleOwner) { items ->

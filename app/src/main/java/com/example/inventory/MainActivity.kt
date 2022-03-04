@@ -27,6 +27,7 @@ import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -71,6 +72,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_delete_list_data -> {
+                deleteCurrentListData()
+                true
+            }
             R.id.action_re_create_database -> {
                 reCreateDatabase()
                 true
@@ -81,6 +86,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun deleteCurrentListData() {
+        AddItemFragment().removeData()
     }
 
     private fun reCreateDatabase() {

@@ -55,7 +55,8 @@ class ItemListAdapter(private val onItemClicked: (Item) -> Unit) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Item) {
-            binding.itemName.text = item.itemName
+            binding.itemName.text =
+                item.itemName
             binding.itemPrice.text = item.itemBarcode
             binding.itemQuantity.text = item.quantityInStock.toString()
         }

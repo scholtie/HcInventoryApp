@@ -15,6 +15,7 @@
  */
 package com.example.inventory
 
+import android.R
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -31,7 +32,10 @@ import com.example.inventory.data.AllProducts
 import com.example.inventory.data.Item
 import com.example.inventory.databinding.FragmentAddItemBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.lang.Exception
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+
 
 /**
  * Fragment to add or update an item in the Inventory database.
@@ -55,6 +59,7 @@ class AddItemFragment : Fragment() {
 
     lateinit var item: Item
     lateinit var barcode: AllProducts
+    private var quantity: Int = 0
 
     // Binding object instance corresponding to the fragment_add_item.xml layout
     // This property is non-null between the onCreateView() and onDestroyView() lifecycle callbacks,
@@ -94,6 +99,8 @@ class AddItemFragment : Fragment() {
             itemPrice.setText(price, TextView.BufferType.SPANNABLE)
             itemCount.setText(item.quantityInStock.toString(), TextView.BufferType.SPANNABLE)
             saveAction.setOnClickListener { updateItem() }
+            btnIncreaseQuantity.setOnClickListener { increaseQuantity() }
+            btnDecreaseQuantity.setOnClickListener { decreaseQuantity() }
             showItemWithBarcodeAction.setOnClickListener{ showItemWithBarcode() }
         }
     }
@@ -109,15 +116,30 @@ class AddItemFragment : Fragment() {
      */
     private fun addNewItem() {
         if (isEntryValid()) {
-            viewModel.addNewItem(
-                binding.itemName.text.toString(),
-                binding.itemBarcode.text.toString(),
-                binding.itemPrice.text.toString(),
-                binding.itemCount.text.toString(),
-            )
-            val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
-            findNavController().navigate(action)
+            val barcodeValue = binding.itemBarcode.text.toString()
+            allProductsViewModel.retrieveMatchingBarcode(barcodeValue)
+                .observe(this.viewLifecycleOwner) { barcodeTest ->
+                    try {
+                        barcode = barcodeTest
+                        //bindBarcode(barcode)
+                        viewModel.addNewItem(
+                            binding.itemName.text.toString(),
+                            binding.itemBarcode.text.toString(),
+                            binding.itemPrice.text.toString(),
+                            binding.itemCount.text.toString(),
+                        )
+                        val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
+                        findNavController().navigate(action)
+                    } catch (e: Exception){
+                        showNewItemConfirmationDialog()
+                    }
+                }
+
         }
+        else{
+            Toast.makeText(activity, "Kérem töltse ki az összes mezőt!", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
     /**
@@ -135,10 +157,23 @@ class AddItemFragment : Fragment() {
             val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
             findNavController().navigate(action)
         }
+        else{
+            Toast.makeText(activity, "Kérem töltse ki az összes mezőt!", Toast.LENGTH_SHORT).show()
+        }
     }
 
+    private fun increaseQuantity(){
+        quantity += 1
+        binding.itemCount.setText(quantity.toString())
+    }
+
+    private fun decreaseQuantity(){
+        quantity -= 1
+        binding.itemCount.setText(quantity.toString())
+    }
     private fun showItemWithBarcode() {
         val barcodeValue = binding.itemBarcode.text.toString()
+        if (barcodeValue.isNotEmpty())
             allProductsViewModel.retrieveMatchingBarcode(barcodeValue)
                 .observe(this.viewLifecycleOwner) { barcodeTest ->
                     try {
@@ -149,6 +184,9 @@ class AddItemFragment : Fragment() {
                     }
 
                 }
+        else{
+            Toast.makeText(activity, "Kérem olvassa be a vonalkódot", Toast.LENGTH_SHORT).show()
+        }
         /*if (binding.itemBarcode.text.toString() == "a")
         {
             Toast.makeText(activity, "a", Toast.LENGTH_SHORT).show()
@@ -159,16 +197,21 @@ class AddItemFragment : Fragment() {
     }
 
     private fun showNewItemConfirmationDialog() {
-        val productBarcode = binding.itemBarcode.getText().toString()
+        val productBarcode = binding.itemBarcode.text.toString()
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(android.R.string.dialog_alert_title))
-            .setMessage(getString(R.string.newItem_question))
+            .setMessage("Nem található a vonalkód az adatbázisban. Szeretne hozzáadni egy új terméket?")
             .setCancelable(false)
-            .setNegativeButton(getString(R.string.no)) { _, _ -> }
-            .setPositiveButton(getString(R.string.yes)) { _, _ -> val action = AddItemFragmentDirections.actionAddItemFragmentToAddAllProductsFragment(0, productBarcode)
+            .setNegativeButton("Nem") { _, _ -> }
+            .setPositiveButton("Igen") { _, _ -> val action =
+                AddItemFragmentDirections.actionAddItemFragmentToAddAllProductsFragment(0, productBarcode)
                 findNavController().navigate(action)
             }
             .show()
+    }
+
+    fun removeData(){
+        GlobalScope.launch(Dispatchers.IO) { allProductsViewModel.deleteAll() }
     }
 
     /**

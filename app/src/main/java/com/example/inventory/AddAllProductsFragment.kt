@@ -8,11 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.inventory.data.AllProducts
 import com.example.inventory.databinding.FragmentAddAllProductsBinding
+import java.lang.Exception
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -36,6 +38,7 @@ class AddAllProductsFragment : Fragment() {
     private val args: AddAllProductsFragmentArgs by navArgs()
 
     private lateinit var product: AllProducts
+    lateinit var barcode: AllProducts
 
     // Binding object instance corresponding to the fragment_add_item.xml layout
     // This property is non-null between the onCreateView() and onDestroyView() lifecycle callbacks,
@@ -111,6 +114,21 @@ class AddAllProductsFragment : Fragment() {
         }
     }
 
+    private fun barcodeExists(){
+        val barcodeValue = binding.itemBarcode.text.toString()
+        if (isEntryValid())
+        viewModel.retrieveMatchingBarcode(barcodeValue)
+            .observe(this.viewLifecycleOwner) { barcodeTest ->
+                try {
+                    barcode = barcodeTest
+                    Toast.makeText(activity, "Már létezik termék az adott vonalkóddal!", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    addNewItem()
+                }
+
+            }
+    }
+
     /**
      * Called when the view is created.
      * The itemId Navigation argument determines the edit item  or add new item.
@@ -130,7 +148,7 @@ class AddAllProductsFragment : Fragment() {
             }
         } else {
             binding.saveAction.setOnClickListener {
-                addNewItem()
+                barcodeExists()
             }
         }
     }

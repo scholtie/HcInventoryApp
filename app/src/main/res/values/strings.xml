@@ -17,7 +17,7 @@
     <string name="app_name">Leltár</string>
     <string name="sell">Eladás</string>
     <string name="quantity">Mennyiség raktáron:</string>
-    <string name="quantity_req">Mennyiség raktáron <font color='#FF0000'>*</font></string>
+    <string name="quantity_req">Mennyiség <font color='#FF0000'>*</font></string>
     <string name="item_name_req">Tétel Név <font color='#FF0000'>*</font></string>
     <string name="item_price_req">Tétel Ár <font color='#FF0000'>*</font></string>
     <string name="save_action">Mentés</string>
@@ -65,7 +65,7 @@
     <string name="remember_me">Emlékezz rám</string>
     <string name="bejelentkezes">Bejelentkezés</string>
     <string name="title_activity_login2">LoginActivity2</string>
-    <string name="newItem_question">A vonalkód nem található az adatbázisban. Szeretne hozzáadni egy ehhez tartozó tételt?</string>
+    <string name="newItem_question">Szeretne hozzáadni egy ehhez tartozó tételt?</string>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

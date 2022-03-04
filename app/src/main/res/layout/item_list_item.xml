@@ -28,6 +28,7 @@
         android:layout_width="180dp"
         android:layout_marginStart="@dimen/margin_between_elements"
         android:fontFamily="sans-serif"
+        android:textAlignment="center"
         app:layout_constraintEnd_toStartOf="@+id/item_price"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

@@ -2,9 +2,10 @@ package com.example.inventory.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(indices = [Index(value = ["barcode"], unique = true)])
 data class AllProducts(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
