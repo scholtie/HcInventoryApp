@@ -5,13 +5,16 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
 import com.example.inventory.extension.registerBarcodeReceiver
 import com.example.inventory.extension.toStringOrEmpty
 import com.example.inventory.service.BarcodeReceiver
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.zxing.integration.android.IntentIntegrator
 
 class BarcodeTest : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_barcode_test)
@@ -34,8 +37,26 @@ class BarcodeTest : AppCompatActivity() {
         findViewById<TextView>(R.id.valueBarcodeLength).text = ""
         findViewById<TextView>(R.id.valueBarcodeType).text = ""
         findViewById<TextView>(R.id.valueBarcode).text = ""
+
+        loadPreferences()
     }
 
+    private fun scanWithCamera() {
+        run {
+            val integrator = IntentIntegrator(this@BarcodeTest)
+            integrator.setPrompt("Vonalkód beolvasás")
+            integrator.setOrientationLocked(true)
+            val formats = listOf(
+                IntentIntegrator.CODE_128,
+                IntentIntegrator.CODE_39,
+                IntentIntegrator.CODE_93,
+                IntentIntegrator.EAN_13,
+                IntentIntegrator.EAN_8
+            )
+            integrator.setDesiredBarcodeFormats(formats)
+            integrator.initiateScan()
+        }
+    }
 
     private val barcodeReceiver: BarcodeReceiver = object : BarcodeReceiver() {
         override fun onBarcodeReceived(barcode: String, format: String?) {
@@ -67,6 +88,10 @@ class BarcodeTest : AppCompatActivity() {
 
     private fun startBarcodeReceiver() {
         registerBarcodeReceiver(barcodeReceiver)
+    }
+
+    private fun loadPreferences() {
+        val useCamera = false
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

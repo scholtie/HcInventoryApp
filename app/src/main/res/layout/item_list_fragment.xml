@@ -21,6 +21,20 @@
     android:layout_margin="@dimen/margin"
     tools:context=".ItemListFragment">
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/textInputTestActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="@string/add_new_item"
+        android:src="@drawable/ic_baseline_qr_code_scanner_24"
+        app:backgroundTint="#FF9800"
+        app:layout_constraintBottom_toTopOf="@+id/barcodeTestActionButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="@android:color/white" />
+
     <TextView
         android:id="@+id/item_name"
         style="@style/Widget.Inventory.Header"

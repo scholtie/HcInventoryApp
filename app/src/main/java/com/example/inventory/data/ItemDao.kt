@@ -15,9 +15,11 @@
  */
 package com.example.inventory.data
 
+import android.R.string
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+
 
 /**
  * Database access object to access the Inventory database
@@ -25,19 +27,19 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ItemDao {
 
-    @get:Query("SELECT * FROM item ORDER BY name ASC")
+    @get:Query("SELECT * FROM item ORDER BY aruid ASC")
     val allItems: LiveData<List<Item>>
 
     @Query("delete from item")
     suspend fun clear()
 
-    @Query("select count(barcode) from item")
+    @Query("select count(vonalkod) from item")
     suspend fun getCount(): Int
 
     @Query("SELECT * FROM item")
     fun getAll(): List<Item>
 
-    @Query("SELECT * from item ORDER BY name ASC")
+    @Query("SELECT * from item ORDER BY aruid ASC")
     fun getItems(): Flow<List<Item>>
 
     @Query("SELECT * from item WHERE id = :id")
@@ -47,7 +49,7 @@ interface ItemDao {
 
     // Specify the conflict strategy as IGNORE, when the user tries to add an
     // existing Item into the database Room ignores the conflict.
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: Item)
 
     @Update
@@ -56,6 +58,9 @@ interface ItemDao {
     @Delete
     suspend fun delete(item: Item)
 
-    @Query("select * from item where quantity is not null")
+    @Query("select * from item where karton is not null")
     suspend fun findLeltarozott(): List<Item>
+
+    /*@Query("SELECT * from item WHERE name = :name AND barcode = :barcode")
+    fun getItemByNameAndBarcode(name: string, barcode: string): List<Item>*/
 }

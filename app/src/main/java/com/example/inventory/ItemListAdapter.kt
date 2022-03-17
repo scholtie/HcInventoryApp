@@ -17,14 +17,11 @@ package com.example.inventory
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.inventory.data.Item
-import com.example.inventory.data.getFormattedPrice
 import com.example.inventory.databinding.ItemListItemBinding
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
  * [ListAdapter] implementation for the recyclerview.
@@ -56,9 +53,9 @@ class ItemListAdapter(private val onItemClicked: (Item) -> Unit) :
 
         fun bind(item: Item) {
             binding.itemName.text =
-                item.itemName
-            binding.itemPrice.text = item.itemBarcode
-            binding.itemQuantity.text = item.quantityInStock.toString()
+                item.itemAruid.toString()
+            binding.itemPrice.text = item.itemVonalkod
+            binding.itemQuantity.text = item.itemKarton.toString()
         }
     }
 
@@ -69,7 +66,7 @@ class ItemListAdapter(private val onItemClicked: (Item) -> Unit) :
             }
 
             override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean {
-                return oldItem.itemName == newItem.itemName
+                return oldItem.itemAruid == newItem.itemAruid
             }
         }
     }

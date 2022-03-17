@@ -17,6 +17,7 @@ package com.example.inventory.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.text.NumberFormat
 
@@ -27,20 +28,18 @@ import java.text.NumberFormat
 data class Item(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    @ColumnInfo(name = "name")
-    val itemName: String,
-    @ColumnInfo(name = "barcode")
-    val itemBarcode: String,
-    @ColumnInfo(name = "price")
-    val itemPrice: Double,
-    @ColumnInfo(name = "quantity")
-    val quantityInStock: Int,
+    @ColumnInfo(name = "aruid")
+    val itemAruid: Int,
+    @ColumnInfo(name = "vonalkod")
+    val itemVonalkod: String,
+    @ColumnInfo(name = "karton")
+    val itemKarton: Int
 
 
 )
 /**
  * Returns the passed in price in currency format.
  */
-fun Item.getFormattedPrice(): String =
-    NumberFormat.getCurrencyInstance().format(itemPrice)
+/*fun Item.getFormattedPrice(): String =
+    NumberFormat.getCurrencyInstance().format(itemPrice)*/
 

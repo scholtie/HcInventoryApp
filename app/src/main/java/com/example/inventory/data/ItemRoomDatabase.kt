@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 /**
  * Database class with a singleton INSTANCE object.
  */
-@Database(entities = [Item::class, AllProducts::class], version = 15, exportSchema = false)
+@Database(entities = [Item::class, AllProducts::class], version = 23, exportSchema = false)
 abstract class ItemRoomDatabase : RoomDatabase() {
 
     abstract fun itemDao(): ItemDao
@@ -54,7 +54,7 @@ abstract class ItemRoomDatabase : RoomDatabase() {
                                 override fun onCreate(db: SupportSQLiteDatabase) {
                                     super.onCreate(db)
                                     Log.d("ItemRoomDatabase", "populating with data...")
-                                    GlobalScope.launch(Dispatchers.IO) { rePopulateDb(INSTANCE) }
+                                    //GlobalScope.launch(Dispatchers.IO) { rePopulateDb(INSTANCE) }
                                 }
                             }).fallbackToDestructiveMigration().build()
                     }

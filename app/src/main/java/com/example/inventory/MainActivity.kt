@@ -15,42 +15,26 @@
  */
 package com.example.inventory
 
-import android.content.Context
 import android.os.Bundle
 import android.os.Environment
-import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.*
-import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
-import com.example.inventory.data.Item
-import com.example.inventory.data.ItemDao
+import com.example.inventory.data.AllProducts
+import com.example.inventory.data.AllProductsDao
 import com.example.inventory.data.ItemRoomDatabase
-import com.example.inventory.data.rePopulateDb
-import com.example.inventory.extension.showToast
 import com.example.inventory.service.CSVWriter
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
-import java.io.File
-import java.io.FileWriter
-import kotlin.math.exp
+import java.io.*
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var navController: NavController
-    lateinit var allItems: List<Item>
-    private var shownFragment: Fragment? = null
+    /*lateinit var allItems: List<Item>
+    private var shownFragment: Fragment? = null*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,7 +65,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 true
             }
             R.id.action_export_to_csv_file -> {
-                exportDatabaseToCSVFile()
+                //exportDatabaseToCSVFile()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -94,7 +78,68 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun reCreateDatabase() {
         GlobalScope.launch(Dispatchers.IO) {
-            rePopulateDb(ItemRoomDatabase.getDatabase(this@MainActivity))
+            populateDb(ItemRoomDatabase.getDatabase(this@MainActivity))
+        }
+    }
+
+    suspend fun populateDb(database: ItemRoomDatabase?) {
+        database?.let { db ->
+            withContext(Dispatchers.IO) {
+                val allProductsDao: AllProductsDao = db.allProductsDao()
+
+                allProductsDao.clear()
+
+                val file = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "cikk.txt")
+                val text = StringBuilder()
+                var br: BufferedReader? = null
+                val characters =
+                    arrayOfNulls<String>(100000) //just an example - you have to initialize it to be big enough to hold all the lines!
+                try {
+                    br = BufferedReader(FileReader(file))
+                    var sCurrentLine: String?
+                    var i = 0
+                    while (br.readLine().also { sCurrentLine = it } != null) {
+                        val arr = sCurrentLine!!.split(";").toTypedArray()
+                        //for the first line it'll print
+                        //text.append("arr[id] = " + arr[0]) // 20000008
+                        //text.append(arr[1]) // username
+                        //text.append('\n')
+                        val products = AllProducts(
+                            productId = arr[0].toInt(),
+                            productCikkszam = arr[1],
+                            productCikknev = arr[3],
+                            productUtbeszar = arr[5].toInt(),
+                            productBrfogyar = arr[6].toInt(),
+                            productEgesz = arr[8].toInt(),
+                            productPlu = arr[9].toInt(),
+                            productPluszekcio = arr[10].toInt(),
+                            productAfaszaz = arr[11].toInt(),
+                            productBrfogyar2 = arr[12].toInt(),
+                            productBrfogyar3 = arr[13].toInt(),
+                            productBrfogyar4 = arr[14].toInt()
+                        )
+                        allProductsDao.insert(products)
+                        //text.append("arr[empty] = " + arr[2]) //
+                        //text.append("arr[false] = " + arr[3]) // false
+                        //text.append("arr[true] = " + arr[4]) // true
+
+                        //Now if you want to enter them into separate arrays
+                        characters[i] = arr[0]
+                        // and you can do the same with
+                        // names[1] = arr[1]
+                        //etc
+                        i++
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                } finally {
+                    try {
+                        br?.close();
+                    } catch (e: IOException) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
@@ -102,7 +147,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     {
         findViewById<FloatingActionButton>(R.id.deleteActionButton).setOnClickListener { view -> exportCSV() }
     }*/
-    private fun exportDatabaseToCSVFile() {
+    /*private fun exportDatabaseToCSVFile() {
         val csvFile = generateFile(this, "items.csv")
         if (csvFile != null) {
             ItemListFragment().exportDirectorsToCSVFile(csvFile)
@@ -112,7 +157,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         } else {
             Toast.makeText(this, getString(R.string.csv_file_not_generated_text), Toast.LENGTH_LONG).show()
         }
-    }
+    }*/
 
     private fun getCSVFileName() : String =
         "itemsdb.csv"

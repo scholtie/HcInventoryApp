@@ -1,3 +1,4 @@
+/*
 package com.example.inventory
 
 import android.content.Context
@@ -18,14 +19,18 @@ import java.lang.Exception
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+*/
 /*private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"*/
+private const val ARG_PARAM2 = "param2"*//*
 
+
+*/
 /**
  * A simple [Fragment] subclass.
  * Use the [AddAllProductsFragment.newInstance] factory method to
  * create an instance of this fragment.
- */
+ *//*
+
 class AddAllProductsFragment : Fragment() {
 
     private val viewModel: AllProductsViewModel by activityViewModels {
@@ -55,9 +60,11 @@ class AddAllProductsFragment : Fragment() {
         return binding.root
     }
 
-    /**
+    */
+/**
      * Returns true if the EditTexts are not empty
-     */
+     *//*
+
     private fun isEntryValid(): Boolean {
         return viewModel.isEntryValid(
             binding.itemName.text.toString(),
@@ -67,9 +74,11 @@ class AddAllProductsFragment : Fragment() {
         )
     }
 
-    /**
+    */
+/**
      * Binds views with the passed in [item] information.
-     */
+     *//*
+
     private fun bind(product: AllProducts) {
         val price = "%.2f".format(product.productPrice)
         binding.apply {
@@ -81,9 +90,11 @@ class AddAllProductsFragment : Fragment() {
         }
     }
 
-    /**
+    */
+/**
      * Inserts the new Item into database and navigates up to list fragment.
-     */
+     *//*
+
     private fun addNewItem() {
         if (isEntryValid()) {
             viewModel.addNewItem(
@@ -97,9 +108,11 @@ class AddAllProductsFragment : Fragment() {
         }
     }
 
-    /**
+    */
+/**
      * Updates an existing Item in the database and navigates up to list fragment.
-     */
+     *//*
+
     private fun updateItem() {
         if (isEntryValid()) {
             viewModel.updateAllProducts(
@@ -129,12 +142,14 @@ class AddAllProductsFragment : Fragment() {
             }
     }
 
-    /**
+    */
+/**
      * Called when the view is created.
      * The itemId Navigation argument determines the edit item  or add new item.
      * If the itemId is positive, this method retrieves the information from the database and
      * allows the user to update it.
-     */
+     *//*
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -153,9 +168,11 @@ class AddAllProductsFragment : Fragment() {
         }
     }
 
-    /**
+    */
+/**
      * Called before fragment is destroyed.
-     */
+     *//*
+
     override fun onDestroyView() {
         super.onDestroyView()
         // Hide keyboard.
@@ -164,4 +181,4 @@ class AddAllProductsFragment : Fragment() {
         inputMethodManager.hideSoftInputFromWindow(requireActivity().currentFocus?.windowToken, 0)
         _binding = null
     }
-}
+}*/

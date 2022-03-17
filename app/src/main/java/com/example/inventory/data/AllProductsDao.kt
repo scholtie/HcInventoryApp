@@ -8,13 +8,13 @@ interface AllProductsDao {
     @Query("SELECT * FROM allProducts")
     fun getAll(): List<AllProducts>
 
-    @Query("SELECT * from allProducts ORDER BY name ASC")
+    @Query("SELECT * from allProducts ORDER BY cikknev ASC")
     fun getItems(): Flow<List<AllProducts>>
 
-    @Query("SELECT * from allProducts WHERE id = :id")
+    @Query("SELECT * from allProducts WHERE productId = :id")
     fun getItem(id: Int): Flow<AllProducts>
 
-    @Query("SELECT * from allProducts WHERE barcode = :barcode")
+    @Query("SELECT * from allProducts WHERE cikknev = :barcode")
     fun searchBarcode(barcode: String): Flow<AllProducts>
 
     @Query("delete from allProducts")
@@ -23,7 +23,7 @@ interface AllProductsDao {
     // Specify the conflict strategy as IGNORE, when the user tries to add an
     // existing Item into the database Room ignores the conflict.
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(vararg allProducts: AllProducts)
+    suspend fun insert(vararg allProducts: com.example.inventory.data.AllProducts)
 
     @Update
     suspend fun update(allProduct: AllProducts)

@@ -21,7 +21,6 @@ import com.example.inventory.data.AllProducts
 import com.example.inventory.data.AllProductsDao
 import com.example.inventory.data.Item
 import kotlinx.coroutines.launch
-import java.io.Console
 
 /**
  * View Model to keep a reference to the Inventory repository and an up-to-date list of all items.
@@ -40,12 +39,32 @@ class AllProductsViewModel(private val allProductsDao: AllProductsDao) : ViewMod
      */
     fun updateAllProducts(
         productId: Int,
-        productName: String,
-        productBarcode: String,
-        productPrice: String,
-        productCount: String
+        productAfaszaz: Int,
+        productBrfogyar: Int,
+        productBrfogyar2: Int,
+        productBrfogyar3: Int,
+        productBrfogyar4: Int,
+        productCikknev: String,
+        productCikkszam: String,
+        productEgesz: Int,
+        productPlu: Int,
+        productPluszekcio: Int,
+        productUtbeszar: Int
     ) {
-        val updatedItem = getUpdatedItemEntry(productId, productName, productBarcode, productPrice, productCount)
+        val updatedItem = getUpdatedItemEntry(
+            productId,
+            productAfaszaz,
+            productBrfogyar,
+            productBrfogyar2,
+            productBrfogyar3,
+            productBrfogyar4,
+            productCikknev,
+            productCikkszam,
+            productEgesz,
+            productPlu,
+            productPluszekcio,
+            productUtbeszar
+        )
         updateItem(updatedItem)
     }
 
@@ -66,8 +85,34 @@ class AllProductsViewModel(private val allProductsDao: AllProductsDao) : ViewMod
     /**
      * Inserts the new Item into database.
      */
-    fun addNewItem(productName: String, productBarcode: String, productPrice: String, productCount: String) {
-        val newItem = getNewItemEntry(productName, productBarcode, productPrice, productCount)
+    fun addNewItem(
+        productId: Int,
+        productAfaszaz: Int,
+        productBrfogyar: Int,
+        productBrfogyar2: Int,
+        productBrfogyar3: Int,
+        productBrfogyar4: Int,
+        productCikknev: String,
+        productCikkszam: String,
+        productEgesz: Int,
+        productPlu: Int,
+        productPluszekcio: Int,
+        productUtbeszar: Int
+    ) {
+        val newItem = getNewItemEntry(
+            productId,
+            productAfaszaz,
+            productBrfogyar,
+            productBrfogyar2,
+            productBrfogyar3,
+            productBrfogyar4,
+            productCikknev,
+            productCikkszam,
+            productEgesz,
+            productPlu,
+            productPluszekcio,
+            productUtbeszar
+        )
         insertItem(newItem)
     }
 
@@ -103,23 +148,57 @@ class AllProductsViewModel(private val allProductsDao: AllProductsDao) : ViewMod
     /**
      * Returns true if the EditTexts are not empty
      */
-    fun isEntryValid(productName: String, productBarcode: String, productPrice: String, productCount: String): Boolean {
-        if (productName.isBlank() || productBarcode.isBlank() || productPrice.isBlank() || productCount.isBlank()) {
+    /*fun isEntryValid(
+        productId: Int,
+        productAfaszaz: Int,
+        productBrfogyar: Int,
+        productBrfogyar2: Int,
+        productBrfogyar3: Int,
+        productBrfogyar4: Int,
+        productCikknev: String,
+        productCikkszam: Int,
+        productEgesz: Int,
+        productPlu: Int,
+        productPluszekcio: Int,
+        productUtbeszar: Int
+    ): Boolean {
+        if (productCikknev.isBlank() || productBarcode.isBlank() || productPrice.isBlank() || productCount.isBlank()) {
             return false
         }
         return true
-    }
+    }*/
 
     /**
      * Returns an instance of the [Item] entity class with the item info entered by the user.
      * This will be used to add a new entry to the Inventory database.
      */
-    private fun getNewItemEntry(productName: String, productBarcode: String, productPrice: String, productCount: String): AllProducts {
+    private fun getNewItemEntry(
+        productId: Int,
+        productAfaszaz: Int,
+        productBrfogyar: Int,
+        productBrfogyar2: Int,
+        productBrfogyar3: Int,
+        productBrfogyar4: Int,
+        productCikknev: String,
+        productCikkszam: String,
+        productEgesz: Int,
+        productPlu: Int,
+        productPluszekcio: Int,
+        productUtbeszar: Int
+    ): AllProducts {
         return AllProducts(
-            productName = productName,
-            productBarcode = productBarcode,
-            productPrice = productPrice.toDouble(),
-            productQuantityInStock = productCount.toInt()
+            productId = productId,
+            productAfaszaz = productAfaszaz,
+            productBrfogyar = productBrfogyar,
+            productBrfogyar2 = productBrfogyar2,
+            productBrfogyar3 = productBrfogyar3,
+            productBrfogyar4 = productBrfogyar4,
+            productCikknev = productCikknev,
+            productCikkszam = productCikkszam,
+            productEgesz = productEgesz,
+            productPlu = productPlu,
+            productPluszekcio = productPluszekcio,
+            productUtbeszar = productUtbeszar
         )
     }
 
@@ -129,17 +208,31 @@ class AllProductsViewModel(private val allProductsDao: AllProductsDao) : ViewMod
      */
     private fun getUpdatedItemEntry(
         productId: Int,
-        productName: String,
-        productBarcode: String,
-        productPrice: String,
-        productCount: String
+        productAfaszaz: Int,
+        productBrfogyar: Int,
+        productBrfogyar2: Int,
+        productBrfogyar3: Int,
+        productBrfogyar4: Int,
+        productCikknev: String,
+        productCikkszam: String,
+        productEgesz: Int,
+        productPlu: Int,
+        productPluszekcio: Int,
+        productUtbeszar: Int
     ): AllProducts {
         return AllProducts(
-            id = productId,
-            productName = productName,
-            productBarcode = productBarcode,
-            productPrice = productPrice.toDouble(),
-            productQuantityInStock = productCount.toInt()
+            productId = productId,
+            productAfaszaz = productAfaszaz,
+            productBrfogyar = productBrfogyar,
+            productBrfogyar2 = productBrfogyar2,
+            productBrfogyar3 = productBrfogyar3,
+            productBrfogyar4 = productBrfogyar4,
+            productCikknev = productCikknev,
+            productCikkszam = productCikkszam,
+            productEgesz = productEgesz,
+            productPlu = productPlu,
+            productPluszekcio = productPluszekcio,
+            productUtbeszar = productUtbeszar
         )
     }
 }

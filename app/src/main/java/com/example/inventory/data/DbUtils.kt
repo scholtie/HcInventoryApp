@@ -3,12 +3,15 @@ package com.example.inventory.data
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+/*
 suspend fun rePopulateDb(database: ItemRoomDatabase?) {
     database?.let { db ->
         withContext(Dispatchers.IO) {
             val allProductsDao: AllProductsDao = db.allProductsDao()
 
             allProductsDao.clear()
+
+
 
             val productOne = AllProducts(productName = "Product1", productQuantityInStock = 6, productBarcode = "testest", productPrice = 5000.0)
             val productTwo = AllProducts(productName = "Product2", productQuantityInStock = 9, productBarcode = "testest2", productPrice = 7000.0)
@@ -17,4 +20,4 @@ suspend fun rePopulateDb(database: ItemRoomDatabase?) {
             allProductsDao.insert(productOne, productTwo, productThree, productFour)
         }
     }
-}
+}*/

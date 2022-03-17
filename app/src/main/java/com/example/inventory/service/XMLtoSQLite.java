@@ -99,8 +99,9 @@ public class XMLtoSQLite extends SQLiteOpenHelper {
         }
     }
 
-    */
-/* Update database to latest version *//*
+ */
+/*Update database to latest version *//*
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -118,4 +119,5 @@ public class XMLtoSQLite extends SQLiteOpenHelper {
 
     }
 
-}*/
+}
+*/

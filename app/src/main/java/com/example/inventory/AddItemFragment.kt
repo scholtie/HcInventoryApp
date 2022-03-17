@@ -15,7 +15,6 @@
  */
 package com.example.inventory
 
-import android.R
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -71,7 +70,7 @@ class AddItemFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentAddItemBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -92,22 +91,27 @@ class AddItemFragment : Fragment() {
      * Binds views with the passed in [item] information.
      */
     private fun bind(item: Item) {
-        val price = "%.2f".format(item.itemPrice)
+        //val price = "%.2f".format(item.itemPrice)
         binding.apply {
-            itemName.setText(item.itemName, TextView.BufferType.SPANNABLE)
-            itemBarcode.setText(item.itemBarcode, TextView.BufferType.SPANNABLE)
-            itemPrice.setText(price, TextView.BufferType.SPANNABLE)
-            itemCount.setText(item.quantityInStock.toString(), TextView.BufferType.SPANNABLE)
+            itemName.setText(item.itemAruid, TextView.BufferType.SPANNABLE)
+            itemBarcode.setText(item.itemVonalkod, TextView.BufferType.SPANNABLE)
+            itemPrice.setText(item.id, TextView.BufferType.SPANNABLE)
+            itemCount.setText(item.itemKarton.toString(), TextView.BufferType.SPANNABLE)
             saveAction.setOnClickListener { updateItem() }
-            btnIncreaseQuantity.setOnClickListener { increaseQuantity() }
-            btnDecreaseQuantity.setOnClickListener { decreaseQuantity() }
+            /*btnIncreaseQuantity.setOnClickListener { increaseQuantity() }
+            btnDecreaseQuantity.setOnClickListener { decreaseQuantity() }*/
             showItemWithBarcodeAction.setOnClickListener{ showItemWithBarcode() }
+            itemBarcode.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    showItemWithBarcode()
+                }
+            }
         }
     }
 
     private fun bindBarcode(barcode: AllProducts) {
-        binding.apply { itemName.setText(barcode.productName, TextView.BufferType.SPANNABLE)
-            itemPrice.setText(barcode.productPrice.toString(), TextView.BufferType.SPANNABLE)
+        binding.apply { itemName.setText(barcode.productCikknev, TextView.BufferType.SPANNABLE)
+            itemPrice.setText(barcode.productBrfogyar.toString(), TextView.BufferType.SPANNABLE)
         }
     }
 
@@ -123,10 +127,9 @@ class AddItemFragment : Fragment() {
                         barcode = barcodeTest
                         //bindBarcode(barcode)
                         viewModel.addNewItem(
-                            binding.itemName.text.toString(),
+                            binding.itemName.text.toString().toInt(),
                             binding.itemBarcode.text.toString(),
-                            binding.itemPrice.text.toString(),
-                            binding.itemCount.text.toString(),
+                            binding.itemCount.text.toString().toInt(),
                         )
                         val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
                         findNavController().navigate(action)
@@ -149,10 +152,9 @@ class AddItemFragment : Fragment() {
         if (isEntryValid()) {
             viewModel.updateItem(
                 this.navigationArgs.itemId,
-                this.binding.itemName.text.toString(),
+                this.binding.itemName.text.toString().toInt(),
                 this.binding.itemBarcode.text.toString(),
-                this.binding.itemPrice.text.toString(),
-                this.binding.itemCount.text.toString()
+                this.binding.itemCount.text.toString().toInt()
             )
             val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
             findNavController().navigate(action)

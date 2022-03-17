@@ -16,28 +16,23 @@
 
 package com.example.inventory
 
+import android.content.Context
 import android.os.Bundle
-import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.room.RoomMasterTable.TABLE_NAME
 import com.example.inventory.data.Item
-import com.example.inventory.data.ItemDao
-import com.example.inventory.data.ItemRoomDatabase
 import com.example.inventory.databinding.ItemListFragmentBinding
-import com.example.inventory.service.CSVWriter
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.io.*
+import java.io.File
+
 
 /**
  * Main fragment displaying details for all items in the database.
@@ -47,7 +42,7 @@ class ItemListFragment : Fragment() {
     lateinit var item: Item
     //private lateinit var inventoryViewModel: InventoryViewModel
     private lateinit var allItems: List<Item>
-    val args:ItemListFragmentArgs by navArgs()
+    private val args:ItemListFragmentArgs by navArgs()
     //abstract val allItems:List<Item>
 
     private val viewModel: InventoryViewModel by activityViewModels {
@@ -73,7 +68,7 @@ class ItemListFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = ItemListFragmentBinding.inflate(inflater, container, false)
         return binding.root
 
@@ -108,7 +103,7 @@ class ItemListFragment : Fragment() {
 
 
 
-        binding.floatingActionButton2.setOnClickListener { exportDatabaseToCSVFile() }
+        binding.floatingActionButton2.setOnClickListener { /*exportDatabaseToCSVFile()*/ }
         binding.floatingActionButton.setOnClickListener {
             val action = ItemListFragmentDirections.actionItemListFragmentToAddItemFragment(
                 getString(R.string.add_fragment_title)
@@ -116,14 +111,24 @@ class ItemListFragment : Fragment() {
             this.findNavController().navigate(action)
         }
         binding.barcodeTestActionButton.setOnClickListener {
-            val action = ItemListFragmentDirections.actionItemListFragmentToBarcodeTest()
+            val action = ItemListFragmentDirections.actionItemListFragmentToTestActivity()
             this.findNavController().navigate(action)
         }
-        binding.safeArgsTestText.setText(myUser)
+        binding.textInputTestActionButton.setOnClickListener {
+            val action = ItemListFragmentDirections.actionItemListFragmentToTextInputTest()
+            this.findNavController().navigate(action)
+        }
+
+
         /*binding.deleteActionButton.setOnClickListener {
             showExportConfirmationDialog()
         }*/
-        if (myUser == "Saturn" ){binding.floatingActionButton.isEnabled = false }
+
+        val sharedPreferences = this.requireActivity().getSharedPreferences("Users", Context.MODE_PRIVATE)
+        val user: String? = sharedPreferences.getString("user", "noUser")
+
+        binding.safeArgsTestText.setText(user)
+        if (user == "Saturn" ){binding.floatingActionButton.isEnabled = false }
         binding.deleteActionButton.setOnClickListener { showExportConfirmationDialog() }
         binding.allItemsDbButton.setOnClickListener {
             val action = ItemListFragmentDirections.actionItemListFragmentToAddAllProductsFragment()
@@ -218,7 +223,7 @@ class ItemListFragment : Fragment() {
     private fun getCSVFileName() : String =
         "itemsdb.csv"*/
 
-    private fun exportDatabaseToCSVFile() {
+    /*private fun exportDatabaseToCSVFile() {
         val csvFile = generateFile(requireContext(), "items.csv")
         if (csvFile != null) {
             ItemListFragment().exportDirectorsToCSVFile(csvFile)
@@ -228,9 +233,9 @@ class ItemListFragment : Fragment() {
         } else {
             Toast.makeText(requireContext(), getString(R.string.csv_file_not_generated_text), Toast.LENGTH_LONG).show()
         }
-    }
+    }*/
 
-    fun exportDirectorsToCSVFile(csvFile: File) {
+    /*fun exportDirectorsToCSVFile(csvFile: File) {
         viewModel.allItems.observe(this.viewLifecycleOwner) { items ->
             items.let {
                 allItems = items
@@ -244,6 +249,6 @@ class ItemListFragment : Fragment() {
                 writeRow(listOf(index, item.itemName, item.itemBarcode, item.itemPrice, item.quantityInStock))
             }
         }
-    }
+    }*/
 
 }
