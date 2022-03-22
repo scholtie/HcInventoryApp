@@ -55,18 +55,6 @@
                       </LayoutPositions>
                     </value>
                   </entry>
-                  <entry key="barcodeTest">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="346" />
-                            <option name="y" value="410" />
-                          </Point>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
                   <entry key="itemDetailFragment">
                     <value>
                       <LayoutPositions>
@@ -109,11 +97,6 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="action_itemListFragment_to_barcodeTest">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
                             <entry key="action_itemListFragment_to_itemDetailFragment">
                               <value>
                                 <LayoutPositions />
@@ -124,7 +107,7 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="action_itemListFragment_to_testActivity">
+                            <entry key="action_itemListFragment_to_textInputTest">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -160,8 +143,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="1" />
-                            <option name="y" value="535" />
+                            <option name="x" value="273" />
+                            <option name="y" value="487" />
                           </Point>
                         </option>
                       </LayoutPositions>

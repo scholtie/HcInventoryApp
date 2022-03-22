@@ -30,9 +30,6 @@
         <action
             android:id="@+id/action_itemListFragment_to_addItemFragment"
             app:destination="@id/addItemFragment" />
-        <action
-            android:id="@+id/action_itemListFragment_to_barcodeTest"
-            app:destination="@id/barcodeTest" />
         <argument
             android:name="user"
             app:argType="string"
@@ -46,6 +43,9 @@
         <action
             android:id="@+id/action_itemListFragment_to_textInputTest"
             app:destination="@id/textInputTest" />
+        <action
+            android:id="@+id/action_itemListFragment_to_testActivity"
+            app:destination="@id/testActivity" />
     </fragment>
     <fragment
         android:id="@+id/itemDetailFragment"
@@ -80,10 +80,6 @@
             android:id="@+id/action_addItemFragment_to_addAllProductsFragment"
             app:destination="@id/addAllProductsFragment" />
     </fragment>
-    <activity
-        android:id="@+id/barcodeTest"
-        android:name="com.example.inventory.BarcodeTest"
-        android:label="BarcodeTest" />
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.inventory.LoginFragment"
@@ -114,4 +110,8 @@
         android:name="com.example.inventory.TextInputTest"
         android:label="activity_text_input_test"
         tools:layout="@layout/activity_text_input_test" />
+    <activity
+        android:id="@+id/testActivity"
+        android:name="com.example.inventory.TestActivity"
+        android:label="TestActivity" />
 </navigation>

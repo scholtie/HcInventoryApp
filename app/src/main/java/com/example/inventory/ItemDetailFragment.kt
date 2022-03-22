@@ -58,7 +58,7 @@ class ItemDetailFragment : Fragment() {
      */
     private fun bind(item: Item) {
         binding.apply {
-            itemName.text = item.itemAruid.toString()
+            itemName.text = item.itemArunev
             itemPrice.text = item.itemUserid.toString()
             itemCount.text = item.itemMennyiseg.toString()
             deleteItem.setOnClickListener { showConfirmationDialog() }

@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.isInvisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -71,7 +72,6 @@ class AddItemFragment : Fragment() {
     lateinit var barcode: AllProducts
     lateinit var barcodeVonalkod: Vonalkod
     private var quantity: Int = 0
-    private lateinit var itemsList: List<Item>
     private lateinit var itemListAdapter: ItemListAdapter
 
 
@@ -83,7 +83,6 @@ class AddItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initData()
     }
 
     override fun onCreateView(
@@ -112,71 +111,32 @@ class AddItemFragment : Fragment() {
     private fun bind(item: Item) {
         //val price = "%.2f".format(item.itemPrice)
         binding.apply {
-            itemName.setText(item.itemAruid, TextView.BufferType.SPANNABLE)
-            itemBarcode.setText(item.itemTarolohelyid, TextView.BufferType.SPANNABLE)
-            itemPrice.setText(item.itemDatum.toString(), TextView.BufferType.SPANNABLE)
-            itemCount.setText(item.itemMennyiseg, TextView.BufferType.SPANNABLE)
+            //itemName.setText(item.itemAruid, TextView.BufferType.SPANNABLE)
+            //itemBarcode.setText(item.itemTarolohelyid, TextView.BufferType.SPANNABLE)
+            //itemPrice.setText(item.itemDatum.toString(), TextView.BufferType.SPANNABLE)
+            itemCount.setText(item.itemMennyiseg.toString(), TextView.BufferType.SPANNABLE)
             saveAction.setOnClickListener { updateItem() }
             /*btnIncreaseQuantity.setOnClickListener { increaseQuantity() }
             btnDecreaseQuantity.setOnClickListener { decreaseQuantity() }*/
             showItemWithBarcodeAction.setOnClickListener{ showItemWithBarcode() }
-            itemBarcode.setOnFocusChangeListener { _, hasFocus ->
+            /*itemBarcode.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) {
                     showItemWithBarcode()
                 }
-            }
-
-        }
-    }
-
-    private fun initData() {
-        viewModel.allItems.observe(this,
-            Observer { items: List<Item> ->
-                itemsList = items
-            }
-        )
-
-        viewModel.allItems.observe(this,
-            Observer { _ ->
-                // we need to refresh the movies list in case when director's name changed
-                viewModel.allItems.value?.let {
-                    itemsList = it
-                }
-            }
-        )
-    }
-
-    private fun exportDatabaseToCSVFile() {
-        val csvFile = generateFile(requireContext(), "items.txt")
-        if (csvFile != null) {
-            (exportToCSVFile(csvFile))
-            Toast.makeText(requireContext(), getString(R.string.csv_file_generated_text), Toast.LENGTH_LONG).show()
-            //val intent = goToFileIntent(requireContext(), csvFile)
-            //startActivity(intent)
-        } else {
-            Toast.makeText(requireContext(), getString(R.string.csv_file_not_generated_text), Toast.LENGTH_LONG).show()
-        }
-    }
-
-    fun exportToCSVFile(csvFile: File) {
-        //csvWriter { delimiter= ';' }
-        csvWriter{delimiter=';'}.open(csvFile, append = false) {
-            // Header
-            //writeRow(listOf("[id]", "[${Item.TABLE_NAME}]"))
-            itemsList.forEachIndexed { _, item ->
-                writeRow(listOf(item.id, item.itemAruid, item.itemUserid, item.itemMennyiseg))
-            }
+            }*/
+            itemBarcode.isEnabled = false
         }
     }
 
     private fun bindBarcode(barcodeVonalkod: Vonalkod) {
-        binding.apply { itemName.setText(barcodeVonalkod.vonalkodAruid.toString(), TextView.BufferType.SPANNABLE)
+        binding.apply { txtName.setText(barcodeVonalkod.vonalkodAruid.toString(), TextView.BufferType.SPANNABLE)
         }
     }
 
     private fun bindAruid(aruid: AllProducts) {
-        binding.apply { itemName.setText(aruid.productCikknev, TextView.BufferType.SPANNABLE)
-        itemPrice.setText(aruid.productBrfogyar.toString(), TextView.BufferType.SPANNABLE)}
+        binding.apply { txtName.setText(aruid.productCikknev, TextView.BufferType.SPANNABLE)
+        txtPrice.setText(aruid.productBrfogyar.toString() + " Ft", TextView.BufferType.SPANNABLE)
+        txtAruid.setText(aruid.productId.toString(), TextView.BufferType.SPANNABLE)}
     }
 
     /**
@@ -197,6 +157,7 @@ class AddItemFragment : Fragment() {
                                     barcode = aruid
                                     viewModel.addNewItem(
                                         barcode.productId,
+                                        aruid.productCikknev,
                                         binding.itemCount.text.toString().toInt(),
                                         10.0,
                                         "testTarolohely",
@@ -231,12 +192,13 @@ class AddItemFragment : Fragment() {
         if (isEntryValid()) {
             viewModel.updateItem(
                 this.navigationArgs.itemId,
-                42341,
+                item.itemAruid,
+                item.itemArunev,
                 binding.itemCount.text.toString().toInt(),
-                10.0,
-                "testTarolohely",
-                2,
-                false
+                item.itemDatum,
+                item.itemTarolohelyid,
+                item.itemUserid,
+                item.itemIker
             )
             val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
             findNavController().navigate(action)
@@ -246,15 +208,6 @@ class AddItemFragment : Fragment() {
         }
     }
 
-    private fun increaseQuantity(){
-        quantity += 1
-        binding.itemCount.setText(quantity.toString())
-    }
-
-    private fun decreaseQuantity(){
-        quantity -= 1
-        binding.itemCount.setText(quantity.toString())
-    }
     private fun showItemWithBarcode() {
         val barcodeValue = binding.itemBarcode.text.toString()
         if (barcodeValue.isNotEmpty())
@@ -329,7 +282,7 @@ class AddItemFragment : Fragment() {
             binding.showItemWithBarcodeAction.setOnClickListener {
                 showItemWithBarcode()
             }
-            binding.btnExportCSV.setOnClickListener { exportDatabaseToCSVFile() }
+            //binding.btnExportCSV.setOnClickListener { exportDatabaseToCSVFile() }
         }
 
     }

@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,6 +33,8 @@ import com.example.inventory.databinding.ItemListFragmentBinding
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 /**
@@ -53,6 +56,7 @@ class ItemListFragment : Fragment() {
 
     private var _binding: ItemListFragmentBinding? = null
     private val binding get() = _binding!!
+    private lateinit var itemsList: List<Item>
 
     /*override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +67,11 @@ class ItemListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         //initData()
     }*/
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        initData()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -103,7 +112,7 @@ class ItemListFragment : Fragment() {
 
 
 
-        binding.floatingActionButton2.setOnClickListener { /*exportDatabaseToCSVFile()*/ }
+        //binding.floatingActionButton2.setOnClickListener { /*exportDatabaseToCSVFile()*/ }
         binding.floatingActionButton.setOnClickListener {
             val action = ItemListFragmentDirections.actionItemListFragmentToAddItemFragment(
                 getString(R.string.add_fragment_title)
@@ -111,13 +120,13 @@ class ItemListFragment : Fragment() {
             this.findNavController().navigate(action)
         }
         binding.barcodeTestActionButton.setOnClickListener {
-            /*val action = ItemListFragmentDirections.actionItemListFragmentToTestActivity()
-            this.findNavController().navigate(action)*/
-        }
-        binding.textInputTestActionButton.setOnClickListener {
-            val action = ItemListFragmentDirections.actionItemListFragmentToTextInputTest()
+            val action = ItemListFragmentDirections.actionItemListFragmentToTestActivity()
             this.findNavController().navigate(action)
         }
+        /*binding.textInputTestActionButton.setOnClickListener {
+            val action = ItemListFragmentDirections.actionItemListFragmentToTextInputTest()
+            this.findNavController().navigate(action)
+        }*/
 
 
         /*binding.deleteActionButton.setOnClickListener {
@@ -137,13 +146,57 @@ class ItemListFragment : Fragment() {
         }
     }
 
+    private fun initData() {
+        viewModel.allItems.observe(this,
+            Observer { items: List<Item> ->
+                itemsList = items
+            }
+        )
+
+        viewModel.allItems.observe(this,
+            Observer { _ ->
+                // we need to refresh the movies list in case when director's name changed
+                viewModel.allItems.value?.let {
+                    itemsList = it
+                }
+            }
+        )
+    }
+
+    private fun exportDatabaseToCSVFile() {
+        val csvFile = generateFile(requireContext(), "items.txt")
+        if (csvFile != null) {
+            (exportToCSVFile(csvFile))
+            Toast.makeText(requireContext(), getString(R.string.csv_file_generated_text), Toast.LENGTH_LONG).show()
+            //val intent = goToFileIntent(requireContext(), csvFile)
+            //startActivity(intent)
+        } else {
+            Toast.makeText(requireContext(), getString(R.string.csv_file_not_generated_text), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun exportToCSVFile(csvFile: File) {
+        //csvWriter { delimiter= ';' }
+        val sdf = SimpleDateFormat("dd/M/yyyy")
+        val currentDate = sdf.format(Date())
+        csvWriter{delimiter=';'}.open(csvFile, append = false) {
+            // Header
+            //writeRow(listOf("[id]", "[${Item.TABLE_NAME}]"))
+            itemsList.forEachIndexed { _, item ->
+                writeRow(listOf(item.itemAruid, item.itemTarolohelyid ,item.itemMennyiseg, item.itemUserid, item.itemDatum , item.itemIker))
+            }
+        }
+
+    }
+
+
     private fun showExportConfirmationDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(android.R.string.dialog_alert_title))
             .setMessage(getString(R.string.export_question))
             .setCancelable(false)
             .setNegativeButton(getString(R.string.no)) { _, _ -> }
-            .setPositiveButton(getString(R.string.yes)) { _, _ ->
+            .setPositiveButton(getString(R.string.yes)) { _, _ -> exportDatabaseToCSVFile()
             }
             .show()
     }

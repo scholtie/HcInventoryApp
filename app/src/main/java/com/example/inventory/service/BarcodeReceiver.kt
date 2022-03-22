@@ -1,10 +1,10 @@
-/*
+
 package com.example.inventory.service
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.example.inventory.datawedge.DataWedgeInterface
+import com.example.inventory.DataWedgeInterface
 
 abstract class BarcodeReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -20,4 +20,4 @@ abstract class BarcodeReceiver : BroadcastReceiver() {
     }
 
     abstract fun onBarcodeReceived(barcode: String, format: String?)
-}*/
+}

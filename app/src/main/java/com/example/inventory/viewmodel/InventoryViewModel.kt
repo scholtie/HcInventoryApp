@@ -50,13 +50,14 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
     fun updateItem(
         itemId: Int,
         itemAruid: Int,
+        itemArunev: String,
         itemMennyiseg: Int,
         itemDatum: Double,
         itemTarolohelyid: String,
         itemUserid: Int,
         itemIker: Boolean
     ) {
-        val updatedItem = getUpdatedItemEntry(itemId, itemAruid, itemMennyiseg, itemDatum, itemTarolohelyid, itemUserid, itemIker)
+        val updatedItem = getUpdatedItemEntry(itemId, itemAruid, itemArunev , itemMennyiseg, itemDatum, itemTarolohelyid, itemUserid, itemIker)
         updateItem(updatedItem)
     }
 
@@ -89,12 +90,13 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
      * Inserts the new Item into database.
      */
     fun addNewItem(itemAruid: Int,
+                   itemArunev: String,
                    itemMennyiseg: Int,
                    itemDatum: Double,
                    itemTarolohelyid: String,
                    itemUserid: Int,
                    itemIker: Boolean) {
-        val newItem = getNewItemEntry(itemAruid, itemMennyiseg, itemDatum, itemTarolohelyid, itemUserid, itemIker)
+        val newItem = getNewItemEntry(itemAruid, itemArunev, itemMennyiseg, itemDatum, itemTarolohelyid, itemUserid, itemIker)
         insertItem(newItem)
     }
 
@@ -145,6 +147,7 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
      * This will be used to add a new entry to the Inventory database.
      */
     private fun getNewItemEntry(itemAruid: Int,
+                                itemArunev: String,
                                 itemMennyiseg: Int,
                                 itemDatum: Double,
                                 itemTarolohelyid: String,
@@ -152,6 +155,7 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
                                 itemIker: Boolean): Item {
         return Item(
             itemAruid = itemAruid,
+            itemArunev = itemArunev,
             itemMennyiseg = itemMennyiseg,
             itemDatum = itemDatum,
             itemTarolohelyid = itemTarolohelyid,
@@ -167,6 +171,7 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
     private fun getUpdatedItemEntry(
         itemId: Int,
         itemAruid: Int,
+        itemArunev: String,
         itemMennyiseg: Int,
         itemDatum: Double,
         itemTarolohelyid: String,
@@ -176,6 +181,7 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
         return Item(
             id = itemId,
             itemAruid = itemAruid,
+            itemArunev = itemArunev,
             itemMennyiseg = itemMennyiseg,
             itemDatum = itemDatum,
             itemTarolohelyid = itemTarolohelyid,
