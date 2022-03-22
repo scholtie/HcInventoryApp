@@ -17,9 +17,11 @@
 package com.example.inventory
 
 import androidx.lifecycle.*
+import com.example.inventory.data.AllProducts
 import com.example.inventory.data.Item
 import com.example.inventory.data.ItemDao
 import kotlinx.coroutines.launch
+import java.util.*
 
 /**
  * View Model to keep a reference to the Inventory repository and an up-to-date list of all items.
@@ -28,14 +30,14 @@ import kotlinx.coroutines.launch
 class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
 
     // Cache all items form the database using LiveData.
-    val allItems: LiveData<List<Item>> = itemDao.getItems().asLiveData()
+    val allItems: LiveData<List<Item>> = itemDao.getItems()
     //val itemsList: LiveData<List<Item>>
 
     /**
      * Returns true if stock is available to sell, false otherwise.
      */
     fun isStockAvailable(item: Item): Boolean {
-        return (item.itemKarton > 0)
+        return (item.itemMennyiseg > 0)
     }
 
     /*init {
@@ -48,10 +50,13 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
     fun updateItem(
         itemId: Int,
         itemAruid: Int,
-        itemVonalkod: String,
-        itemKarton: Int
+        itemMennyiseg: Int,
+        itemDatum: Double,
+        itemTarolohelyid: String,
+        itemUserid: Int,
+        itemIker: Boolean
     ) {
-        val updatedItem = getUpdatedItemEntry(itemId, itemAruid, itemVonalkod, itemKarton)
+        val updatedItem = getUpdatedItemEntry(itemId, itemAruid, itemMennyiseg, itemDatum, itemTarolohelyid, itemUserid, itemIker)
         updateItem(updatedItem)
     }
 
@@ -65,13 +70,17 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
         }
     }
 
+    fun retrieveMatchingAruid(vonalkod: Int): LiveData<Item>{
+        return itemDao.searchBarcodeByAruid(vonalkod).asLiveData()
+    }
+
     /**
      * Decreases the stock by one unit and updates the database.
      */
     fun sellItem(item: Item) {
-        if (item.itemKarton > 0) {
+        if (item.itemMennyiseg > 0) {
             // Decrease the quantity by 1
-            val newItem = item.copy(itemKarton = item.itemKarton - 1)
+            val newItem = item.copy(itemMennyiseg = item.itemMennyiseg - 1)
             updateItem(newItem)
         }
     }
@@ -80,9 +89,12 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
      * Inserts the new Item into database.
      */
     fun addNewItem(itemAruid: Int,
-                   itemVonalkod: String,
-                   itemKarton: Int) {
-        val newItem = getNewItemEntry(itemAruid, itemVonalkod, itemKarton)
+                   itemMennyiseg: Int,
+                   itemDatum: Double,
+                   itemTarolohelyid: String,
+                   itemUserid: Int,
+                   itemIker: Boolean) {
+        val newItem = getNewItemEntry(itemAruid, itemMennyiseg, itemDatum, itemTarolohelyid, itemUserid, itemIker)
         insertItem(newItem)
     }
 
@@ -120,8 +132,9 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
     /**
      * Returns true if the EditTexts are not empty
      */
-    fun isEntryValid(itemName: String, itemBarcode: String, itemPrice: String, itemCount: String): Boolean {
-        if (itemName.isBlank() || itemBarcode.isBlank() || itemPrice.isBlank() || itemCount.isBlank()) {
+    fun isEntryValid(
+                     itemMennyiseg: String ): Boolean {
+        if (itemMennyiseg.toString().isBlank()) {
             return false
         }
         return true
@@ -132,12 +145,18 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
      * This will be used to add a new entry to the Inventory database.
      */
     private fun getNewItemEntry(itemAruid: Int,
-                                itemVonalkod: String,
-                                itemKarton: Int): Item {
+                                itemMennyiseg: Int,
+                                itemDatum: Double,
+                                itemTarolohelyid: String,
+                                itemUserid: Int,
+                                itemIker: Boolean): Item {
         return Item(
             itemAruid = itemAruid,
-            itemVonalkod = itemVonalkod,
-            itemKarton = itemKarton
+            itemMennyiseg = itemMennyiseg,
+            itemDatum = itemDatum,
+            itemTarolohelyid = itemTarolohelyid,
+            itemUserid = itemUserid,
+            itemIker = itemIker
         )
     }
 
@@ -148,14 +167,20 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
     private fun getUpdatedItemEntry(
         itemId: Int,
         itemAruid: Int,
-        itemVonalkod: String,
-        itemKarton: Int
+        itemMennyiseg: Int,
+        itemDatum: Double,
+        itemTarolohelyid: String,
+        itemUserid: Int,
+        itemIker: Boolean
     ): Item {
         return Item(
             id = itemId,
             itemAruid = itemAruid,
-            itemVonalkod = itemVonalkod,
-            itemKarton = itemKarton
+            itemMennyiseg = itemMennyiseg,
+            itemDatum = itemDatum,
+            itemTarolohelyid = itemTarolohelyid,
+            itemUserid = itemUserid,
+            itemIker = itemIker
         )
     }
 }

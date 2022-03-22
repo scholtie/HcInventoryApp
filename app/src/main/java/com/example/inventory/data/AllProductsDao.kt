@@ -14,8 +14,8 @@ interface AllProductsDao {
     @Query("SELECT * from allProducts WHERE productId = :id")
     fun getItem(id: Int): Flow<AllProducts>
 
-    @Query("SELECT * from allProducts WHERE cikknev = :barcode")
-    fun searchBarcode(barcode: String): Flow<AllProducts>
+    @Query("SELECT * from allProducts WHERE productId = :productid")
+    fun searchBarcode(productid: Int): Flow<AllProducts>
 
     @Query("delete from allProducts")
     suspend fun clear()

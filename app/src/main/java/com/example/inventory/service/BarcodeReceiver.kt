@@ -1,3 +1,4 @@
+/*
 package com.example.inventory.service
 
 import android.content.BroadcastReceiver
@@ -19,4 +20,4 @@ abstract class BarcodeReceiver : BroadcastReceiver() {
     }
 
     abstract fun onBarcodeReceived(barcode: String, format: String?)
-}
+}*/

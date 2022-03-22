@@ -1,3 +1,4 @@
+/*
 package com.example.inventory
 
 import android.app.Activity
@@ -9,7 +10,6 @@ import android.view.View
 import android.widget.TextView
 import com.example.inventory.extension.registerBarcodeReceiver
 import com.example.inventory.extension.toStringOrEmpty
-import com.example.inventory.service.BarcodeReceiver
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.zxing.integration.android.IntentIntegrator
 
@@ -105,4 +105,4 @@ class BarcodeTest : AppCompatActivity() {
             }
         }
     }
-}
+}*/

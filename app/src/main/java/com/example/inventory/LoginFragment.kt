@@ -4,7 +4,6 @@ import android.R
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,12 +11,16 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.inventory.data.ItemRoomDatabase
+import com.example.inventory.data.Users
 import com.example.inventory.databinding.FragmentLoginBinding
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileReader
-import java.io.IOException
+import com.example.inventory.viewmodel.UsersViewModel
+import com.example.inventory.viewmodel.UsersViewModelFactory
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -38,6 +41,13 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
+    private val usersViewModel : UsersViewModel by activityViewModels{
+        UsersViewModelFactory(
+            (activity?.application as InventoryApplication).database.
+            usersDao())
+    }
+    lateinit var user: Users
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -47,6 +57,7 @@ class LoginFragment : Fragment() {
 
     }
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -55,96 +66,63 @@ class LoginFragment : Fragment() {
         return binding.root
 
     }
+    private fun loadSpinnerData() {
+        lifecycleScope.launch {
+            val spinner: Spinner = binding.userSpinner
+            // database handler
+            val db = ItemRoomDatabase.getDatabase(requireContext())
+
+            // Spinner Drop down elements
+            val lables: List<String> = db.usersDao().getAllUserNames()
+
+            // Creating adapter for spinner
+            val dataAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
+                requireContext(),
+                R.layout.simple_spinner_item, lables
+            )
+
+            // Drop down layout style - list view with radio button
+            dataAdapter
+                .setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+
+            // attaching data adapter to spinner
+            spinner.setAdapter(dataAdapter)
+        }
+        binding.loginBtn.isEnabled = true
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val spinner: Spinner = binding.userSpinner
-        val file = File(this.requireActivity().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "ugyintezo.txt")
-        val text = StringBuilder()
-        var br: BufferedReader? = null
-        val characters =
-            arrayOfNulls<String>(1024) //just an example - you have to initialize it to be big enough to hold all the lines!
-        try {
-            br = BufferedReader(FileReader(file))
-            var sCurrentLine: String?
-            var i = 0
-            while (br.readLine().also { sCurrentLine = it } != null) {
-                val arr = sCurrentLine!!.split(";").toTypedArray()
-                //for the first line it'll print
-                //text.append("arr[id] = " + arr[0]) // 20000008
-                println(arr[1]) // username
-                /*text.append("arr[empty] = " + arr[2]) //
-                text.append("arr[false] = " + arr[3]) // false
-                text.append("arr[true] = " + arr[4]) // true*/
+        //val spinner: Spinner = binding.userSpinner
+        binding.btnLoadUsers.setOnClickListener { loadSpinnerData() }
 
-                val spinnerArrayAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
-                    requireContext(), R.layout.simple_spinner_dropdown_item,
-                    arr
-                ) //selected item will look like a spinner set from XML
-
-                spinnerArrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
-                spinner.adapter = spinnerArrayAdapter
-// Create an ArrayAdapter using the string array and a default spinner layout
-                /*ArrayAdapter.createFromResource(
-                    requireActivity(),
-                    R.array.roles_array,
-                    android.R.layout.simple_spinner_item
-                ).also { adapter ->
-                    // Specify the layout to use when the list of choices appears
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    // Apply the adapter to the spinner
-                    spinner.adapter = adapter
+                binding.loginBtn.setOnClickListener {
+                    val currentUser = binding.userSpinner.selectedItem.toString()
+                    usersViewModel.retrieveMatchingUser(currentUser)
+                        .observe(this.viewLifecycleOwner) { userid ->
+                            try {
+                                user = userid
+                                val sharedPreferences = this.requireActivity()
+                                    .getSharedPreferences("Users", Context.MODE_PRIVATE)
+                                val editor: SharedPreferences.Editor = sharedPreferences.edit()
+                                editor.putString("user", currentUser)
+                                editor.putString("id", user.userId.toString())
+                                editor.apply()
+                            } catch (e: Exception) {
+                                println("Nem talált termék")
+                            }
+                    if (binding.editPassword.text.toString() == "") {
+                        val action = LoginFragmentDirections.actionLoginFragmentToItemListFragment(
+                            currentUser
+                        )
+                        this.findNavController().navigate(action)
+                    } else {
+                        Toast.makeText(activity, "Hibás jelszó!", Toast.LENGTH_SHORT).show()
+                    }
                 }
-*/
-                //Now if you want to enter them into separate arrays
-                characters[i] = arr[0]
-                // and you can do the same with
-                // names[1] = arr[1]
-                //etc
-                i++
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } finally {
-            try {
-                br?.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-
-        /*val spinner: Spinner = binding.userSpinner
-// Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter.createFromResource(
-            requireActivity(),
-            R.array.roles_array,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            // Specify the layout to use when the list of choices appears
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // Apply the adapter to the spinner
-            spinner.adapter = adapter
-        }*/
-        binding.loginBtn.isEnabled = true
-
-
-
-        binding.loginBtn.setOnClickListener {
-            val currentUser = binding.userSpinner.selectedItem.toString()
-            if(binding.editPassword.text.toString() == "")
-            {
-                val action = LoginFragmentDirections.actionLoginFragmentToItemListFragment(currentUser)
-                this.findNavController().navigate(action)
-                val sharedPreferences = this.requireActivity().getSharedPreferences("Users", Context.MODE_PRIVATE)
-                val editor: SharedPreferences.Editor = sharedPreferences.edit()
-                editor.putString("user", currentUser)
-                editor.apply()
-            }
-            else{Toast.makeText(activity, "Hibás jelszó!", Toast.LENGTH_SHORT).show() }
-        }
     }
-
     companion object {
         /**
          * Use this factory method to create a new instance of

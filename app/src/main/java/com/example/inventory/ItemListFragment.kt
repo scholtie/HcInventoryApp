@@ -111,8 +111,8 @@ class ItemListFragment : Fragment() {
             this.findNavController().navigate(action)
         }
         binding.barcodeTestActionButton.setOnClickListener {
-            val action = ItemListFragmentDirections.actionItemListFragmentToTestActivity()
-            this.findNavController().navigate(action)
+            /*val action = ItemListFragmentDirections.actionItemListFragmentToTestActivity()
+            this.findNavController().navigate(action)*/
         }
         binding.textInputTestActionButton.setOnClickListener {
             val action = ItemListFragmentDirections.actionItemListFragmentToTextInputTest()
@@ -125,7 +125,8 @@ class ItemListFragment : Fragment() {
         }*/
 
         val sharedPreferences = this.requireActivity().getSharedPreferences("Users", Context.MODE_PRIVATE)
-        val user: String? = sharedPreferences.getString("user", "noUser")
+        val user: String? = sharedPreferences.getString("user", "nouser")
+        val userId: String? = sharedPreferences.getString("id", "noId")
 
         binding.safeArgsTestText.setText(user)
         if (user == "Saturn" ){binding.floatingActionButton.isEnabled = false }

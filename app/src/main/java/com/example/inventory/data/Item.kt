@@ -20,6 +20,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.text.NumberFormat
+import java.util.*
 
 /**
  * Entity data class represents a single row in the database.
@@ -30,13 +31,25 @@ data class Item(
     val id: Int = 0,
     @ColumnInfo(name = "aruid")
     val itemAruid: Int,
-    @ColumnInfo(name = "vonalkod")
-    val itemVonalkod: String,
-    @ColumnInfo(name = "karton")
-    val itemKarton: Int
+    @ColumnInfo(name = "tarolohelyid")
+    val itemTarolohelyid: String,
+    @ColumnInfo(name = "mennyiseg")
+    val itemMennyiseg: Int,
+    @ColumnInfo(name = "userid")
+    val itemUserid: Int,
+    @ColumnInfo(name = "datum")
+    val itemDatum: Double,
+    @ColumnInfo(name = "iker")
+    val itemIker: Boolean)
+{
+    companion object {
+        const val TABLE_NAME = "items"
+        const val TITLE = "title"
+        const val DIRECTOR_ID = "directorId"
+    }
+}
 
 
-)
 /**
  * Returns the passed in price in currency format.
  */

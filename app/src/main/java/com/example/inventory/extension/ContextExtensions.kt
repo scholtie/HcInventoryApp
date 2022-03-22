@@ -6,7 +6,6 @@ import android.content.IntentFilter
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import com.example.inventory.datawedge.PROFILE_INTENT_ACTION
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -48,7 +47,7 @@ fun Context.showToast(message: String) {
 
 fun Context.registerBarcodeReceiver(receiver: BroadcastReceiver) {
     val intentFilter = IntentFilter()
-    intentFilter.addAction(PROFILE_INTENT_ACTION)
+    //intentFilter.addAction(PROFILE_INTENT_ACTION)
     intentFilter.addCategory("android.intent.category.DEFAULT")
     this.registerReceiver(receiver, intentFilter)
 }

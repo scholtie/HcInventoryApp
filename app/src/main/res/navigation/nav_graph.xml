@@ -44,9 +44,6 @@
             android:id="@+id/action_itemListFragment_to_addAllProductsFragment"
             app:destination="@id/addAllProductsFragment" />
         <action
-            android:id="@+id/action_itemListFragment_to_testActivity"
-            app:destination="@id/testActivity" />
-        <action
             android:id="@+id/action_itemListFragment_to_textInputTest"
             app:destination="@id/textInputTest" />
     </fragment>
@@ -112,11 +109,6 @@
             app:nullable="true"
             android:defaultValue=" " />
     </fragment>
-    <activity
-        android:id="@+id/testActivity"
-        android:name="com.example.inventory.TestActivity"
-        android:label="activity_test"
-        tools:layout="@layout/activity_test" />
     <activity
         android:id="@+id/textInputTest"
         android:name="com.example.inventory.TextInputTest"

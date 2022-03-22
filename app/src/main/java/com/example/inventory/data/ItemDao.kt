@@ -33,17 +33,20 @@ interface ItemDao {
     @Query("delete from item")
     suspend fun clear()
 
-    @Query("select count(vonalkod) from item")
+    @Query("select count(iker) from item")
     suspend fun getCount(): Int
 
     @Query("SELECT * FROM item")
     fun getAll(): List<Item>
 
     @Query("SELECT * from item ORDER BY aruid ASC")
-    fun getItems(): Flow<List<Item>>
+    fun getItems(): LiveData<List<Item>>
 
     @Query("SELECT * from item WHERE id = :id")
     fun getItem(id: Int): Flow<Item>
+
+    @Query("SELECT * from item WHERE aruid = :aruid")
+    fun searchBarcodeByAruid(aruid: Int): Flow<Item>
 
 
 
@@ -58,7 +61,7 @@ interface ItemDao {
     @Delete
     suspend fun delete(item: Item)
 
-    @Query("select * from item where karton is not null")
+    @Query("select * from item where mennyiseg is not null")
     suspend fun findLeltarozott(): List<Item>
 
     /*@Query("SELECT * from item WHERE name = :name AND barcode = :barcode")
