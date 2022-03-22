@@ -22,6 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isInvisible
@@ -35,6 +36,7 @@ import com.example.inventory.data.AllProducts
 import com.example.inventory.data.Item
 import com.example.inventory.data.Vonalkod
 import com.example.inventory.databinding.FragmentAddItemBinding
+import com.example.inventory.service.DWUtilities
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
@@ -83,6 +85,8 @@ class AddItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DWUtilities.CreateDWProfile(requireContext())
+
     }
 
     override fun onCreateView(

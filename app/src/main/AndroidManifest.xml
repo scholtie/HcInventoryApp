@@ -13,27 +13,32 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.InventoryApp">
         <activity
+            android:name=".AddNewItemActivity"
+            android:exported="false" />
+        <activity
+            android:name=".NewItemActivity"
+            android:exported="false" />
+        <activity
             android:name=".TestActivity"
-            android:launchMode="singleTop"
-            android:exported="true">
-        <intent-filter>
-            <action android:name="com.darryncampbell.datawedge.kotlin.ACTION" />
-            <category android:name="android.intent.category.DEFAULT" />
-        </intent-filter>
-        </activity>
+            android:exported="true"
+            android:launchMode="singleTop" />
         <activity
             android:name=".TextInputTest"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleTop"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.darryncampbell.datawedge.kotlin.ACTION" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <provider

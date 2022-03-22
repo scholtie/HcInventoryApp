@@ -15,28 +15,24 @@
  */
 package com.example.inventory
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.*
-import androidx.activity.viewModels
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.inventory.data.*
-import com.example.inventory.service.CSVWriter
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import com.example.inventory.service.DWUtilities
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
-import java.io.*
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileReader
+import java.io.IOException
+
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
@@ -48,6 +44,24 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
         title = "HCLeltar"
+        DWUtilities.CreateDWProfile(this)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        displayScanResult(intent)
+    }
+
+    private fun displayScanResult(scanIntent: Intent) {
+        val decodedSource =
+            scanIntent.getStringExtra(resources.getString(R.string.datawedge_intent_key_source))
+        val decodedData =
+            scanIntent.getStringExtra(resources.getString(R.string.datawedge_intent_key_data))
+        val decodedLabelType =
+            scanIntent.getStringExtra(resources.getString(R.string.datawedge_intent_key_label_type))
+        val scan = "$decodedData"
+        val output = findViewById<EditText>(R.id.item_barcode)
+        output.setText(scan)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

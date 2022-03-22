@@ -9,6 +9,17 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin">
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnScanFloating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_baseline_qr_code_scanner_24" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/item_barcode_label"
             android:layout_width="match_parent"
@@ -50,8 +61,8 @@
 
         <Button
             android:id="@+id/save_action"
-            android:layout_width="379dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
             android:layout_marginTop="16dp"
             android:text="@string/save_action"
             app:layout_constraintEnd_toEndOf="parent"
@@ -60,11 +71,12 @@
 
         <Button
             android:id="@+id/showItemWithBarcode_action"
-            android:layout_width="379dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
             android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             android:text="@string/showItemWithBarcod_action"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/btnScanFloating"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/save_action" />
