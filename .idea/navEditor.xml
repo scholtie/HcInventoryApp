@@ -34,8 +34,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="165" />
-                            <option name="y" value="-360" />
+                            <option name="x" value="143" />
+                            <option name="y" value="-423" />
                           </Point>
                         </option>
                         <option name="myPositions">
@@ -51,6 +51,18 @@
                               </value>
                             </entry>
                           </map>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="addNewItemActivity">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="419" />
+                            <option name="y" value="-405" />
+                          </Point>
                         </option>
                       </LayoutPositions>
                     </value>
@@ -97,12 +109,22 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
+                            <entry key="action_itemListFragment_to_addNewItemActivity">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="action_itemListFragment_to_itemDetailFragment">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
                             <entry key="action_itemListFragment_to_loginFragment">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_itemListFragment_to_testActivity">
                               <value>
                                 <LayoutPositions />
                               </value>

@@ -22,6 +22,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.inventory.data.*
@@ -37,6 +39,7 @@ import java.io.IOException
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var navController: NavController
+    private var shownFragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,12 +47,24 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
         title = "HCLeltar"
-        DWUtilities.CreateDWProfile(this)
+        //DWUtilities.CreateDWProfile(this)
     }
 
-    override fun onNewIntent(intent: Intent) {
+    /*override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        *//*val test: AddItemFragment? =
+            supportFragmentManager.findFragmentById(R.id.addItemFragment) as AddItemFragment?
+        if (test != null && test.isVisible && test.isAdded) {
+            displayScanResult(intent)
+        } else {
+            Toast.makeText(this, "Vonalkód rossz helyen beolvasva!", Toast.LENGTH_SHORT).show()
+        }*//*
+        val fm: FragmentManager = supportFragmentManager
+        val fragment: AddItemFragment? =
+            fm.findFragmentById(R.id.addItemFragment) as? AddItemFragment
+        //if (fragment != null && fragment.isVisible)
         displayScanResult(intent)
+        //(shownFragment as AddItemFragment).showItemWithBarcode()
     }
 
     private fun displayScanResult(scanIntent: Intent) {
@@ -62,7 +77,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val scan = "$decodedData"
         val output = findViewById<EditText>(R.id.item_barcode)
         output.setText(scan)
-    }
+    }*/
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.overflow, menu)
@@ -80,7 +95,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 true
             }
             R.id.action_export_to_csv_file -> {
-                //exportDatabaseToCSVFile()
+                //shownFragment as? AddItemFragment)?.showItemWithBarcode()
+                /*val fm: FragmentManager = supportFragmentManager
+                val fragment: AddItemFragment? =
+                    fm.findFragmentById(R.id.addItemFragment) as? AddItemFragment
+                fragment?.showItemWithBarcode()*/
                 true
             }
             else -> super.onOptionsItemSelected(item)

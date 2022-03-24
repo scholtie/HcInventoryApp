@@ -120,7 +120,7 @@ class ItemListFragment : Fragment() {
             this.findNavController().navigate(action)
         }
         binding.barcodeTestActionButton.setOnClickListener {
-            val action = ItemListFragmentDirections.actionItemListFragmentToTestActivity()
+            val action = ItemListFragmentDirections.actionItemListFragmentToAddNewItemActivity()
             this.findNavController().navigate(action)
         }
         /*binding.textInputTestActionButton.setOnClickListener {

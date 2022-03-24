@@ -46,6 +46,9 @@
         <action
             android:id="@+id/action_itemListFragment_to_testActivity"
             app:destination="@id/testActivity" />
+        <action
+            android:id="@+id/action_itemListFragment_to_addNewItemActivity"
+            app:destination="@id/addNewItemActivity" />
     </fragment>
     <fragment
         android:id="@+id/itemDetailFragment"
@@ -114,4 +117,14 @@
         android:id="@+id/testActivity"
         android:name="com.example.inventory.TestActivity"
         android:label="TestActivity" />
+    <activity
+        android:id="@+id/addNewItemActivity"
+        android:name="com.example.inventory.AddNewItemActivity"
+        android:label="activity_add_new_item"
+        tools:layout="@layout/activity_add_new_item" >
+        <argument
+            android:name="item_id"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </activity>
 </navigation>

@@ -6,7 +6,7 @@ import android.os.Bundle
 import com.example.inventory.R
 
 object DWUtilities {
-    private const val PROFILE_NAME = "DWGettingStartedKotlin"
+    private const val PROFILE_NAME = "HCInventory"
     private const val ACTION_DATAWEDGE = "com.symbol.datawedge.api.ACTION"
     private const val EXTRA_CREATE_PROFILE = "com.symbol.datawedge.api.CREATE_PROFILE"
     private const val EXTRA_SET_CONFIG = "com.symbol.datawedge.api.SET_CONFIG"
