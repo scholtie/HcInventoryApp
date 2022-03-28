@@ -24,10 +24,9 @@
     <TextView
         android:id="@+id/item_name"
         style="@style/Widget.Inventory.Header"
-        android:layout_marginStart="@dimen/margin_between_elements"
+        android:layout_width="30dp"
+        android:layout_marginStart="8dp"
         android:text="@string/item"
-        app:layout_constraintEnd_toStartOf="@+id/item_price"
-        app:layout_constraintHorizontal_weight="2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -37,39 +36,35 @@
         android:layout_width="175dp"
         android:layout_height="19dp"
         android:layout_below="@+id/item_name"
-        android:layout_marginStart="@dimen/margin_between_elements"
+        android:layout_marginStart="32dp"
         android:text="@string/price"
         android:textAlignment="center"
         app:layout_constraintEnd_toStartOf="@+id/item_quantity"
-        app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@+id/item_name"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/item_quantity"
         style="@style/Widget.Inventory.Header"
+        android:layout_width="30dp"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="@dimen/margin_between_elements"
+        android:layout_marginEnd="16dp"
         android:text="@string/quantity_in_stock"
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toEndOf="@+id/item_price"
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
         android:id="@+id/divider"
         style="@style/Divider"
-        android:layout_marginTop="@dimen/margin_between_elements"
-        app:layout_constraintBottom_toTopOf="@+id/recyclerView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/item_quantity" />
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/item_price" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:scrollbars="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -121,6 +116,7 @@
         android:layout_marginBottom="8dp"
         android:contentDescription="@string/add_new_item"
         android:src="@drawable/ic_baseline_qr_code_scanner_24"
+        android:visibility="invisible"
         app:backgroundTint="#2252FF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

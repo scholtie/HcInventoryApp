@@ -59,8 +59,17 @@ class ItemDetailFragment : Fragment() {
     private fun bind(item: Item) {
         binding.apply {
             itemName.text = item.itemArunev
-            itemPrice.text = item.itemUserid.toString()
-            itemCount.text = item.itemMennyiseg.toString()
+            itemPrice.text = item.itemAruid.toString()
+            itemCount.text = item.itemMennyiseg.toString() + " db"
+            if (item.itemIker)
+            {
+                itemIker.text = getString(R.string.ikerleltar)
+            }
+            else {
+                itemIker.text = getString(R.string.nemikerleltar)
+            }
+            itemTime.text = item.itemDatum.toString()
+            itemUser.text = item.itemUserid.toString()
             deleteItem.setOnClickListener { showConfirmationDialog() }
             editItem.setOnClickListener { editItem() }
         }
@@ -70,8 +79,7 @@ class ItemDetailFragment : Fragment() {
      * Navigate to the Edit item screen.
      */
     private fun editItem() {
-        val action = ItemDetailFragmentDirections.actionItemDetailFragmentToAddItemFragment(
-            getString(R.string.edit_fragment_title),
+        val action = ItemDetailFragmentDirections.actionItemDetailFragmentToAddNewItemActivity(
             item.id
         )
         this.findNavController().navigate(action)

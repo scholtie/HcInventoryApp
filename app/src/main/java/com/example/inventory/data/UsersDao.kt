@@ -1,5 +1,6 @@
 package com.example.inventory.data
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
@@ -11,6 +12,9 @@ interface UsersDao {
 
     @Query("SELECT * from users ORDER BY userId ASC")
     fun getItems(): Flow<List<Users>>
+
+    @Query("SELECT * from users")
+    suspend fun getUsers(): List<Users>
 
     @Query("SELECT name FROM users")
     suspend fun getAllUserNames(): List<String>

@@ -34,7 +34,7 @@ data class Item(
     @ColumnInfo(name = "arunev")
     val itemArunev: String,
     @ColumnInfo(name = "tarolohelyid")
-    val itemTarolohelyid: String,
+    val itemTarolohelyid: Int,
     @ColumnInfo(name = "mennyiseg")
     val itemMennyiseg: Int,
     @ColumnInfo(name = "userid")

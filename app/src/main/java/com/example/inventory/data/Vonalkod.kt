@@ -9,7 +9,7 @@ data class Vonalkod(
     @PrimaryKey
     val vonalkodAruid: Int,
     @ColumnInfo(name = "barcode")
-    val vonalkodBarcode: String,
+    var vonalkodBarcode: String,
     @ColumnInfo(name = "karton")
     val vonalkodKarton: Int
     )

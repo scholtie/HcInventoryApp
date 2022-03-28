@@ -25,9 +25,9 @@
     <string name="item_detail_fragment_title">Tétel Adatok</string>
     <string name="add_fragment_title">Tétel Hozzáadása</string>
     <string name="edit_fragment_title">Tétel Szerkesztése</string>
-    <string name="price">Termékszám</string>
+    <string name="price">Termék</string>
     <string name="quantity_in_stock">DB</string>
-    <string name="item">Termék</string>
+    <string name="item">ID</string>
     <string name="delete">Törlés</string>
     <string name="delete_question">Biztosan törölni szeretné?</string>
     <string name="no">Nem</string>
@@ -72,6 +72,13 @@
     <string name="datawedge_intent_key_source">com.symbol.datawedge.source</string>
     <string name="datawedge_intent_key_label_type">com.symbol.datawedge.label_type</string>
     <string name="datawedge_intent_key_data">com.symbol.datawedge.data_string</string>
+    <string name="DeleteConfirmation">Felvett termékek törlése. Biztosan folytatni szeretné?</string>
+    <string name="ikerleltar">Ikerleltáros</string>
+    <string name="nemikerleltar">Nem ikerleltáros</string>
+    <string name="osszesmezo">Kérem töltse ki az összes mezőt!</string>
+    <string name="itemnotfound">Nem talált termék</string>
+    <string name="scanbarcode">Kérem olvassa be a vonalkódot</string>
+    <string name="barcodenotfound">Nem található a vonalkód az adatbázisban.</string>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

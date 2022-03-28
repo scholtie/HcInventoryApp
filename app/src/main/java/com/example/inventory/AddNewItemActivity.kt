@@ -1,44 +1,38 @@
 
 package com.example.inventory
 
+import android.app.PendingIntent
+import android.app.PendingIntent.CanceledException
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.View.inflate
-import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.view.WindowManager
+import android.widget.*
 import androidx.activity.viewModels
-import androidx.fragment.app.activityViewModels
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavDeepLinkBuilder
 import androidx.navigation.navArgs
 import com.example.inventory.data.AllProducts
 import com.example.inventory.data.Item
+import com.example.inventory.data.ItemRoomDatabase
 import com.example.inventory.data.Vonalkod
 import com.example.inventory.databinding.ActivityAddNewItemBinding
 import com.example.inventory.databinding.ActivityAddNewItemBinding.inflate
-import com.example.inventory.databinding.FragmentAddItemBinding
 import com.example.inventory.service.DWUtilities
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.math.abs
+
 
 class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
 
-
-    private lateinit var navController: NavController
     private lateinit var binding: ActivityAddNewItemBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,8 +41,7 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
         binding = inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        val btnScan = findViewById<Button>(R.id.btnScan)
-        //btnScan.setOnTouchListener(this)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         val id = navigationArgs.itemId
         if (id > 0) {
             viewModel.retrieveItem(id).observe(this) { selectedItem ->
@@ -59,20 +52,15 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
             findViewById<Button>(R.id.save_action).setOnClickListener {
                 addNewItem()
             }
-            /*findViewById<Button>(R.id.showItemWithBarcode_action).setOnClickListener {
-                showItemWithBarcode()
-            }*/
-            //binding.btnExportCSV.setOnClickListener { exportDatabaseToCSVFile() }
         }
-/*        _binding = AddNewItemActivity.inflate(inflater, container, false)
-        return binding.root*/
-
+        loadSpinnerData()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         displayScanResult(intent)
         showItemWithBarcode()
+        binding.itemCount.requestFocus()
     }
 
     private fun displayScanResult(scanIntent: Intent) {
@@ -88,21 +76,20 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     override fun onTouch(view: View?, motionEvent: MotionEvent?): Boolean {
-        if (view?.getId() == R.id.btnScanFloating) {
-            if (motionEvent?.getAction() == MotionEvent.ACTION_DOWN) {
+            if (motionEvent?.action == MotionEvent.ACTION_DOWN) {
                 //  Button pressed, start scan
                 val dwIntent = Intent()
                 dwIntent.action = "com.symbol.datawedge.api.ACTION"
                 dwIntent.putExtra("com.symbol.datawedge.api.SOFT_SCAN_TRIGGER", "START_SCANNING")
+                view!!.performClick()
                 sendBroadcast(dwIntent)
-            } else if (motionEvent?.getAction() == MotionEvent.ACTION_UP) {
+            } else if (motionEvent?.action == MotionEvent.ACTION_UP) {
                 //  Button released, end scan
                 val dwIntent = Intent()
                 dwIntent.action = "com.symbol.datawedge.api.ACTION"
                 dwIntent.putExtra("com.symbol.datawedge.api.SOFT_SCAN_TRIGGER", "STOP_SCANNING")
                 sendBroadcast(dwIntent)
             }
-        }
         return true
     }
 
@@ -122,13 +109,11 @@ private val viewModel: InventoryViewModel by viewModels {
             (this.application as InventoryApplication).database.
             vonalkodDao())
     }
-    private val navigationArgs: ItemDetailFragmentArgs by navArgs()
 
+    private val navigationArgs: ItemDetailFragmentArgs by navArgs()
     lateinit var item: Item
     lateinit var barcode: AllProducts
-    lateinit var barcodeVonalkod: Vonalkod
-    private var quantity: Int = 0
-    private lateinit var itemListAdapter: ItemListAdapter
+    private lateinit var barcodeVonalkod: Vonalkod
 
 
     /**
@@ -148,25 +133,17 @@ private val viewModel: InventoryViewModel by viewModels {
     private fun bind(item: Item) {
         //val price = "%.2f".format(item.itemPrice)
         binding.apply {
-            //itemName.setText(item.itemAruid, TextView.BufferType.SPANNABLE)
-            //itemBarcode.setText(item.itemTarolohelyid, TextView.BufferType.SPANNABLE)
-            //itemPrice.setText(item.itemDatum.toString(), TextView.BufferType.SPANNABLE)
             itemCount.setText(item.itemMennyiseg.toString(), TextView.BufferType.SPANNABLE)
+            txtName.setText(item.itemArunev,TextView.BufferType.SPANNABLE )
+            txtAruid.setText(item.itemAruid.toString(),TextView.BufferType.SPANNABLE)
+            binding.checkBox.isChecked = item.itemIker
+            binding.spnLeltarhely.setSelection(item.itemTarolohelyid)
             saveAction.setOnClickListener { updateItem() }
-            /*btnIncreaseQuantity.setOnClickListener { increaseQuantity() }
-            btnDecreaseQuantity.setOnClickListener { decreaseQuantity() }*/
-            //showItemWithBarcodeAction.setOnClickListener{ showItemWithBarcode() }
-            /*itemBarcode.setOnFocusChangeListener { _, hasFocus ->
-                if (!hasFocus) {
-                    showItemWithBarcode()
-                }
-            }*/
-            itemBarcode.isEnabled = false
-        }
-    }
-
-    private fun bindBarcode(barcodeVonalkod: Vonalkod) {
-        binding.apply { txtName.setText(barcodeVonalkod.vonalkodAruid.toString(), TextView.BufferType.SPANNABLE)
+            binding.itemCount.isFocusableInTouchMode = true
+            binding.itemCount.requestFocus()
+            binding.itemCount.setSelection(binding.itemCount.length())
+            itemBarcode.isVisible = false
+            itemBarcodeLabel.isVisible = false
         }
     }
 
@@ -176,12 +153,55 @@ private val viewModel: InventoryViewModel by viewModels {
             txtAruid.setText(aruid.productId.toString(), TextView.BufferType.SPANNABLE)}
     }
 
+    private fun loadSpinnerData() {
+        lifecycleScope.launch {
+            val spinner: Spinner = binding.spnLeltarhely
+            // database handler
+            val db = ItemRoomDatabase.getDatabase(this@AddNewItemActivity)
+
+            // Spinner Drop down elements
+            val labels: List<String> = db.leltarhelyDao().getAllLeltarhely()
+
+            // Creating adapter for spinner
+            val dataAdapter: ArrayAdapter<String> = ArrayAdapter<String>(
+                this@AddNewItemActivity,
+                android.R.layout.simple_spinner_item, labels
+            )
+
+            // Drop down layout style - list view with radio button
+            dataAdapter
+                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+            // attaching data adapter to spinner
+            spinner.adapter = dataAdapter
+        }
+    }
+
+    private fun dateDiff(): Double {
+        val sdf = SimpleDateFormat("yyyy.MM.dd G 'at' HH:mm:ss z", Locale.ENGLISH)
+        val firstDate = sdf.parse("1899.12.30 AD at 00:00:00 PDT")
+        val secondDate = Date()
+        val diffInMillies = abs(secondDate.time - firstDate!!.time)
+        val diff: Long = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS)
+        val diffDouble: Double = diff.toDouble()
+        //assertEquals(6, diff)
+        println(diffDouble)
+        return diffDouble
+    }
+
+    private fun getIkerleltar(): Boolean{
+        return binding.checkBox.isChecked
+    }
+
     /**
      * Inserts the new Item into database and navigates up to list fragment.
      */
     private fun addNewItem() {
+        //dateDiff()
         val sharedPreferences = this.getSharedPreferences("Users", Context.MODE_PRIVATE)
         val userId: String? = sharedPreferences.getString("id", "0")
+        //val dateTime = Calendar.getInstance().time.time
+        //val dateTimeAsDouble = dateTime.toDouble()
         if (isEntryValid()) {
             val barcodeValue = binding.itemBarcode.text.toString()
             vonalkodViewModel.retrieveMatchingAruid(barcodeValue)
@@ -196,17 +216,25 @@ private val viewModel: InventoryViewModel by viewModels {
                                         barcode.productId,
                                         aruid.productCikknev,
                                         binding.itemCount.text.toString().toInt(),
-                                        10.0,
-                                        "testTarolohely",
+                                        dateDiff(),
+                                        binding.spnLeltarhely.selectedItemPosition,
                                         userId!!.toInt(),
-                                        false
+                                        getIkerleltar()
                                     )
-                                    val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
-                                    navController.navigateUp()
+                                    val pendingIntent: PendingIntent =
+                                        NavDeepLinkBuilder(this.applicationContext)
+                                            .setGraph(R.navigation.nav_graph)
+                                            .setDestination(R.id.itemListFragment)
+                                            .createPendingIntent()
+
+                                    try {
+                                        pendingIntent.send()
+                                    } catch (e: CanceledException) {
+                                        e.printStackTrace()
+                                    }
                                 }
                                 catch (e: Exception){
-                                    println("Nem talált termék")
-
+                                    println(getString(R.string.itemnotfound))
                                 }
                             }
                     } catch (e: Exception){
@@ -217,7 +245,7 @@ private val viewModel: InventoryViewModel by viewModels {
 
         }
         else{
-            Toast.makeText(this, "Kérem töltse ki az összes mezőt!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.osszesmezo), Toast.LENGTH_SHORT).show()
         }
 
     }
@@ -226,22 +254,33 @@ private val viewModel: InventoryViewModel by viewModels {
      * Updates an existing Item in the database and navigates up to list fragment.
      */
     private fun updateItem() {
+        val sharedPreferences = this.getSharedPreferences("Users", Context.MODE_PRIVATE)
+        val userId: String? = sharedPreferences.getString("id", "0")
         if (isEntryValid()) {
             viewModel.updateItem(
                 this.navigationArgs.itemId,
                 item.itemAruid,
                 item.itemArunev,
                 binding.itemCount.text.toString().toInt(),
-                item.itemDatum,
-                item.itemTarolohelyid,
-                item.itemUserid,
-                item.itemIker
+                dateDiff(),
+                binding.spnLeltarhely.selectedItemPosition,
+                userId!!.toInt(),
+                getIkerleltar()
             )
-            val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
-            navController.navigate(action)
+            val pendingIntent: PendingIntent =
+                NavDeepLinkBuilder(this.applicationContext)
+                    .setGraph(R.navigation.nav_graph)
+                    .setDestination(R.id.itemListFragment)
+                    .createPendingIntent()
+
+            try {
+                pendingIntent.send()
+            } catch (e: CanceledException) {
+                e.printStackTrace()
+            }
         }
         else{
-            Toast.makeText(this, "Kérem töltse ki az összes mezőt!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.osszesmezo), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -259,7 +298,7 @@ private val viewModel: InventoryViewModel by viewModels {
                                     bindAruid(barcode)
                                 }
                                 catch (e: Exception){
-                                    println("Nem talált termék")
+                                    println(getString(R.string.itemnotfound))
 
                                 }                                }
                     } catch (e: Exception){
@@ -268,7 +307,7 @@ private val viewModel: InventoryViewModel by viewModels {
 
                 }
         else{
-            Toast.makeText(this, "Kérem olvassa be a vonalkódot", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.scanbarcode), Toast.LENGTH_SHORT).show()
         }
         /*if (binding.itemBarcode.text.toString() == "a")
         {
@@ -283,7 +322,7 @@ private val viewModel: InventoryViewModel by viewModels {
         //val productBarcode = binding.itemBarcode.text.toString()
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(android.R.string.dialog_alert_title))
-            .setMessage("Nem található a vonalkód az adatbázisban.")
+            .setMessage(getString(R.string.barcodenotfound))
             .setCancelable(false)
             .setNeutralButton("Ok"){ _, _ -> }
             /*.setNegativeButton("Nem") { _, _ -> }
@@ -293,22 +332,5 @@ private val viewModel: InventoryViewModel by viewModels {
             }*/
             .show()
     }
-
-    fun removeData(){
-        GlobalScope.launch(Dispatchers.IO) { allProductsViewModel.deleteAll() }
     }
-
-    /**
-     * Called when the view is created.
-     * The itemId Navigation argument determines the edit item  or add new item.
-     * If the itemId is positive, this method retrieves the information from the database and
-     * allows the user to update it.
-     */
-
-
-    }
-
-    /**
-     * Called before fragment is destroyed.
-     */
 

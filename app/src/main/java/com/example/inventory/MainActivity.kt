@@ -15,19 +15,21 @@
  */
 package com.example.inventory
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.EditText
+import android.view.WindowManager
+import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import androidx.core.view.isVisible
 import androidx.navigation.NavController
+import androidx.navigation.NavDeepLinkBuilder
 import androidx.navigation.fragment.NavHostFragment
 import com.example.inventory.data.*
-import com.example.inventory.service.DWUtilities
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
 import java.io.BufferedReader
@@ -39,7 +41,6 @@ import java.io.IOException
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var navController: NavController
-    private var shownFragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,24 +51,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         //DWUtilities.CreateDWProfile(this)
     }
 
-    /*override fun onNewIntent(intent: Intent) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        *//*val test: AddItemFragment? =
-            supportFragmentManager.findFragmentById(R.id.addItemFragment) as AddItemFragment?
-        if (test != null && test.isVisible && test.isAdded) {
-            displayScanResult(intent)
-        } else {
-            Toast.makeText(this, "Vonalkód rossz helyen beolvasva!", Toast.LENGTH_SHORT).show()
-        }*//*
-        val fm: FragmentManager = supportFragmentManager
-        val fragment: AddItemFragment? =
-            fm.findFragmentById(R.id.addItemFragment) as? AddItemFragment
-        //if (fragment != null && fragment.isVisible)
-        displayScanResult(intent)
-        //(shownFragment as AddItemFragment).showItemWithBarcode()
+        navController.navigate(R.id.addNewItemActivity)
     }
 
-    private fun displayScanResult(scanIntent: Intent) {
+    /*private fun displayScanResult(scanIntent: Intent) {
         val decodedSource =
             scanIntent.getStringExtra(resources.getString(R.string.datawedge_intent_key_source))
         val decodedData =
@@ -75,8 +64,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val decodedLabelType =
             scanIntent.getStringExtra(resources.getString(R.string.datawedge_intent_key_label_type))
         val scan = "$decodedData"
-        val output = findViewById<EditText>(R.id.item_barcode)
-        output.setText(scan)
+
     }*/
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -87,7 +75,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_delete_list_data -> {
-                deleteCurrentListData()
+                showDeleteConfirmationDialog()
                 true
             }
             R.id.action_re_create_database -> {
@@ -106,19 +94,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    private fun deleteCurrentListData() {
-        AddItemFragment().removeData()
-    }
+    private suspend fun deleteCurrentListData(database: ItemRoomDatabase?) {
+        database?.let { db ->
+            withContext(Dispatchers.IO) {
+                val itemDao: ItemDao = db.itemDao()
 
-    private fun reCreateDatabase() {
-        GlobalScope.launch(Dispatchers.IO) {
-            populateDbAllProducts(ItemRoomDatabase.getDatabase(this@MainActivity))
-            populateDbUserek(ItemRoomDatabase.getDatabase(this@MainActivity))
-            populateDbVonalkodok(ItemRoomDatabase.getDatabase(this@MainActivity))
+                itemDao.clear()
+            }
         }
     }
 
-    suspend fun fetchDocs() =
+    private suspend fun fetchDocs() =
         coroutineScope {
             val deferredOne =
                 async { populateDbAllProducts(ItemRoomDatabase.getDatabase(this@MainActivity)) }
@@ -126,12 +112,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 async { populateDbUserek(ItemRoomDatabase.getDatabase(this@MainActivity)) }
             val deferredThree =
                 async { populateDbVonalkodok(ItemRoomDatabase.getDatabase(this@MainActivity)) }
+            val deferredFour =
+                async {populateDbLeltarhely(ItemRoomDatabase.getDatabase(this@MainActivity))}
             deferredOne.await()
             deferredTwo.await()
             deferredThree.await()
+            deferredFour.await()
         }
 
-    suspend fun populateDbAllProducts(database: ItemRoomDatabase?) {
+    private suspend fun populateDbAllProducts(database: ItemRoomDatabase?) {
         database?.let { db ->
             withContext(Dispatchers.IO) {
                 val allProductsDao: AllProductsDao = db.allProductsDao()
@@ -139,7 +128,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 allProductsDao.clear()
 
                 val file = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "cikk.txt")
-                val text = StringBuilder()
                 var br: BufferedReader? = null
                 val characters =
                     arrayOfNulls<String>(100000) //just an example - you have to initialize it to be big enough to hold all the lines!
@@ -149,10 +137,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     var i = 0
                     while (br.readLine().also { sCurrentLine = it } != null) {
                         val arr = sCurrentLine!!.split(";").toTypedArray()
-                        //for the first line it'll print
-                        //text.append("arr[id] = " + arr[0]) // 20000008
-                        //text.append(arr[1]) // username
-                        //text.append('\n')
                         val products = AllProducts(
                             productId = arr[0].toInt(),
                             productCikkszam = arr[1],
@@ -169,24 +153,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         )
                         allProductsDao.insert(products)
                         println(products)
-
-                        //text.append("arr[empty] = " + arr[2]) //
-                        //text.append("arr[false] = " + arr[3]) // false
-                        //text.append("arr[true] = " + arr[4]) // true
-
-                        //Now if you want to enter them into separate arrays
                         characters[i] = arr[0]
-                        // and you can do the same with
-                        // names[1] = arr[1]
-                        //etc
                         i++
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
+                    runOnUiThread { Toast.makeText(this@MainActivity, "cikk.txt fájl nem találva", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         br?.close()
                         println("Termékek beolvasva")
+                        runOnUiThread { Toast.makeText(this@MainActivity, "cikk.txt beolvasva", Toast.LENGTH_SHORT).show() }
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
@@ -195,7 +172,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    suspend fun populateDbVonalkodok(database: ItemRoomDatabase?) {
+    private suspend fun populateDbVonalkodok(database: ItemRoomDatabase?) {
         database?.let { db ->
             withContext(Dispatchers.IO) {
                 val vonalkodDao: VonalkodDao = db.vonalkodDao()
@@ -204,7 +181,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
                 val fileVk =
                     File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "vonalkod.txt")
-                val textVk = StringBuilder()
                 var brVk: BufferedReader? = null
                 val charactersVk =
                     arrayOfNulls<String>(200000) //just an example - you have to initialize it to be big enough to hold all the lines!
@@ -215,10 +191,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
                     while (brVk.readLine().also { sCurrentLine = it } != null) {
                         val arr = sCurrentLine!!.split(";").toTypedArray()
-                        //for the first line it'll print
-                        //text.append("arr[id] = " + arr[0]) // 20000008
-                        //text.append(arr[1]) // username
-                        //text.append('\n')
                         val vonalkodok = Vonalkod(
                             vonalkodAruid = arr[0].toInt(),
                             vonalkodBarcode = arr[1],
@@ -226,23 +198,33 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         )
                         vonalkodDao.insert(vonalkodok)
                         println(vonalkodok)
-                        //text.append("arr[empty] = " + arr[2]) //
-                        //text.append("arr[false] = " + arr[3]) // false
-                        //text.append("arr[true] = " + arr[4]) // true
-
-                        //Now if you want to enter them into separate arrays
                         charactersVk[i] = arr[0]
-                        // and you can do the same with
-                        // names[1] = arr[1]
-                        //etc
+                        findViewById<ProgressBar>(R.id.progressBar).isVisible = true
                         i++
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
+                    runOnUiThread { Toast.makeText(this@MainActivity, "vonalkod.txt fájl nem találva", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         brVk?.close()
                         println("Vonalkódok beolvasva")
+                        findViewById<ProgressBar>(R.id.progressBar).isVisible = false
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        runOnUiThread {
+                            Toast.makeText(this@MainActivity, "vonalkod.txt beolvasva", Toast.LENGTH_SHORT).show()
+                            val pendingIntent: PendingIntent =
+                                NavDeepLinkBuilder(this@MainActivity)
+                                    .setGraph(R.navigation.nav_graph)
+                                    .setDestination(R.id.loginFragment)
+                                    .createPendingIntent()
+
+                            try {
+                                pendingIntent.send()
+                            } catch (e: PendingIntent.CanceledException) {
+                                e.printStackTrace()
+                            }
+                        }
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
@@ -251,7 +233,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    suspend fun populateDbUserek(database: ItemRoomDatabase?) {
+    private suspend fun populateDbUserek(database: ItemRoomDatabase?) {
         database?.let { db ->
             withContext(Dispatchers.IO) {
                 val usersDao: UsersDao = db.usersDao()
@@ -260,7 +242,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
                 val fileUs =
                     File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "ugyintezo.txt")
-                val textUs = StringBuilder()
                 var brUs: BufferedReader? = null
                 val charactersUs =
                     arrayOfNulls<String>(50) //just an example - you have to initialize it to be big enough to hold all the lines!
@@ -270,10 +251,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     var i = 0
                     while (brUs.readLine().also { sCurrentLine = it } != null) {
                         val arr = sCurrentLine!!.split(";").toTypedArray()
-                        //for the first line it'll print
-                        //text.append("arr[id] = " + arr[0]) // 20000008
-                        //text.append(arr[1]) // username
-                        //text.append('\n')
                         val users = Users(
                             userId = arr[0].toInt(),
                             userName = arr[1],
@@ -281,23 +258,60 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         )
                         usersDao.insert(users)
                         println(users)
-                        //text.append("arr[empty] = " + arr[2]) //
-                        //text.append("arr[false] = " + arr[3]) // false
-                        //text.append("arr[true] = " + arr[4]) // true
-
-                        //Now if you want to enter them into separate arrays
                         charactersUs[i] = arr[0]
-                        // and you can do the same with
-                        // names[1] = arr[1]
-                        //etc
                         i++
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
+                    runOnUiThread { Toast.makeText(this@MainActivity, "ugyintezo.txt fájl nem találva", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         brUs?.close()
                         println("Userek beolvasva")
+                        runOnUiThread { Toast.makeText(this@MainActivity, "ugyintezo.txt beolvasva", Toast.LENGTH_SHORT).show() }
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun populateDbLeltarhely(database: ItemRoomDatabase?) {
+        database?.let { db ->
+            withContext(Dispatchers.IO) {
+                val leltarhelyDao: LeltarhelyDao = db.leltarhelyDao()
+
+                leltarhelyDao.clear()
+
+                val fileUs =
+                    File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "leltarhely.txt")
+                var brUs: BufferedReader? = null
+                val charactersUs =
+                    arrayOfNulls<String>(10) //just an example - you have to initialize it to be big enough to hold all the lines!
+                try {
+                    brUs = BufferedReader(FileReader(fileUs))
+                    var sCurrentLine: String?
+                    var i = 0
+                    while (brUs.readLine().also { sCurrentLine = it } != null) {
+                        val arr = sCurrentLine!!.split(";").toTypedArray()
+                        val leltarhely = Leltarhely(
+                            leltarhelyId = arr[0].toInt(),
+                            leltarhelyName = arr[1]
+                        )
+                        leltarhelyDao.insert(leltarhely)
+                        println(leltarhely)
+                        charactersUs[i] = arr[0]
+                        i++
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    runOnUiThread { Toast.makeText(this@MainActivity, "leltarhely.txt fájl nem találva", Toast.LENGTH_SHORT).show() }
+                } finally {
+                    try {
+                        brUs?.close()
+                        println("Leltarhely beolvasva")
+                        runOnUiThread { Toast.makeText(this@MainActivity, "leltarhely.txt beolvasva", Toast.LENGTH_SHORT).show() }
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
@@ -313,10 +327,24 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .setTitle(getString(android.R.string.dialog_alert_title))
             .setMessage("Adatbázis újraírása a fájlokból. Biztosan folytatni szeretné?")
             .setCancelable(false)
-            //.setNeutralButton("Ok"){ _, _ -> }
             .setNegativeButton("Nem") { _, _ -> }
             .setPositiveButton("Igen") { _, _ ->
                 GlobalScope.launch(Dispatchers.IO) { fetchDocs() }
+                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                findViewById<ProgressBar>(R.id.progressBar).isVisible = true
+            }
+            .show()
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun showDeleteConfirmationDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(getString(android.R.string.dialog_alert_title))
+            .setMessage(getString(R.string.DeleteConfirmation))
+            .setCancelable(false)
+            .setNegativeButton(R.string.no) { _, _ -> }
+            .setPositiveButton(R.string.yes) { _, _ ->
+                GlobalScope.launch(Dispatchers.IO){deleteCurrentListData(ItemRoomDatabase.getDatabase(this@MainActivity))}
             }
             .show()
     }

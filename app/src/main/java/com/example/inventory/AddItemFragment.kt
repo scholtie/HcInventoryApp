@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.inventory
+/*package com.example.inventory
 
 import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
@@ -303,3 +303,4 @@ class AddItemFragment : Fragment() {
         _binding = null
     }
 }
+*/

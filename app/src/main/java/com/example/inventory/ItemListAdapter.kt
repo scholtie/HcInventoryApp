@@ -53,8 +53,8 @@ class ItemListAdapter(private val onItemClicked: (Item) -> Unit) :
 
         fun bind(item: Item) {
             binding.itemName.text =
-                item.itemArunev
-            binding.itemPrice.text = item.itemDatum.toString()
+                item.itemAruid.toString()
+            binding.itemPrice.text = item.itemArunev
             binding.itemQuantity.text = item.itemMennyiseg.toString()
         }
     }
