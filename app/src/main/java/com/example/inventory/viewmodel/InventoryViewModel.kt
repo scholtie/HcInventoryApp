@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.example.inventory
+package com.example.inventory.viewmodel
 
 import androidx.lifecycle.*
-import com.example.inventory.data.AllProducts
 import com.example.inventory.data.Item
 import com.example.inventory.data.ItemDao
 import kotlinx.coroutines.launch
-import java.util.*
 
 /**
  * View Model to keep a reference to the Inventory repository and an up-to-date list of all items.
@@ -135,8 +133,8 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
      * Returns true if the EditTexts are not empty
      */
     fun isEntryValid(
-                     itemMennyiseg: String ): Boolean {
-        if (itemMennyiseg.toString().isBlank()) {
+                     itemMennyiseg: String, itemVonalkod: String ): Boolean {
+        if (itemMennyiseg.isBlank() && itemVonalkod.isBlank()) {
             return false
         }
         return true

@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AllProductsDao {
     @Query("SELECT * FROM allProducts")
-    fun getAll(): List<AllProducts>
+    suspend fun getAll(): List<AllProducts>
 
     @Query("SELECT * from allProducts ORDER BY cikknev ASC")
     fun getItems(): Flow<List<AllProducts>>

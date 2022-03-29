@@ -23,6 +23,7 @@ import com.example.inventory.data.Vonalkod
 import com.example.inventory.databinding.ActivityAddNewItemBinding
 import com.example.inventory.databinding.ActivityAddNewItemBinding.inflate
 import com.example.inventory.service.DWUtilities
+import com.example.inventory.viewmodel.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -121,7 +122,8 @@ private val viewModel: InventoryViewModel by viewModels {
      */
     private fun isEntryValid(): Boolean {
         return viewModel.isEntryValid(
-            binding.itemCount.text.toString()
+            binding.itemCount.text.toString(),
+            binding.itemBarcode.text.toString()
         )
     }
 

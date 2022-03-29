@@ -15,21 +15,28 @@
  */
 package com.example.inventory
 
+import android.R.attr.host
+import android.R.attr.password
 import android.app.PendingIntent
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDeepLinkBuilder
 import androidx.navigation.fragment.NavHostFragment
 import com.example.inventory.data.*
+import com.example.inventory.service.MyFTPClientFunctions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
 import java.io.BufferedReader
@@ -41,19 +48,39 @@ import java.io.IOException
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var navController: NavController
+    private var ftpclient: MyFTPClientFunctions? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
+        findViewById<Button>(R.id.btnFtpTest).setOnClickListener { connectFtp() }
         title = "HCLeltar"
+        ftpclient = MyFTPClientFunctions()
         //DWUtilities.CreateDWProfile(this)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         navController.navigate(R.id.addNewItemActivity)
+    }
+
+    private fun connectFtp(){
+        val username = "test"
+        val password = "test"
+        val host = "ftp.pointer.hu"
+        Thread {
+            // host – your FTP address
+            // username & password – for your secured login
+            // 21 default gateway for FTP
+            val status: Boolean = ftpclient!!.ftpConnect(host, username, password, 21)
+            if (status) {
+                Log.d(TAG, "Connection Success")
+            } else {
+                Log.d(TAG, "Connection failed")
+            }
+        }.start()
     }
 
     /*private fun displayScanResult(scanIntent: Intent) {
@@ -172,6 +199,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    /*private fun ftpTest(){
+        val ftpClient = FTPClient()
+        ftpClient.connect(InetAddress.getByName(server))
+        ftpClient.login(user, password)
+        ftpClient.changeWorkingDirectory(serverRoad)
+        ftpClient.setFileType(FTP.BINARY_FILE_TYPE)
+
+        var buffIn: BufferedInputStream? = null
+        buffIn = BufferedInputStream(FileInputStream(file))
+        ftpClient.enterLocalPassiveMode()
+        ftpClient.storeFile("test.txt", buffIn)
+        buffIn.close()
+        ftpClient.logout()
+        ftpClient.disconnect()
+    }*/
+
     private suspend fun populateDbVonalkodok(database: ItemRoomDatabase?) {
         database?.let { db ->
             withContext(Dispatchers.IO) {
@@ -209,9 +252,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     try {
                         brVk?.close()
                         println("Vonalkódok beolvasva")
-                        findViewById<ProgressBar>(R.id.progressBar).isVisible = false
                         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                         runOnUiThread {
+                            findViewById<ProgressBar>(R.id.progressBar).isVisible = false
                             Toast.makeText(this@MainActivity, "vonalkod.txt beolvasva", Toast.LENGTH_SHORT).show()
                             val pendingIntent: PendingIntent =
                                 NavDeepLinkBuilder(this@MainActivity)
@@ -322,7 +365,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun showConfirmationDialog() {
-        //val productBarcode = binding.itemBarcode.text.toString()
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(android.R.string.dialog_alert_title))
             .setMessage("Adatbázis újraírása a fájlokból. Biztosan folytatni szeretné?")

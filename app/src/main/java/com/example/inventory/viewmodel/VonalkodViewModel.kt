@@ -1,9 +1,8 @@
-package com.example.inventory
+package com.example.inventory.viewmodel
 
 import androidx.lifecycle.*
 import com.example.inventory.data.*
 import kotlinx.coroutines.launch
-import java.util.*
 
 class VonalkodViewModel(private val vonalkodDao: VonalkodDao) : ViewModel() {
 

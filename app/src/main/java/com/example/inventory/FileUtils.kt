@@ -3,6 +3,7 @@ package com.example.inventory
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
+import android.os.Environment.getExternalStorageDirectory
 import androidx.core.content.FileProvider
 import java.io.File
 

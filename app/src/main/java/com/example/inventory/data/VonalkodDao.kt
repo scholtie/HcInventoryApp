@@ -17,7 +17,7 @@ interface VonalkodDao {
     suspend fun getCount(): Int
 
     @Query("SELECT * FROM vonalkod")
-    fun getAll(): List<Vonalkod>
+    suspend fun getAll(): List<Vonalkod>
 
     @Query("SELECT * from vonalkod ORDER BY vonalkodAruid ASC")
     fun getItems(): Flow<List<Vonalkod>>

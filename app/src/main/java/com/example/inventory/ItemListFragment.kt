@@ -28,6 +28,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.inventory.data.Item
 import com.example.inventory.databinding.ItemListFragmentBinding
+import com.example.inventory.viewmodel.InventoryViewModel
+import com.example.inventory.viewmodel.InventoryViewModelFactory
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.File
@@ -126,7 +128,7 @@ class ItemListFragment : Fragment() {
                     "False"
                 }else{
                     "True"
-                }))
+                }, ""))
             }
         }
 

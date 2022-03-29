@@ -13,15 +13,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.InventoryApp">
         <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+        <activity
             android:name=".TestActivity"
             android:exported="true"
             android:launchMode="singleTop" />
         <activity
             android:name=".AddNewItemActivity"
             android:exported="true"
-            android:launchMode="singleTop" >
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="com.darryncampbell.datawedge.kotlin.ACTION" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -34,6 +38,7 @@
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.inventory
+package com.example.inventory.viewmodel
 
 import androidx.lifecycle.*
 import com.example.inventory.data.AllProducts
