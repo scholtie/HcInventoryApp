@@ -256,17 +256,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         runOnUiThread {
                             findViewById<ProgressBar>(R.id.progressBar).isVisible = false
                             Toast.makeText(this@MainActivity, "vonalkod.txt beolvasva", Toast.LENGTH_SHORT).show()
-                            val pendingIntent: PendingIntent =
-                                NavDeepLinkBuilder(this@MainActivity)
-                                    .setGraph(R.navigation.nav_graph)
-                                    .setDestination(R.id.loginFragment)
-                                    .createPendingIntent()
-
-                            try {
-                                pendingIntent.send()
-                            } catch (e: PendingIntent.CanceledException) {
-                                e.printStackTrace()
-                            }
                         }
                     } catch (e: IOException) {
                         e.printStackTrace()

@@ -96,10 +96,10 @@ class LoginFragment : Fragment() {
                     println("Nem talált termék")
                 }
                 if (binding.editPassword.text.toString() == user.userPass) {
-                    val action = LoginFragmentDirections.actionLoginFragmentToItemListFragment(
+                    /*val action = LoginFragmentDirections.actionLoginFragmentToItemListFragment(
                         currentUser
                     )
-                    this.findNavController().navigate(action)
+                    this.findNavController().navigate(action)*/
                 } else {
                     Toast.makeText(activity, "Hibás jelszó!", Toast.LENGTH_SHORT).show()
                 }

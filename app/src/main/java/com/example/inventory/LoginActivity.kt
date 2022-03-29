@@ -2,32 +2,24 @@ package com.example.inventory
 
 import android.R
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.fragment.app.activityViewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
 import com.example.inventory.data.ItemRoomDatabase
 import com.example.inventory.data.Users
-import com.example.inventory.databinding.ActivityAddNewItemBinding
-import com.example.inventory.databinding.FragmentLoginBinding
 import com.example.inventory.databinding.LoginActivityBinding
 import com.example.inventory.service.DWUtilities
-import com.example.inventory.ui.main.LoginFragment2
 import com.example.inventory.viewmodel.UsersViewModel
 import com.example.inventory.viewmodel.UsersViewModelFactory
 import kotlinx.coroutines.launch
+
 
 class LoginActivity : AppCompatActivity() {
 
@@ -101,10 +93,8 @@ class LoginActivity : AppCompatActivity() {
                     println("Nem talált termék")
                 }
                 if (binding.editPassword.text.toString() == user.userPass) {
-                    val action = LoginFragmentDirections.actionLoginFragmentToItemListFragment(
-                        currentUser
-                    )
-                    navController.navigate(action)
+                    val switchActivityIntent = Intent(this, MainActivity::class.java)
+                    startActivity(switchActivityIntent)
                 } else {
                     Toast.makeText(this, "Hibás jelszó!", Toast.LENGTH_SHORT).show()
                 }
