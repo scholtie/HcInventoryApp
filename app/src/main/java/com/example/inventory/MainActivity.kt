@@ -15,10 +15,9 @@
  */
 package com.example.inventory
 
-import android.R.attr.host
-import android.R.attr.password
-import android.app.PendingIntent
+import android.content.ContentValues
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
@@ -26,23 +25,17 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.NavDeepLinkBuilder
 import androidx.navigation.fragment.NavHostFragment
 import com.example.inventory.data.*
 import com.example.inventory.service.MyFTPClientFunctions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileReader
-import java.io.IOException
+import java.io.*
 
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -55,7 +48,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-        findViewById<Button>(R.id.btnFtpTest).setOnClickListener { connectFtp() }
+        //findViewById<Button>(R.id.btnFtpTest).setOnClickListener { connectFtp() }
         title = "HCLeltar"
         ftpclient = MyFTPClientFunctions()
         //DWUtilities.CreateDWProfile(this)
@@ -67,18 +60,72 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun connectFtp(){
-        val username = "test"
-        val password = "test"
-        val host = "ftp.pointer.hu"
+        val sharedPreferencesFtp = this.getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
+        val username: String? = sharedPreferencesFtp.getString("username", "")
+        val password: String? = sharedPreferencesFtp.getString("password", "")
+        val host: String? = sharedPreferencesFtp.getString("host", "")
+        val port: String? = sharedPreferencesFtp.getString("port", "0")
         Thread {
             // host – your FTP address
             // username & password – for your secured login
             // 21 default gateway for FTP
-            val status: Boolean = ftpclient!!.ftpConnect(host, username, password, 21)
+            val status: Boolean = ftpclient!!.ftpConnect(host!!, username, password, port!!.toInt())
             if (status) {
-                Log.d(TAG, "Connection Success")
+                Log.d(ContentValues.TAG, "Connection Success")
+                ftpclient!!.ftpChangeDirectory(srcFilePath!!)
+                downloadFtp()
+                ftpclient!!.ftpPrintFilesList(srcFilePath)
             } else {
-                Log.d(TAG, "Connection failed")
+                Log.d(ContentValues.TAG, "Connection failed")
+            }
+        }.start()
+    }
+
+    private fun downloadFtp(){
+        val sharedPreferencesFtp = this.getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
+        val srcFileNameCikk = "cikk.txt"
+        val srcFileNameVonalkod = "vonalkod.txt"
+        val srcFileNameLeltarhely = "leltarhely.txt"
+        val srcFileNameLeltarfej = "leltarfej.txt"
+        val srcFileNameUgyintezo = "ugyintezo.txt"
+        val desFilePath = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString()
+        val desFileP = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+        val fileCikk = File(desFileP, srcFileNameCikk)
+        fileCikk.delete()
+        val fileVonalkod = File(desFileP, srcFileNameVonalkod)
+        fileVonalkod.delete()
+        val fileLelarhely = File(desFileP, srcFileNameLeltarhely)
+        fileLelarhely.delete()
+        val fileLeltarfej = File(desFileP, srcFileNameLeltarfej)
+        fileLeltarfej.delete()
+        val fileUgyintezo = File(desFileP, srcFileNameUgyintezo)
+        fileUgyintezo.delete()
+        ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameCikk",
+            "$desFilePath/$srcFileNameCikk"
+        )
+        ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameVonalkod",
+            "$desFilePath/$srcFileNameVonalkod"
+        )
+        ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarhely",
+            "$desFilePath/$srcFileNameLeltarhely"
+        )
+        ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarfej",
+            "$desFilePath/$srcFileNameLeltarfej"
+        )
+        ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameUgyintezo",
+            "$desFilePath/$srcFileNameUgyintezo"
+        )
+    }
+
+    private fun disconnectFtp(){
+        Thread{
+            val status : Boolean = ftpclient!!.ftpDisconnect()
+            if (status) {
+                Log.d(TAG, "Disconnection Success")
+            } else {
+                Log.d(TAG, "Disconnection failed")
             }
         }.start()
     }
@@ -101,7 +148,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_delete_list_data -> {
+            R.id.action_ftp_login -> {
                 showDeleteConfirmationDialog()
                 true
             }
@@ -185,7 +232,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    runOnUiThread { Toast.makeText(this@MainActivity, "cikk.txt fájl nem találva", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread { Toast.makeText(this@MainActivity, "cikk.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         br?.close()
@@ -198,22 +245,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
     }
-
-    /*private fun ftpTest(){
-        val ftpClient = FTPClient()
-        ftpClient.connect(InetAddress.getByName(server))
-        ftpClient.login(user, password)
-        ftpClient.changeWorkingDirectory(serverRoad)
-        ftpClient.setFileType(FTP.BINARY_FILE_TYPE)
-
-        var buffIn: BufferedInputStream? = null
-        buffIn = BufferedInputStream(FileInputStream(file))
-        ftpClient.enterLocalPassiveMode()
-        ftpClient.storeFile("test.txt", buffIn)
-        buffIn.close()
-        ftpClient.logout()
-        ftpClient.disconnect()
-    }*/
 
     private suspend fun populateDbVonalkodok(database: ItemRoomDatabase?) {
         database?.let { db ->
@@ -247,7 +278,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    runOnUiThread { Toast.makeText(this@MainActivity, "vonalkod.txt fájl nem találva", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread { Toast.makeText(this@MainActivity, "vonalkod.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         brVk?.close()
@@ -295,7 +326,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    runOnUiThread { Toast.makeText(this@MainActivity, "ugyintezo.txt fájl nem találva", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread { Toast.makeText(this@MainActivity, "ugyintezo.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         brUs?.close()
@@ -338,7 +369,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    runOnUiThread { Toast.makeText(this@MainActivity, "leltarhely.txt fájl nem találva", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread { Toast.makeText(this@MainActivity, "leltarhely.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         brUs?.close()
@@ -360,6 +391,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .setCancelable(false)
             .setNegativeButton("Nem") { _, _ -> }
             .setPositiveButton("Igen") { _, _ ->
+                connectFtp()
                 GlobalScope.launch(Dispatchers.IO) { fetchDocs() }
                 window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 findViewById<ProgressBar>(R.id.progressBar).isVisible = true
@@ -387,5 +419,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+    }
 
 }

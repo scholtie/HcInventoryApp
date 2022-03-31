@@ -16,8 +16,13 @@
 
 package com.example.inventory
 
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,15 +33,24 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.inventory.data.Item
 import com.example.inventory.databinding.ItemListFragmentBinding
+import com.example.inventory.service.MyFTPClientFunctions
 import com.example.inventory.viewmodel.InventoryViewModel
 import com.example.inventory.viewmodel.InventoryViewModelFactory
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.apache.commons.net.ftp.FTP
+import org.apache.commons.net.ftp.FTPClient
+import java.io.BufferedInputStream
 import java.io.File
+import java.io.FileInputStream
+import java.net.InetAddress
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ItemListFragment : Fragment() {
 
     lateinit var item: Item
+    private var ftpclient: MyFTPClientFunctions? = null
 
     private val viewModel: InventoryViewModel by activityViewModels {
         InventoryViewModelFactory(
@@ -59,6 +73,7 @@ class ItemListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = ItemListFragmentBinding.inflate(inflater, container, false)
+        ftpclient = MyFTPClientFunctions()
         return binding.root
 
     }
@@ -86,7 +101,7 @@ class ItemListFragment : Fragment() {
         val user: String? = sharedPreferences.getString("user", "nouser")
 
         binding.safeArgsTestText.text = user
-        if (user == "Saturn" ){binding.floatingActionButton.isEnabled = false }
+        //if (user == "Saturn" ){binding.floatingActionButton.isEnabled = false }
         binding.deleteActionButton.setOnClickListener { showExportConfirmationDialog() }
         binding.allItemsDbButton.setOnClickListener {
             val action = ItemListFragmentDirections.actionItemListFragmentToAddAllProductsFragment()
@@ -131,7 +146,42 @@ class ItemListFragment : Fragment() {
                 }, ""))
             }
         }
+        connectFtp()
+    }
 
+    private fun connectFtp(){
+        val sharedPreferencesFtp = this.requireActivity().getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
+        val username: String? = sharedPreferencesFtp.getString("username", "")
+        val password: String? = sharedPreferencesFtp.getString("password", "")
+        val host: String? = sharedPreferencesFtp.getString("host", "")
+        val port: String? = sharedPreferencesFtp.getString("port", "0")
+        Thread {
+            // host – your FTP address
+            // username & password – for your secured login
+            // 21 default gateway for FTP
+            val status: Boolean = ftpclient!!.ftpConnect(host!!, username, password, port!!.toInt())
+            if (status) {
+                Log.d(ContentValues.TAG, "Connection Success")
+                ftpclient!!.ftpChangeDirectory(srcFilePath!!)
+                uploadFtp()
+                ftpclient!!.ftpPrintFilesList(srcFilePath)
+            } else {
+                Log.d(ContentValues.TAG, "Connection failed")
+                Toast.makeText(requireContext(), "Feltöltés sikertelen", Toast.LENGTH_SHORT).show()
+            }
+        }.start()
+    }
+
+    private fun uploadFtp(){
+        val sharedPreferencesFtp = this.requireActivity().getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
+        val sdf = SimpleDateFormat("yyyy.M.dd.hh.mm.ss")
+        val currentDate = sdf.format(Date()).toString()
+        println()
+        val desFilePath = requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString()
+        ftpclient!!.ftpUpload("$desFilePath/items.txt", "items$currentDate.txt", srcFilePath, requireContext())
+        requireActivity().runOnUiThread { Toast.makeText(requireContext(), "Sikeresen feltöltve a szerverre", Toast.LENGTH_SHORT).show() }
     }
 
 

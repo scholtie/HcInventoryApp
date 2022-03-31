@@ -50,7 +50,7 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
         itemAruid: Int,
         itemArunev: String,
         itemMennyiseg: Int,
-        itemDatum: Double,
+        itemDatum: String,
         itemTarolohelyid: Int,
         itemUserid: Int,
         itemIker: Boolean
@@ -90,7 +90,7 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
     fun addNewItem(itemAruid: Int,
                    itemArunev: String,
                    itemMennyiseg: Int,
-                   itemDatum: Double,
+                   itemDatum: String,
                    itemTarolohelyid: Int,
                    itemUserid: Int,
                    itemIker: Boolean) {
@@ -147,7 +147,7 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
     private fun getNewItemEntry(itemAruid: Int,
                                 itemArunev: String,
                                 itemMennyiseg: Int,
-                                itemDatum: Double,
+                                itemDatum: String,
                                 itemTarolohelyid: Int,
                                 itemUserid: Int,
                                 itemIker: Boolean): Item {
@@ -171,7 +171,7 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
         itemAruid: Int,
         itemArunev: String,
         itemMennyiseg: Int,
-        itemDatum: Double,
+        itemDatum: String,
         itemTarolohelyid: Int,
         itemUserid: Int,
         itemIker: Boolean

@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.inventory.LoginActivity">
+    <item
+        android:id="@+id/action_ftp_login"
+        android:orderInCategory="1"
+        android:title="FTP bejelentkezési adatok"
+        app:showAsAction="never" />
+</menu>

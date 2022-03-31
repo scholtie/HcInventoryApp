@@ -40,7 +40,7 @@ data class Item(
     @ColumnInfo(name = "userid")
     val itemUserid: Int,
     @ColumnInfo(name = "datum")
-    val itemDatum: Double,
+    val itemDatum: String,
     @ColumnInfo(name = "iker")
     val itemIker: Boolean)
 {

@@ -28,8 +28,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.math.abs
 
 
 class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
@@ -179,8 +177,8 @@ private val viewModel: InventoryViewModel by viewModels {
         }
     }
 
-    private fun dateDiff(): Double {
-        val sdf = SimpleDateFormat("yyyy.MM.dd G 'at' HH:mm:ss z", Locale.ENGLISH)
+    private fun dateDiff(): String {
+        /*val sdf = SimpleDateFormat("yyyy.MM.dd G 'at' HH:mm:ss z", Locale.ENGLISH)
         val firstDate = sdf.parse("1899.12.30 AD at 00:00:00 PDT")
         val secondDate = Date()
         val diffInMillies = abs(secondDate.time - firstDate!!.time)
@@ -188,7 +186,9 @@ private val viewModel: InventoryViewModel by viewModels {
         val diffDouble: Double = diff.toDouble()
         //assertEquals(6, diff)
         println(diffDouble)
-        return diffDouble
+        return diffDouble*/
+        val sdf = SimpleDateFormat("yyyy.M.dd.hh.mm.ss")
+        return sdf.format(Date()).toString()
     }
 
     private fun getIkerleltar(): Boolean{
@@ -223,14 +223,9 @@ private val viewModel: InventoryViewModel by viewModels {
                                         userId!!.toInt(),
                                         getIkerleltar()
                                     )
-                                    val pendingIntent: PendingIntent =
-                                        NavDeepLinkBuilder(this.applicationContext)
-                                            .setGraph(R.navigation.nav_graph)
-                                            .setDestination(R.id.itemListFragment)
-                                            .createPendingIntent()
-
+                                    val switchActivityIntent = Intent(this, MainActivity::class.java)
                                     try {
-                                        pendingIntent.send()
+                                        startActivity(switchActivityIntent)
                                     } catch (e: CanceledException) {
                                         e.printStackTrace()
                                     }
@@ -269,14 +264,9 @@ private val viewModel: InventoryViewModel by viewModels {
                 userId!!.toInt(),
                 getIkerleltar()
             )
-            val pendingIntent: PendingIntent =
-                NavDeepLinkBuilder(this.applicationContext)
-                    .setGraph(R.navigation.nav_graph)
-                    .setDestination(R.id.itemListFragment)
-                    .createPendingIntent()
-
+            val switchActivityIntent = Intent(this, MainActivity::class.java)
             try {
-                pendingIntent.send()
+                startActivity(switchActivityIntent)
             } catch (e: CanceledException) {
                 e.printStackTrace()
             }
