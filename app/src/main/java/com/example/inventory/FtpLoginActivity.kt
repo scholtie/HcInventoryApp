@@ -7,8 +7,11 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.example.inventory.databinding.ActivityFtpLoginBinding
 import com.example.inventory.service.MyFTPClientFunctions
 import java.io.File
@@ -27,14 +30,31 @@ class FtpLoginActivity : AppCompatActivity() {
         setContentView(view)
         ftpclient = MyFTPClientFunctions()
         binding.loginBtn4.setOnClickListener { connectFtp() }
+        initData()
+    }
+
+    private fun initData(){
+        val sharedPreferencesFtp = this.getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
+        val username: String? = sharedPreferencesFtp.getString("username", "")
+        val password: String? = sharedPreferencesFtp.getString("password", "")
+        val host: String? = sharedPreferencesFtp.getString("host", "")
+        val port: String? = sharedPreferencesFtp.getString("port", "0")
+        binding.editPasswordFtp.setText(password, TextView.BufferType.SPANNABLE)
+        binding.editTextHost.setText(host, TextView.BufferType.SPANNABLE)
+        binding.editTextPortFtp.setText(port, TextView.BufferType.SPANNABLE)
+        binding.editTextFilePath.setText(srcFilePath, TextView.BufferType.SPANNABLE)
+        binding.editTextUserFtp.setText(username, TextView.BufferType.SPANNABLE)
     }
 
     private fun connectFtp(){
+        runOnUiThread {
+            findViewById<ProgressBar>(R.id.progressBar2).isVisible = true }
         val username = binding.editTextUserFtp.text.toString()
         val password = binding.editPasswordFtp.text.toString()
         val host = binding.editTextHost.text.toString()
         val port = binding.editTextPortFtp.text.toString()
-        val srcFilePath = binding.editTextTextPersonName3.text.toString()
+        val srcFilePath = binding.editTextFilePath.text.toString()
         Thread {
             // host – your FTP address
             // username & password – for your secured login
@@ -58,6 +78,8 @@ class FtpLoginActivity : AppCompatActivity() {
                 val switchActivityIntent = Intent(this, LoginActivity::class.java)
                 startActivity(switchActivityIntent)
             } else {
+                runOnUiThread {
+                    findViewById<ProgressBar>(R.id.progressBar2).isVisible = false }
                 Log.d(ContentValues.TAG, "Connection failed")
                 runOnUiThread { Toast.makeText(this@FtpLoginActivity, "Bejelentkezés sikertelen", Toast.LENGTH_SHORT).show() }
             }
@@ -65,7 +87,7 @@ class FtpLoginActivity : AppCompatActivity() {
     }
 
     private fun uploadFtp(){
-        val srcFilePath = binding.editTextTextPersonName3.text.toString()
+        val srcFilePath = binding.editTextFilePath.text.toString()
         val sdf = SimpleDateFormat("yyyy.M.dd.hh.mm.ss")
         val currentDate = sdf.format(Date()).toString()
         println()
@@ -74,7 +96,7 @@ class FtpLoginActivity : AppCompatActivity() {
     }
 
     private fun downloadFtp(){
-        val srcFilePath = binding.editTextTextPersonName3.text.toString()
+        val srcFilePath = binding.editTextFilePath.text.toString()
         val srcFileNameCikk = "cikk.txt"
         val srcFileNameVonalkod = "vonalkod.txt"
         val srcFileNameLeltarhely = "leltarhely.txt"

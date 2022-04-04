@@ -15,7 +15,7 @@
  */
 package com.example.inventory
 
-import android.content.ContentValues
+import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
@@ -28,6 +28,7 @@ import android.view.WindowManager
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -35,7 +36,10 @@ import com.example.inventory.data.*
 import com.example.inventory.service.MyFTPClientFunctions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
-import java.io.*
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileReader
+import java.io.IOException
 
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -72,16 +76,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             // 21 default gateway for FTP
             val status: Boolean = ftpclient!!.ftpConnect(host!!, username, password, port!!.toInt())
             if (status) {
-                Log.d(ContentValues.TAG, "Connection Success")
+                Log.d(TAG, "Connection Success")
                 ftpclient!!.ftpChangeDirectory(srcFilePath!!)
                 downloadFtp()
                 ftpclient!!.ftpPrintFilesList(srcFilePath)
             } else {
-                Log.d(ContentValues.TAG, "Connection failed")
+                Log.d(TAG, "Connection failed")
             }
         }.start()
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun downloadFtp(){
         val sharedPreferencesFtp = this.getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
@@ -92,31 +97,42 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val srcFileNameUgyintezo = "ugyintezo.txt"
         val desFilePath = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString()
         val desFileP = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-        val fileCikk = File(desFileP, srcFileNameCikk)
-        fileCikk.delete()
-        val fileVonalkod = File(desFileP, srcFileNameVonalkod)
-        fileVonalkod.delete()
-        val fileLelarhely = File(desFileP, srcFileNameLeltarhely)
-        fileLelarhely.delete()
-        val fileLeltarfej = File(desFileP, srcFileNameLeltarfej)
-        fileLeltarfej.delete()
-        val fileUgyintezo = File(desFileP, srcFileNameUgyintezo)
-        fileUgyintezo.delete()
-        ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameCikk",
-            "$desFilePath/$srcFileNameCikk"
-        )
-        ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameVonalkod",
-            "$desFilePath/$srcFileNameVonalkod"
-        )
-        ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarhely",
-            "$desFilePath/$srcFileNameLeltarhely"
-        )
-        ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarfej",
-            "$desFilePath/$srcFileNameLeltarfej"
-        )
-        ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameUgyintezo",
-            "$desFilePath/$srcFileNameUgyintezo"
-        )
+        try{
+            val fileCikk = File(desFileP, srcFileNameCikk)
+            fileCikk.delete()
+            val fileVonalkod = File(desFileP, srcFileNameVonalkod)
+            fileVonalkod.delete()
+            val fileLelarhely = File(desFileP, srcFileNameLeltarhely)
+            fileLelarhely.delete()
+            val fileLeltarfej = File(desFileP, srcFileNameLeltarfej)
+            fileLeltarfej.delete()
+            val fileUgyintezo = File(desFileP, srcFileNameUgyintezo)
+            fileUgyintezo.delete()
+            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameCikk",
+                "$desFilePath/$srcFileNameCikk"
+            )
+            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameVonalkod",
+                "$desFilePath/$srcFileNameVonalkod"
+            )
+            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarhely",
+                "$desFilePath/$srcFileNameLeltarhely"
+            )
+            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarfej",
+                "$desFilePath/$srcFileNameLeltarfej"
+            )
+            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameUgyintezo",
+                "$desFilePath/$srcFileNameUgyintezo"
+            )
+        }
+        catch (e: Exception) {
+            e.printStackTrace()
+            runOnUiThread {
+                findViewById<ProgressBar>(R.id.progressBar).isVisible = false }
+        }
+        finally {
+            GlobalScope.launch(Dispatchers.IO) { fetchDocs() }
+        }
+
     }
 
     private fun disconnectFtp(){
@@ -141,27 +157,28 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     }*/
 
+    @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.overflow, menu)
+        if (menu is MenuBuilder) {
+            menu.setOptionalIconsVisible(true)
+        }
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_ftp_login -> {
+            R.id.action_db_delete -> {
                 showDeleteConfirmationDialog()
                 true
             }
-            R.id.action_re_create_database -> {
+            R.id.action_db_import -> {
                 showConfirmationDialog()
                 true
             }
-            R.id.action_export_to_csv_file -> {
-                //shownFragment as? AddItemFragment)?.showItemWithBarcode()
-                /*val fm: FragmentManager = supportFragmentManager
-                val fragment: AddItemFragment? =
-                    fm.findFragmentById(R.id.addItemFragment) as? AddItemFragment
-                fragment?.showItemWithBarcode()*/
+            R.id.action_ftpsettings -> {
+                val switchActivityIntent = Intent(this, FtpLoginActivity::class.java)
+                startActivity(switchActivityIntent)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -283,8 +300,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     try {
                         brVk?.close()
                         println("Vonalkódok beolvasva")
-                        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                         runOnUiThread {
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                             findViewById<ProgressBar>(R.id.progressBar).isVisible = false
                             Toast.makeText(this@MainActivity, "vonalkod.txt beolvasva", Toast.LENGTH_SHORT).show()
                         }
@@ -392,7 +409,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .setNegativeButton("Nem") { _, _ -> }
             .setPositiveButton("Igen") { _, _ ->
                 connectFtp()
-                GlobalScope.launch(Dispatchers.IO) { fetchDocs() }
                 window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 findViewById<ProgressBar>(R.id.progressBar).isVisible = true
             }
@@ -403,6 +419,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private fun showDeleteConfirmationDialog() {
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(android.R.string.dialog_alert_title))
+            .setIcon(android.R.drawable.ic_dialog_alert)
             .setMessage(getString(R.string.DeleteConfirmation))
             .setCancelable(false)
             .setNegativeButton(R.string.no) { _, _ -> }

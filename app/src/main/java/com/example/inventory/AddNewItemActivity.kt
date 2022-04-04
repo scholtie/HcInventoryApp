@@ -1,20 +1,20 @@
 
 package com.example.inventory
 
-import android.app.PendingIntent
 import android.app.PendingIntent.CanceledException
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavDeepLinkBuilder
 import androidx.navigation.navArgs
 import com.example.inventory.data.AllProducts
 import com.example.inventory.data.Item
@@ -41,6 +41,10 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
         val view = binding.root
         setContentView(view)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        val sharedPreferencesIker = this.getSharedPreferences("IkerRaktar", Context.MODE_PRIVATE)
+        val iker: String? = sharedPreferencesIker.getString("iker", "false")
+        val raktar: String? = sharedPreferencesIker.getString("raktar", "0")
+        binding.checkBox.isChecked = iker.toBoolean()
         val id = navigationArgs.itemId
         if (id > 0) {
             viewModel.retrieveItem(id).observe(this) { selectedItem ->
@@ -53,6 +57,7 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
             }
         }
         loadSpinnerData()
+        binding.spnLeltarhely.setSelection(raktar!!.toInt())
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -60,6 +65,8 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
         displayScanResult(intent)
         showItemWithBarcode()
         binding.itemCount.requestFocus()
+        val imm: InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
     }
 
     private fun displayScanResult(scanIntent: Intent) {
@@ -201,10 +208,11 @@ private val viewModel: InventoryViewModel by viewModels {
     private fun addNewItem() {
         //dateDiff()
         val sharedPreferences = this.getSharedPreferences("Users", Context.MODE_PRIVATE)
+        val sharedPreferencesIker = this.getSharedPreferences("IkerRaktar", Context.MODE_PRIVATE)
         val userId: String? = sharedPreferences.getString("id", "0")
         //val dateTime = Calendar.getInstance().time.time
         //val dateTimeAsDouble = dateTime.toDouble()
-        if (isEntryValid()) {
+        if (isEntryValid() && binding.itemCount.text.toString().toInt() != 0) {
             val barcodeValue = binding.itemBarcode.text.toString()
             vonalkodViewModel.retrieveMatchingAruid(barcodeValue)
                 .observe(this) { barcodeTest ->
@@ -223,9 +231,17 @@ private val viewModel: InventoryViewModel by viewModels {
                                         userId!!.toInt(),
                                         getIkerleltar()
                                     )
-                                    val switchActivityIntent = Intent(this, MainActivity::class.java)
+                                    val switchActivityIntent = Intent(this,
+                                        MainActivity::class.java)
                                     try {
                                         startActivity(switchActivityIntent)
+                                        val editor: SharedPreferences.Editor =
+                                            sharedPreferencesIker.edit()
+                                        editor.putString("iker", getIkerleltar().toString())
+                                        editor.putString("raktar",
+                                            binding.spnLeltarhely.selectedItemPosition.toString()
+                                        )
+                                        editor.apply()
                                     } catch (e: CanceledException) {
                                         e.printStackTrace()
                                     }
@@ -253,7 +269,7 @@ private val viewModel: InventoryViewModel by viewModels {
     private fun updateItem() {
         val sharedPreferences = this.getSharedPreferences("Users", Context.MODE_PRIVATE)
         val userId: String? = sharedPreferences.getString("id", "0")
-        if (isEntryValid()) {
+        if (isEntryValid() && binding.itemCount.text.toString().toInt() != 0) {
             viewModel.updateItem(
                 this.navigationArgs.itemId,
                 item.itemAruid,
@@ -324,5 +340,15 @@ private val viewModel: InventoryViewModel by viewModels {
             }*/
             .show()
     }
+
+    /*override fun onBackPressed() {
+        super.onBackPressed()
+        val switchActivityIntent = Intent(this, MainActivity::class.java)
+        try {
+            startActivity(switchActivityIntent)
+        } catch (e: CanceledException) {
+            e.printStackTrace()
+        }
+    }*/
     }
 

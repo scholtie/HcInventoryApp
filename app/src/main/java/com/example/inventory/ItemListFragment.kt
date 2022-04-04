@@ -20,6 +20,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -27,30 +28,34 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.addCallback
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.inventory.data.Item
+import com.example.inventory.data.ItemRoomDatabase
 import com.example.inventory.databinding.ItemListFragmentBinding
 import com.example.inventory.service.MyFTPClientFunctions
+import com.example.inventory.service.NetworkAvailable
 import com.example.inventory.viewmodel.InventoryViewModel
 import com.example.inventory.viewmodel.InventoryViewModelFactory
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import org.apache.commons.net.ftp.FTP
-import org.apache.commons.net.ftp.FTPClient
-import java.io.BufferedInputStream
+import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileInputStream
 import java.net.InetAddress
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class ItemListFragment : Fragment() {
 
     lateinit var item: Item
     private var ftpclient: MyFTPClientFunctions? = null
+    private var networkAvailable: NetworkAvailable? = null
 
     private val viewModel: InventoryViewModel by activityViewModels {
         InventoryViewModelFactory(
@@ -65,6 +70,11 @@ class ItemListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initData()
+        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
+            val switchActivityIntent = Intent(requireContext(), LoginActivity::class.java)
+            startActivity(switchActivityIntent)
+        }
+        callback.isEnabled = true
     }
 
     override fun onCreateView(
@@ -74,6 +84,7 @@ class ItemListFragment : Fragment() {
     ): View {
         _binding = ItemListFragmentBinding.inflate(inflater, container, false)
         ftpclient = MyFTPClientFunctions()
+        networkAvailable = NetworkAvailable()
         return binding.root
 
     }
@@ -97,7 +108,8 @@ class ItemListFragment : Fragment() {
             this.findNavController().navigate(action)
         }
 
-        val sharedPreferences = this.requireActivity().getSharedPreferences("Users", Context.MODE_PRIVATE)
+        val sharedPreferences = this.requireActivity().
+        getSharedPreferences("Users", Context.MODE_PRIVATE)
         val user: String? = sharedPreferences.getString("user", "nouser")
 
         binding.safeArgsTestText.text = user
@@ -124,6 +136,8 @@ class ItemListFragment : Fragment() {
     }
 
     private fun exportDatabaseToCSVFile() {
+        //removeFtp()
+        binding.deleteActionButton.isEnabled = false
         val csvFile = generateFile(requireContext(), "items.txt")
         if (csvFile != null) {
             (exportToCSVFile(csvFile))
@@ -138,7 +152,8 @@ class ItemListFragment : Fragment() {
         //val currentDate = sdf.format(Date())
         csvWriter{delimiter=';'}.open(csvFile, append = false) {
             itemsList.forEachIndexed { _, item ->
-                writeRow(listOf(item.itemAruid, item.itemTarolohelyid, "", item.itemMennyiseg, 0, item.itemUserid, item.itemDatum ,
+                writeRow(listOf(item.itemAruid, item.itemTarolohelyid, "", item.itemMennyiseg, 0,
+                    item.itemUserid, item.itemDatum ,
                     if (!item.itemIker){
                     "False"
                 }else{
@@ -146,11 +161,27 @@ class ItemListFragment : Fragment() {
                 }, ""))
             }
         }
-        connectFtp()
+        if (networkAvailable!!.isOnline(requireContext()))
+        {connectFtp()}else{
+            Toast.makeText(requireContext(), "Nincs internetkapcsolat",
+                Toast.LENGTH_SHORT).show()
+        }
+
+    }
+
+    private fun isInternetAvailable(): Boolean {
+        return try {
+            val ipAddr: InetAddress = InetAddress.getByName("google.com")
+            //You can replace it with your name
+            !ipAddr.equals("")
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private fun connectFtp(){
-        val sharedPreferencesFtp = this.requireActivity().getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val sharedPreferencesFtp = this.requireActivity().
+        getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
         val username: String? = sharedPreferencesFtp.getString("username", "")
         val password: String? = sharedPreferencesFtp.getString("password", "")
@@ -165,34 +196,67 @@ class ItemListFragment : Fragment() {
                 Log.d(ContentValues.TAG, "Connection Success")
                 ftpclient!!.ftpChangeDirectory(srcFilePath!!)
                 uploadFtp()
-                ftpclient!!.ftpPrintFilesList(srcFilePath)
+                //ftpclient!!.ftpPrintFilesList(srcFilePath)
+                activity?.runOnUiThread { binding.deleteActionButton.isEnabled = true }
             } else {
                 Log.d(ContentValues.TAG, "Connection failed")
-                Toast.makeText(requireContext(), "Feltöltés sikertelen", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Feltöltés sikertelen",
+                    Toast.LENGTH_SHORT).show()
             }
         }.start()
     }
 
     private fun uploadFtp(){
-        val sharedPreferencesFtp = this.requireActivity().getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val sharedPreferencesFtp = this.requireActivity().
+        getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
-        val sdf = SimpleDateFormat("yyyy.M.dd.hh.mm.ss")
+        val sdf = SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
         val currentDate = sdf.format(Date()).toString()
         println()
-        val desFilePath = requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString()
-        ftpclient!!.ftpUpload("$desFilePath/items.txt", "items$currentDate.txt", srcFilePath, requireContext())
-        requireActivity().runOnUiThread { Toast.makeText(requireContext(), "Sikeresen feltöltve a szerverre", Toast.LENGTH_SHORT).show() }
+        val desFilePath = requireContext().
+        getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString()
+        ftpclient!!.ftpUpload("$desFilePath/items.txt",
+            "leltar$currentDate.txt", srcFilePath, requireContext())
+        requireActivity().runOnUiThread { Toast.makeText(requireContext(),
+            "Sikeresen feltöltve a szerverre", Toast.LENGTH_SHORT).show() }
+        val lastFileSharedPreferences = this.requireActivity()
+            .getSharedPreferences("LastFile", Context.MODE_PRIVATE)
+        val editor: SharedPreferences.Editor = lastFileSharedPreferences.edit()
+        editor.putString("fileName", srcFilePath + "leltar" + currentDate + ".txt")
+        editor.apply()
+    }
+
+    private fun removeFtp(){
+        val sharedPreferencesFtp = this.requireActivity().
+        getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
+        val sharedPreferencesFileName = this.requireActivity().
+        getSharedPreferences("LastFile", Context.MODE_PRIVATE)
+        val deleteFilePath: String? = sharedPreferencesFileName.getString("fileName", "")
+        ftpclient!!.ftpChangeDirectory(srcFilePath!!)
+        println(srcFilePath)
+        Thread{
+            ftpclient!!.ftpRemoveFile(deleteFilePath)
+        }
     }
 
 
     private fun showExportConfirmationDialog() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(android.R.string.dialog_alert_title))
-            .setMessage(getString(R.string.export_question))
-            .setCancelable(false)
-            .setNegativeButton(getString(R.string.no)) { _, _ -> }
-            .setPositiveButton(getString(R.string.yes)) { _, _ -> exportDatabaseToCSVFile()
+        lifecycleScope.launch {
+            val itemList: List<Item> =
+                ItemRoomDatabase.getDatabase(requireContext()).itemDao().getAll()
+            if (itemList.isNotEmpty()) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(getString(android.R.string.dialog_alert_title))
+                    .setMessage(getString(R.string.export_question))
+                    .setCancelable(false)
+                    .setNegativeButton(getString(R.string.no)) { _, _ -> }
+                    .setPositiveButton(getString(R.string.yes)) { _, _ -> exportDatabaseToCSVFile()
+                    }
+                    .show()
+            } else {
+                Toast.makeText(requireContext(), "Még nincs hozzáadva termék!", Toast.LENGTH_SHORT).show()
             }
-            .show()
+        }
     }
 }

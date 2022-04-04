@@ -37,9 +37,9 @@ interface ItemDao {
     suspend fun getCount(): Int
 
     @Query("SELECT * FROM item")
-    fun getAll(): List<Item>
+    suspend fun getAll(): List<Item>
 
-    @Query("SELECT * from item ORDER BY aruid ASC")
+    @Query("SELECT * from item ORDER BY datum DESC")
     fun getItems(): LiveData<List<Item>>
 
     @Query("SELECT * from item WHERE id = :id")

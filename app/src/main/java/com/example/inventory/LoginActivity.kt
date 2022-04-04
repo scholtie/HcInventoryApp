@@ -9,10 +9,13 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
 import android.widget.ArrayAdapter
+import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.get
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.example.inventory.data.*
@@ -34,6 +37,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: LoginActivityBinding
     private lateinit var navController: NavController
     private var ftpclient: MyFTPClientFunctions? = null
+    private var isLoading: Boolean = false
 
     private val usersViewModel : UsersViewModel by viewModels(){
         UsersViewModelFactory(
@@ -57,9 +61,9 @@ class LoginActivity : AppCompatActivity() {
                 ItemRoomDatabase.getDatabase(this@LoginActivity).usersDao().getUsers()
             if (userList.isNotEmpty()) {
                 loadSpinnerData()
-                binding.btnLoadData.isEnabled = false
+                binding.btnLoadData.isVisible = false
             } else {
-                binding.loginBtn.isEnabled = false
+                binding.loginBtn.isVisible = false
             }
         }
     }
@@ -71,7 +75,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            com.example.inventory.R.id.action_ftp_login -> {
+            com.example.inventory.R.id.action_db_delete -> {
                 val switchActivityIntent = Intent(this, FtpLoginActivity::class.java)
                 startActivity(switchActivityIntent)
                 true
@@ -237,6 +241,9 @@ class LoginActivity : AppCompatActivity() {
                         runOnUiThread {
                             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                             //findViewById<ProgressBar>(com.example.inventory.R.id.progressBar).isVisible = false
+                            runOnUiThread {
+                                findViewById<ProgressBar>(com.example.inventory.R.id.progressBar4).isVisible = false }
+                            isLoading = false
                             Toast.makeText(this@LoginActivity, "vonalkod.txt beolvasva", Toast.LENGTH_SHORT).show()
                             val switchActivityIntent = Intent(this@LoginActivity, LoginActivity::class.java)
                             startActivity(switchActivityIntent)
@@ -346,12 +353,15 @@ class LoginActivity : AppCompatActivity() {
             .setPositiveButton("Igen") { _, _ ->
                 connectFtp()
                 window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                binding.btnLoadData.isEnabled = false
                 //findViewById<ProgressBar>(com.example.inventory.R.id.progressBar).isVisible = true
             }
             .show()
     }
 
     private fun connectFtp(){
+        runOnUiThread {
+            findViewById<ProgressBar>(com.example.inventory.R.id.progressBar4).isVisible = true }
         val sharedPreferencesFtp = this.getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
         val username: String? = sharedPreferencesFtp.getString("username", "")
@@ -365,14 +375,23 @@ class LoginActivity : AppCompatActivity() {
             val status: Boolean = ftpclient!!.ftpConnect(host!!, username, password, port!!.toInt())
             if (status) {
                 Log.d(ContentValues.TAG, "Connection Success")
+                runOnUiThread { Toast.makeText(this@LoginActivity, "Sikeres csatlakozás a szerverhez", Toast.LENGTH_SHORT).show() }
                 ftpclient!!.ftpChangeDirectory(srcFilePath!!)
                 downloadFtp()
+                isLoading = true
                 ftpclient!!.ftpPrintFilesList(srcFilePath)
             } else {
+                runOnUiThread {
+                    findViewById<ProgressBar>(com.example.inventory.R.id.progressBar4).isVisible = false }
                 Log.d(ContentValues.TAG, "Connection failed")
                 runOnUiThread { Toast.makeText(this@LoginActivity, "Letöltés Sikertelen", Toast.LENGTH_SHORT).show() }
             }
         }.start()
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.getItem(0).isEnabled = !isLoading
+        return true
     }
 
     private fun downloadFtp(){
@@ -414,6 +433,8 @@ class LoginActivity : AppCompatActivity() {
         }
         catch (e: Exception) {
             e.printStackTrace()
+            runOnUiThread {
+                findViewById<ProgressBar>(com.example.inventory.R.id.progressBar3).isVisible = false }
         }
         finally {
             GlobalScope.launch(Dispatchers.IO) { fetchDocs() }
@@ -425,7 +446,7 @@ class LoginActivity : AppCompatActivity() {
             .setIcon(R.drawable.ic_dialog_alert)
             .setTitle("Kilépés")
             .setMessage("Biztosan ki szeretne lépni?")
-            .setPositiveButton("Igen") { _, _ -> finish() }
+            .setPositiveButton("Igen") { _, _ -> finishAffinity() }
             .setNegativeButton("Nem", null)
             .show()
     }

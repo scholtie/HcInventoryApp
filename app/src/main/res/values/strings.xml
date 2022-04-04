@@ -75,7 +75,7 @@
     <string name="DeleteConfirmation">Felvett termékek törlése. Biztosan folytatni szeretné?</string>
     <string name="ikerleltar">Ikerleltáros</string>
     <string name="nemikerleltar">Nem ikerleltáros</string>
-    <string name="osszesmezo">Kérem töltse ki az összes mezőt!</string>
+    <string name="osszesmezo">Mezők helytelenül kitöltve!</string>
     <string name="itemnotfound">Nem talált termék</string>
     <string name="scanbarcode">Kérem olvassa be a vonalkódot</string>
     <string name="barcodenotfound">Nem található a vonalkód az adatbázisban.</string>
