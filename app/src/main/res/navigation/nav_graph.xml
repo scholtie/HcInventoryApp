@@ -27,16 +27,10 @@
         <action
             android:id="@+id/action_itemListFragment_to_itemDetailFragment"
             app:destination="@id/itemDetailFragment" />
-        <action
-            android:id="@+id/action_itemListFragment_to_addItemFragment"
-            app:destination="@id/addItemFragment" />
         <argument
             android:name="user"
             app:argType="string"
             android:defaultValue="null" />
-        <action
-            android:id="@+id/action_itemListFragment_to_addAllProductsFragment"
-            app:destination="@id/addAllProductsFragment" />
         <action
             android:id="@+id/action_itemListFragment_to_textInputTest"
             app:destination="@id/textInputTest" />
@@ -56,49 +50,8 @@
             android:name="item_id"
             app:argType="integer" />
         <action
-            android:id="@+id/action_itemDetailFragment_to_addItemFragment"
-            app:destination="@id/addItemFragment" />
-        <action
             android:id="@+id/action_itemDetailFragment_to_addNewItemActivity"
             app:destination="@id/addNewItemActivity" />
-    </fragment>
-    <fragment
-        android:id="@+id/addItemFragment"
-        android:name="com.example.inventory.AddItemFragment"
-        android:label="{title}"
-        tools:layout="@layout/fragment_add_item">
-        <argument
-            android:name="title"
-            app:argType="string" />
-        <argument
-            android:name="item_id"
-            android:defaultValue="-1"
-            app:argType="integer" />
-        <action
-            android:id="@+id/action_addItemFragment_to_itemListFragment"
-            app:destination="@id/itemListFragment"
-            app:popUpTo="@id/itemListFragment"
-            app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_addItemFragment_to_addAllProductsFragment"
-            app:destination="@id/addAllProductsFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/addAllProductsFragment"
-        android:name="com.example.inventory.AddAllProductsFragment"
-        android:label="AddAllProductsFragment" >
-        <argument
-            android:name="item_id"
-            app:argType="integer"
-            android:defaultValue="-1" />
-        <action
-            android:id="@+id/action_addAllProductsFragment_to_itemListFragment"
-            app:destination="@id/itemListFragment" />
-        <argument
-            android:name="product_barcode"
-            app:argType="string"
-            app:nullable="true"
-            android:defaultValue=" " />
     </fragment>
     <activity
         android:id="@+id/textInputTest"

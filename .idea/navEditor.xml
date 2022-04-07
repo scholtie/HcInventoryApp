@@ -34,8 +34,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="143" />
-                            <option name="y" value="-423" />
+                            <option name="x" value="173" />
+                            <option name="y" value="-527" />
                           </Point>
                         </option>
                         <option name="myPositions">
@@ -62,18 +62,6 @@
                           <Point>
                             <option name="x" value="419" />
                             <option name="y" value="-405" />
-                          </Point>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="ftpLoginActivity">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="-191" />
-                            <option name="y" value="198" />
                           </Point>
                         </option>
                       </LayoutPositions>

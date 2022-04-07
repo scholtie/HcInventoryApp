@@ -134,7 +134,7 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
      */
     fun isEntryValid(
                      itemMennyiseg: String, itemVonalkod: String ): Boolean {
-        if (itemMennyiseg.isBlank() && itemVonalkod.isBlank()) {
+        if (itemMennyiseg.isBlank() || itemVonalkod.isBlank()) {
             return false
         }
         return true

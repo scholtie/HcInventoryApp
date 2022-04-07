@@ -8,13 +8,9 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
-import android.widget.ArrayAdapter
-import android.widget.ProgressBar
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.get
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -39,7 +35,7 @@ class LoginActivity : AppCompatActivity() {
     private var ftpclient: MyFTPClientFunctions? = null
     private var isLoading: Boolean = false
 
-    private val usersViewModel : UsersViewModel by viewModels(){
+    private val usersViewModel : UsersViewModel by viewModels{
         UsersViewModelFactory(
             (this.application as InventoryApplication).database.
             usersDao())
@@ -124,12 +120,13 @@ class LoginActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     println("Nem talált termék")
                 }
-                if (binding.editPassword.text.toString() == user.userPass) {
+                //if (binding.editPassword.text.toString() == user.userPass) {
                     val switchActivityIntent = Intent(this, MainActivity::class.java)
                     startActivity(switchActivityIntent)
-                } else {
+                //}
+                /*else {
                     Toast.makeText(this, "Hibás jelszó!", Toast.LENGTH_SHORT).show()
-                }
+                }*/
             }
     }
 
@@ -346,7 +343,7 @@ class LoginActivity : AppCompatActivity() {
     @OptIn(DelicateCoroutinesApi::class)
     private fun showConfirmationDialog() {
         MaterialAlertDialogBuilder(this)
-            .setTitle(getString(android.R.string.dialog_alert_title))
+            .setTitle(getString(R.string.dialog_alert_title))
             .setMessage("Adatbázis írása a fájlokból. Biztosan folytatni szeretné? A folyamat akár 10 percig is tarthat.")
             .setCancelable(false)
             .setNegativeButton("Nem") { _, _ -> }
@@ -379,12 +376,13 @@ class LoginActivity : AppCompatActivity() {
                 ftpclient!!.ftpChangeDirectory(srcFilePath!!)
                 downloadFtp()
                 isLoading = true
-                ftpclient!!.ftpPrintFilesList(srcFilePath)
+                //ftpclient!!.ftpPrintFilesList(srcFilePath)
             } else {
                 runOnUiThread {
                     findViewById<ProgressBar>(com.example.inventory.R.id.progressBar4).isVisible = false }
                 Log.d(ContentValues.TAG, "Connection failed")
-                runOnUiThread { Toast.makeText(this@LoginActivity, "Letöltés Sikertelen", Toast.LENGTH_SHORT).show() }
+                runOnUiThread { Toast.makeText(this@LoginActivity, "Letöltés Sikertelen", Toast.LENGTH_SHORT).show()
+                binding.btnLoadData.isEnabled = true}
             }
         }.start()
     }

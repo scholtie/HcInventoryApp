@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 /**
  * Database class with a singleton INSTANCE object.
  */
-@Database(entities = [Item::class, AllProducts::class, Vonalkod::class, Users::class, Leltarhely::class], version = 45, exportSchema = false)
+@Database(entities = [Item::class, AllProducts::class, Vonalkod::class, Users::class, Leltarhely::class], version = 46, exportSchema = false)
 abstract class ItemRoomDatabase : RoomDatabase() {
 
     abstract fun itemDao(): ItemDao

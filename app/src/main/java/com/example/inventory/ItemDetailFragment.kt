@@ -70,7 +70,7 @@ class ItemDetailFragment : Fragment() {
             else {
                 itemIker.text = getString(R.string.nemikerleltar)
             }
-            itemTime.text = item.itemDatum.toString()
+            itemTime.text = item.itemDatum
             itemUser.text = item.itemUserid.toString()
             deleteItem.setOnClickListener { showConfirmationDialog() }
             editItem.setOnClickListener { editItem() }

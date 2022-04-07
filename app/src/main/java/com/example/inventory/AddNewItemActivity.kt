@@ -1,6 +1,7 @@
 
 package com.example.inventory
 
+import android.app.Activity
 import android.app.PendingIntent.CanceledException
 import android.content.Context
 import android.content.Intent
@@ -14,6 +15,7 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.navArgs
 import com.example.inventory.data.AllProducts
@@ -33,6 +35,7 @@ import java.util.*
 class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
 
     private lateinit var binding: ActivityAddNewItemBinding
+    private val navigationArgs: AddNewItemActivityArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +46,6 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         val sharedPreferencesIker = this.getSharedPreferences("IkerRaktar", Context.MODE_PRIVATE)
         val iker: String? = sharedPreferencesIker.getString("iker", "false")
-        val raktar: String? = sharedPreferencesIker.getString("raktar", "0")
         binding.checkBox.isChecked = iker.toBoolean()
         val id = navigationArgs.itemId
         if (id > 0) {
@@ -57,7 +59,7 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
             }
         }
         loadSpinnerData()
-        binding.spnLeltarhely.setSelection(raktar!!.toInt())
+        if (intent.hasExtra(resources.getString(R.string.datawedge_intent_key_data))){onNewIntent(intent)}
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -116,7 +118,6 @@ private val viewModel: InventoryViewModel by viewModels {
             vonalkodDao())
     }
 
-    private val navigationArgs: ItemDetailFragmentArgs by navArgs()
     lateinit var item: Item
     lateinit var barcode: AllProducts
     private lateinit var barcodeVonalkod: Vonalkod
@@ -161,6 +162,8 @@ private val viewModel: InventoryViewModel by viewModels {
     }
 
     private fun loadSpinnerData() {
+        val sharedPreferencesIker = this.getSharedPreferences("IkerRaktar", Context.MODE_PRIVATE)
+        val raktar: String? = sharedPreferencesIker.getString("raktar", "0")
         lifecycleScope.launch {
             val spinner: Spinner = binding.spnLeltarhely
             // database handler
@@ -181,6 +184,7 @@ private val viewModel: InventoryViewModel by viewModels {
 
             // attaching data adapter to spinner
             spinner.adapter = dataAdapter
+            binding.spnLeltarhely.setSelection(raktar!!.toInt())
         }
     }
 
@@ -212,7 +216,8 @@ private val viewModel: InventoryViewModel by viewModels {
         val userId: String? = sharedPreferences.getString("id", "0")
         //val dateTime = Calendar.getInstance().time.time
         //val dateTimeAsDouble = dateTime.toDouble()
-        if (isEntryValid() && binding.itemCount.text.toString().toInt() != 0) {
+        if (isEntryValid()) {
+            if (binding.itemCount.text.toString().toInt() != 0) {
             val barcodeValue = binding.itemBarcode.text.toString()
             vonalkodViewModel.retrieveMatchingAruid(barcodeValue)
                 .observe(this) { barcodeTest ->
@@ -231,30 +236,36 @@ private val viewModel: InventoryViewModel by viewModels {
                                         userId!!.toInt(),
                                         getIkerleltar()
                                     )
-                                    val switchActivityIntent = Intent(this,
-                                        MainActivity::class.java)
+                                    val switchActivityIntent = Intent(
+                                        this,
+                                        MainActivity::class.java
+                                    )
                                     try {
+                                        hideKeyboard()
                                         startActivity(switchActivityIntent)
                                         val editor: SharedPreferences.Editor =
                                             sharedPreferencesIker.edit()
                                         editor.putString("iker", getIkerleltar().toString())
-                                        editor.putString("raktar",
+                                        editor.putString(
+                                            "raktar",
                                             binding.spnLeltarhely.selectedItemPosition.toString()
                                         )
                                         editor.apply()
                                     } catch (e: CanceledException) {
                                         e.printStackTrace()
                                     }
-                                }
-                                catch (e: Exception){
+                                } catch (e: Exception) {
                                     println(getString(R.string.itemnotfound))
                                 }
                             }
-                    } catch (e: Exception){
+                    } catch (e: Exception) {
                         showNewItemConfirmationDialog()
                     }
 
                 }
+        }else{
+                Toast.makeText(this, getString(R.string.nemnulla), Toast.LENGTH_SHORT).show()
+            }
 
         }
         else{
@@ -280,6 +291,7 @@ private val viewModel: InventoryViewModel by viewModels {
                 userId!!.toInt(),
                 getIkerleltar()
             )
+            hideKeyboard()
             val switchActivityIntent = Intent(this, MainActivity::class.java)
             try {
                 startActivity(switchActivityIntent)
@@ -327,6 +339,7 @@ private val viewModel: InventoryViewModel by viewModels {
     }
 
     private fun showNewItemConfirmationDialog() {
+        binding.itemBarcode.setText("")
         //val productBarcode = binding.itemBarcode.text.toString()
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(android.R.string.dialog_alert_title))
@@ -350,5 +363,21 @@ private val viewModel: InventoryViewModel by viewModels {
             e.printStackTrace()
         }
     }*/
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+    fun Fragment.hideKeyboard() {
+        view?.let { activity?.hideKeyboard(it) }
+    }
+
+    fun Activity.hideKeyboard() {
+        hideKeyboard(currentFocus ?: View(this))
+    }
+
+    fun Context.hideKeyboard(view: View) {
+        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    }
     }
 

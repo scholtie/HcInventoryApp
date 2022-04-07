@@ -74,7 +74,7 @@ class FtpLoginActivity : AppCompatActivity() {
                 editor.apply()
                 //downloadFtp()
                 //uploadFtp()
-                ftpclient!!.ftpPrintFilesList(srcFilePath)
+                //ftpclient!!.ftpPrintFilesList(srcFilePath)
                 val switchActivityIntent = Intent(this, LoginActivity::class.java)
                 startActivity(switchActivityIntent)
             } else {

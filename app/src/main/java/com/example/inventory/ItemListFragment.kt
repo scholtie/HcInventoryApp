@@ -16,20 +16,20 @@
 
 package com.example.inventory
 
+import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.addCallback
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -46,7 +46,6 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.io.File
-import java.net.InetAddress
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -115,10 +114,10 @@ class ItemListFragment : Fragment() {
         binding.safeArgsTestText.text = user
         //if (user == "Saturn" ){binding.floatingActionButton.isEnabled = false }
         binding.deleteActionButton.setOnClickListener { showExportConfirmationDialog() }
-        binding.allItemsDbButton.setOnClickListener {
+        /*binding.allItemsDbButton.setOnClickListener {
             val action = ItemListFragmentDirections.actionItemListFragmentToAddAllProductsFragment()
             this.findNavController().navigate(action)
-        }
+        }*/
     }
 
     private fun initData() {
@@ -167,16 +166,6 @@ class ItemListFragment : Fragment() {
                 Toast.LENGTH_SHORT).show()
         }
 
-    }
-
-    private fun isInternetAvailable(): Boolean {
-        return try {
-            val ipAddr: InetAddress = InetAddress.getByName("google.com")
-            //You can replace it with your name
-            !ipAddr.equals("")
-        } catch (e: Exception) {
-            false
-        }
     }
 
     private fun connectFtp(){

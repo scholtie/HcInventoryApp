@@ -79,6 +79,7 @@
     <string name="itemnotfound">Nem talált termék</string>
     <string name="scanbarcode">Kérem olvassa be a vonalkódot</string>
     <string name="barcodenotfound">Nem található a vonalkód az adatbázisban.</string>
+    <string name="nemnulla">A mennyiség nem lehet 0!</string>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

@@ -95,7 +95,7 @@
         android:layout_height="59dp"
         android:layout_marginTop="16dp"
         android:ems="10"
-        android:hint="Elérési út"
+        android:hint="Elérési út (pl./proffit/eProffit/AndroidTest/)"
         android:inputType="textPersonName"
         android:text="/proffit/eProffit/AndroidTest/"
         app:layout_constraintEnd_toEndOf="parent"
