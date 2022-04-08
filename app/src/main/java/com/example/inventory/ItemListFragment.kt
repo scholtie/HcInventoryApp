@@ -16,7 +16,6 @@
 
 package com.example.inventory
 
-import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -27,7 +26,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
@@ -70,8 +68,26 @@ class ItemListFragment : Fragment() {
         super.onCreate(savedInstanceState)
         initData()
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
-            val switchActivityIntent = Intent(requireContext(), LoginActivity::class.java)
-            startActivity(switchActivityIntent)
+                lifecycleScope.launch {
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(getString(android.R.string.dialog_alert_title))
+                            .setMessage(getString(R.string.logout_question))
+                            .setCancelable(true)
+                            .setNegativeButton(getString(R.string.no)) { _, _ -> }
+                            .setPositiveButton(getString(R.string.yes)) { _, _ ->
+                                val sharedPreferences = requireActivity()
+                                .getSharedPreferences("Users", Context.MODE_PRIVATE)
+                                val editor: SharedPreferences.Editor = sharedPreferences.edit()
+                                editor.putString("user", "")
+                                editor.putString("id", "")
+                                editor.apply()
+                                val switchActivityIntent = Intent(requireContext(),
+                                    LoginActivity::class.java)
+                                startActivity(switchActivityIntent)
+                            }
+                            .show()
+                }
+
         }
         callback.isEnabled = true
     }
@@ -244,7 +260,8 @@ class ItemListFragment : Fragment() {
                     }
                     .show()
             } else {
-                Toast.makeText(requireContext(), "Még nincs hozzáadva termék!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Még nincs hozzáadva termék!",
+                    Toast.LENGTH_SHORT).show()
             }
         }
     }

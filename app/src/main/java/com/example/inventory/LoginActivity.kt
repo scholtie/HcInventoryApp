@@ -62,6 +62,13 @@ class LoginActivity : AppCompatActivity() {
                 binding.loginBtn.isVisible = false
             }
         }
+        val sharedPreferencesFtp = this.getSharedPreferences("Users", Context.MODE_PRIVATE)
+        val user: String? = sharedPreferencesFtp.getString("user", "")
+        val userid: String? = sharedPreferencesFtp.getString("id", "")
+        if (user != "" && userid != ""){
+            val switchActivityIntent = Intent(this, MainActivity::class.java)
+            startActivity(switchActivityIntent)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -118,7 +125,7 @@ class LoginActivity : AppCompatActivity() {
                     editor.putString("id", user.userId.toString())
                     editor.apply()
                 } catch (e: Exception) {
-                    println("Nem talált termék")
+                    println("Nem talált felhasználó")
                 }
                 //if (binding.editPassword.text.toString() == user.userPass) {
                     val switchActivityIntent = Intent(this, MainActivity::class.java)
@@ -132,14 +139,15 @@ class LoginActivity : AppCompatActivity() {
 
     private suspend fun fetchDocs() =
         coroutineScope {
+            val db = ItemRoomDatabase.getDatabase(this@LoginActivity)
             val deferredOne =
-                async { populateDbAllProducts(ItemRoomDatabase.getDatabase(this@LoginActivity)) }
+                async { populateDbAllProducts(db) }
             val deferredTwo =
-                async { populateDbUserek(ItemRoomDatabase.getDatabase(this@LoginActivity)) }
+                async { populateDbUserek(db) }
             val deferredThree =
-                async { populateDbVonalkodok(ItemRoomDatabase.getDatabase(this@LoginActivity)) }
+                async { populateDbVonalkodok(db) }
             val deferredFour =
-                async {populateDbLeltarhely(ItemRoomDatabase.getDatabase(this@LoginActivity))}
+                async {populateDbLeltarhely(db)}
             deferredOne.await()
             deferredTwo.await()
             deferredThree.await()
@@ -153,7 +161,8 @@ class LoginActivity : AppCompatActivity() {
 
                 allProductsDao.clear()
 
-                val file = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "cikk.txt")
+                val file = File(getExternalFilesDir(
+                    Environment.DIRECTORY_DOCUMENTS), "cikk.txt")
                 var br: BufferedReader? = null
                 val characters =
                     arrayOfNulls<String>(100000) //just an example - you have to initialize it to be big enough to hold all the lines!
@@ -184,12 +193,16 @@ class LoginActivity : AppCompatActivity() {
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    runOnUiThread { Toast.makeText(this@LoginActivity, "cikk.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread {
+                        Toast.makeText(this@LoginActivity,
+                            "cikk.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         br?.close()
                         println("Termékek beolvasva")
-                        runOnUiThread { Toast.makeText(this@LoginActivity, "cikk.txt beolvasva", Toast.LENGTH_SHORT).show() }
+                        runOnUiThread {
+                            Toast.makeText(this@LoginActivity,
+                                "cikk.txt beolvasva", Toast.LENGTH_SHORT).show() }
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
@@ -206,7 +219,8 @@ class LoginActivity : AppCompatActivity() {
                 vonalkodDao.clear()
 
                 val fileVk =
-                    File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "vonalkod.txt")
+                    File(getExternalFilesDir(
+                        Environment.DIRECTORY_DOCUMENTS), "vonalkod.txt")
                 var brVk: BufferedReader? = null
                 val charactersVk =
                     arrayOfNulls<String>(200000) //just an example - you have to initialize it to be big enough to hold all the lines!
@@ -230,7 +244,9 @@ class LoginActivity : AppCompatActivity() {
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    runOnUiThread { Toast.makeText(this@LoginActivity, "vonalkod.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread {
+                        Toast.makeText(this@LoginActivity,
+                            "vonalkod.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         brVk?.close()
@@ -239,10 +255,16 @@ class LoginActivity : AppCompatActivity() {
                             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                             //findViewById<ProgressBar>(com.example.inventory.R.id.progressBar).isVisible = false
                             runOnUiThread {
-                                findViewById<ProgressBar>(com.example.inventory.R.id.progressBar4).isVisible = false }
+                                findViewById<ProgressBar>(
+                                    com.example.inventory.R.id.progressBar4).isVisible = false
+                            }
+                            Toast.makeText(this@LoginActivity,
+                                "vonalkod.txt beolvasva", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@LoginActivity,
+                                "Állományok beolvasva", Toast.LENGTH_SHORT).show()
                             isLoading = false
-                            Toast.makeText(this@LoginActivity, "vonalkod.txt beolvasva", Toast.LENGTH_SHORT).show()
-                            val switchActivityIntent = Intent(this@LoginActivity, LoginActivity::class.java)
+                            val switchActivityIntent = Intent(
+                                this@LoginActivity, LoginActivity::class.java)
                             startActivity(switchActivityIntent)
                         }
                     } catch (e: IOException) {
@@ -283,12 +305,16 @@ class LoginActivity : AppCompatActivity() {
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    runOnUiThread { Toast.makeText(this@LoginActivity, "ugyintezo.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread {
+                        Toast.makeText(this@LoginActivity,
+                            "ugyintezo.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         brUs?.close()
                         println("Userek beolvasva")
-                        runOnUiThread { Toast.makeText(this@LoginActivity, "ugyintezo.txt beolvasva", Toast.LENGTH_SHORT).show() }
+                        runOnUiThread {
+                            Toast.makeText(this@LoginActivity,
+                                "ugyintezo.txt beolvasva", Toast.LENGTH_SHORT).show() }
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
@@ -305,7 +331,8 @@ class LoginActivity : AppCompatActivity() {
                 leltarhelyDao.clear()
 
                 val fileUs =
-                    File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "leltarhely.txt")
+                    File(getExternalFilesDir(
+                        Environment.DIRECTORY_DOCUMENTS), "leltarhely.txt")
                 var brUs: BufferedReader? = null
                 val charactersUs =
                     arrayOfNulls<String>(10) //just an example - you have to initialize it to be big enough to hold all the lines!
@@ -326,12 +353,16 @@ class LoginActivity : AppCompatActivity() {
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    runOnUiThread { Toast.makeText(this@LoginActivity, "leltarhely.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread {
+                        Toast.makeText(this@LoginActivity,
+                            "leltarhely.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         brUs?.close()
                         println("Leltarhely beolvasva")
-                        runOnUiThread { Toast.makeText(this@LoginActivity, "leltarhely.txt beolvasva", Toast.LENGTH_SHORT).show() }
+                        runOnUiThread {
+                            Toast.makeText(this@LoginActivity,
+                                "leltarhely.txt beolvasva", Toast.LENGTH_SHORT).show() }
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
@@ -344,7 +375,7 @@ class LoginActivity : AppCompatActivity() {
     private fun showConfirmationDialog() {
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.dialog_alert_title))
-            .setMessage("Adatbázis írása a fájlokból. Biztosan folytatni szeretné? A folyamat akár 10 percig is tarthat.")
+            .setMessage(getString(com.example.inventory.R.string.writedbfromfiles))
             .setCancelable(false)
             .setNegativeButton("Nem") { _, _ -> }
             .setPositiveButton("Igen") { _, _ ->
@@ -359,7 +390,8 @@ class LoginActivity : AppCompatActivity() {
     private fun connectFtp(){
         runOnUiThread {
             findViewById<ProgressBar>(com.example.inventory.R.id.progressBar4).isVisible = true }
-        val sharedPreferencesFtp = this.getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val sharedPreferencesFtp = this.getSharedPreferences(
+            "FtpDetails", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
         val username: String? = sharedPreferencesFtp.getString("username", "")
         val password: String? = sharedPreferencesFtp.getString("password", "")
@@ -372,16 +404,21 @@ class LoginActivity : AppCompatActivity() {
             val status: Boolean = ftpclient!!.ftpConnect(host!!, username, password, port!!.toInt())
             if (status) {
                 Log.d(ContentValues.TAG, "Connection Success")
-                runOnUiThread { Toast.makeText(this@LoginActivity, "Sikeres csatlakozás a szerverhez", Toast.LENGTH_SHORT).show() }
+                runOnUiThread {
+                    Toast.makeText(this@LoginActivity,
+                        "Sikeres csatlakozás a szerverhez", Toast.LENGTH_SHORT).show() }
                 ftpclient!!.ftpChangeDirectory(srcFilePath!!)
                 downloadFtp()
                 isLoading = true
                 //ftpclient!!.ftpPrintFilesList(srcFilePath)
             } else {
                 runOnUiThread {
-                    findViewById<ProgressBar>(com.example.inventory.R.id.progressBar4).isVisible = false }
+                    findViewById<ProgressBar>(
+                        com.example.inventory.R.id.progressBar4).isVisible = false }
                 Log.d(ContentValues.TAG, "Connection failed")
-                runOnUiThread { Toast.makeText(this@LoginActivity, "Letöltés Sikertelen", Toast.LENGTH_SHORT).show()
+                runOnUiThread {
+                    Toast.makeText(this@LoginActivity,
+                        "Letöltés Sikertelen", Toast.LENGTH_SHORT).show()
                 binding.btnLoadData.isEnabled = true}
             }
         }.start()
@@ -393,7 +430,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun downloadFtp(){
-        val sharedPreferencesFtp = this.getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val sharedPreferencesFtp = this.getSharedPreferences(
+            "FtpDetails", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
         val srcFileNameCikk = "cikk.txt"
         val srcFileNameVonalkod = "vonalkod.txt"
@@ -432,7 +470,10 @@ class LoginActivity : AppCompatActivity() {
         catch (e: Exception) {
             e.printStackTrace()
             runOnUiThread {
-                findViewById<ProgressBar>(com.example.inventory.R.id.progressBar3).isVisible = false }
+                findViewById<ProgressBar>(com.example.inventory.R.id.progressBar3).isVisible = false
+                Toast.makeText(this,
+                    getString(com.example.inventory.R.string.állományoknemtalálh),
+                    Toast.LENGTH_SHORT).show()}
         }
         finally {
             GlobalScope.launch(Dispatchers.IO) { fetchDocs() }

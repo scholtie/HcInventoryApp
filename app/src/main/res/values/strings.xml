@@ -80,6 +80,19 @@
     <string name="scanbarcode">Kérem olvassa be a vonalkódot</string>
     <string name="barcodenotfound">Nem található a vonalkód az adatbázisban.</string>
     <string name="nemnulla">A mennyiség nem lehet 0!</string>
+    <string name="ftplogindetails">FTP bejelentkezési adatok</string>
+    <string name="deletedb">Adatbázis Törlése</string>
+    <string name="importdb">Adatbázis Import</string>
+    <string name="ftpsettings">FTP Beállítások</string>
+    <string name="loadfiles">Fájlok betöltése</string>
+    <string name="loadusers">Load Users</string>
+    <string name="user">Felhasználó</string>
+    <string name="logout">Kijelentkezés</string>
+    <string name="logout_question">Biztosan ki szeretne jelentkezni?</string>
+    <string name="nouser">Nincs user bejelentkezve!</string>
+    <string name="writedbfromfiles">Adatbázis írása a fájlokból. Biztosan folytatni szeretné? A folyamat akár 10 percig is tarthat.</string>
+    <string name="állományoknemtalálh">Állományok nem találhatók a szerveren!</string>
+    <string name="unsuccessfulloig">Bejelentkezés sikertelen</string>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

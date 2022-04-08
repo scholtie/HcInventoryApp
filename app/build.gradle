@@ -83,7 +83,7 @@ dependencies {
     implementation files("E:\\AndroidStudioProjects\\Scanner-SDK-for-Android-master\\android_scanner_sdk_demo_app\\BarcodeScannerLibrary\\barcode_scanner_library_v2.6.2.0-release.aar")
     implementation 'androidx.annotation:annotation:1.3.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation files('libs\\commons-net-3.8.0.jar')
+    implementation files('libs/commons-net-3.8.0.jar')
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 

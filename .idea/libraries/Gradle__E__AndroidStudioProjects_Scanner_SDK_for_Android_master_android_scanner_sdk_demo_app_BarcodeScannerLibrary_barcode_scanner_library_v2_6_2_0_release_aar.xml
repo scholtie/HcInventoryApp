@@ -1,9 +1,9 @@
 <component name="libraryTable">
   <library name="Gradle: E./AndroidStudioProjects/Scanner-SDK-for-Android-master/android_scanner_sdk_demo_app/BarcodeScannerLibrary/barcode_scanner_library_v2.6.2.0-release.aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/a593e5c3b7003d4c8e056583754aceac/transformed/jetified-barcode_scanner_library_v2.6.2.0-release/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/a593e5c3b7003d4c8e056583754aceac/transformed/jetified-barcode_scanner_library_v2.6.2.0-release/AndroidManifest.xml" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/a593e5c3b7003d4c8e056583754aceac/transformed/jetified-barcode_scanner_library_v2.6.2.0-release/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/f837bc8272d8ade96f427bcbb7d7b777/transformed/jetified-barcode_scanner_library_v2.6.2.0-release/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/f837bc8272d8ade96f427bcbb7d7b777/transformed/jetified-barcode_scanner_library_v2.6.2.0-release/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/f837bc8272d8ade96f427bcbb7d7b777/transformed/jetified-barcode_scanner_library_v2.6.2.0-release/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

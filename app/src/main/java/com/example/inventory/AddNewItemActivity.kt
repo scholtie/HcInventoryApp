@@ -15,7 +15,6 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.navArgs
 import com.example.inventory.data.AllProducts
@@ -36,6 +35,26 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
 
     private lateinit var binding: ActivityAddNewItemBinding
     private val navigationArgs: AddNewItemActivityArgs by navArgs()
+    private val viewModel: InventoryViewModel by viewModels {
+        InventoryViewModelFactory(
+            (this.application as InventoryApplication).database
+                .itemDao()
+        )
+    }
+    private val allProductsViewModel : AllProductsViewModel by viewModels {
+        AllProductsViewModelFactory(
+            (this.application as InventoryApplication).database.
+            allProductsDao())
+    }
+    private val vonalkodViewModel : VonalkodViewModel by viewModels {
+        VonalkodViewModelFactory(
+            (this.application as InventoryApplication).database.
+            vonalkodDao())
+    }
+
+    lateinit var item: Item
+    lateinit var barcode: AllProducts
+    private lateinit var barcodeVonalkod: Vonalkod
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +63,8 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
         val view = binding.root
         setContentView(view)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        val sharedPreferencesIker = this.getSharedPreferences("IkerRaktar", Context.MODE_PRIVATE)
+        val sharedPreferencesIker = this.getSharedPreferences("IkerRaktar",
+            Context.MODE_PRIVATE)
         val iker: String? = sharedPreferencesIker.getString("iker", "false")
         binding.checkBox.isChecked = iker.toBoolean()
         val id = navigationArgs.itemId
@@ -88,40 +108,20 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
                 //  Button pressed, start scan
                 val dwIntent = Intent()
                 dwIntent.action = "com.symbol.datawedge.api.ACTION"
-                dwIntent.putExtra("com.symbol.datawedge.api.SOFT_SCAN_TRIGGER", "START_SCANNING")
+                dwIntent.putExtra("com.symbol.datawedge.api.SOFT_SCAN_TRIGGER",
+                    "START_SCANNING")
                 view!!.performClick()
                 sendBroadcast(dwIntent)
             } else if (motionEvent?.action == MotionEvent.ACTION_UP) {
                 //  Button released, end scan
                 val dwIntent = Intent()
                 dwIntent.action = "com.symbol.datawedge.api.ACTION"
-                dwIntent.putExtra("com.symbol.datawedge.api.SOFT_SCAN_TRIGGER", "STOP_SCANNING")
+                dwIntent.putExtra("com.symbol.datawedge.api.SOFT_SCAN_TRIGGER",
+                    "STOP_SCANNING")
                 sendBroadcast(dwIntent)
             }
         return true
     }
-
-private val viewModel: InventoryViewModel by viewModels {
-        InventoryViewModelFactory(
-            (this.application as InventoryApplication).database
-                .itemDao()
-        )
-    }
-    private val allProductsViewModel : AllProductsViewModel by viewModels {
-        AllProductsViewModelFactory(
-            (this.application as InventoryApplication).database.
-            allProductsDao())
-    }
-    private val vonalkodViewModel : VonalkodViewModel by viewModels {
-        VonalkodViewModelFactory(
-            (this.application as InventoryApplication).database.
-            vonalkodDao())
-    }
-
-    lateinit var item: Item
-    lateinit var barcode: AllProducts
-    private lateinit var barcodeVonalkod: Vonalkod
-
 
     /**
      * Returns true if the EditTexts are not empty
@@ -132,8 +132,6 @@ private val viewModel: InventoryViewModel by viewModels {
             binding.itemBarcode.text.toString()
         )
     }
-
-
 
     /**
      * Binds views with the passed in [item] information.
@@ -157,12 +155,14 @@ private val viewModel: InventoryViewModel by viewModels {
 
     private fun bindAruid(aruid: AllProducts) {
         binding.apply { txtName.setText(aruid.productCikknev, TextView.BufferType.SPANNABLE)
-            txtPrice.setText(aruid.productBrfogyar.toString() + " Ft", TextView.BufferType.SPANNABLE)
+            txtPrice.setText(aruid.productBrfogyar.toString() + " Ft",
+                TextView.BufferType.SPANNABLE)
             txtAruid.setText(aruid.productId.toString(), TextView.BufferType.SPANNABLE)}
     }
 
     private fun loadSpinnerData() {
-        val sharedPreferencesIker = this.getSharedPreferences("IkerRaktar", Context.MODE_PRIVATE)
+        val sharedPreferencesIker = this.getSharedPreferences("IkerRaktar",
+            Context.MODE_PRIVATE)
         val raktar: String? = sharedPreferencesIker.getString("raktar", "0")
         lifecycleScope.launch {
             val spinner: Spinner = binding.spnLeltarhely
@@ -212,12 +212,14 @@ private val viewModel: InventoryViewModel by viewModels {
     private fun addNewItem() {
         //dateDiff()
         val sharedPreferences = this.getSharedPreferences("Users", Context.MODE_PRIVATE)
-        val sharedPreferencesIker = this.getSharedPreferences("IkerRaktar", Context.MODE_PRIVATE)
+        val sharedPreferencesIker = this.getSharedPreferences(
+            "IkerRaktar", Context.MODE_PRIVATE)
         val userId: String? = sharedPreferences.getString("id", "0")
         //val dateTime = Calendar.getInstance().time.time
         //val dateTimeAsDouble = dateTime.toDouble()
         if (isEntryValid()) {
             if (binding.itemCount.text.toString().toInt() != 0) {
+                if (userId != ""){
             val barcodeValue = binding.itemBarcode.text.toString()
             vonalkodViewModel.retrieveMatchingAruid(barcodeValue)
                 .observe(this) { barcodeTest ->
@@ -262,7 +264,25 @@ private val viewModel: InventoryViewModel by viewModels {
                         showNewItemConfirmationDialog()
                     }
 
-                }
+                }}
+            else{Toast.makeText(this, getString(R.string.nouser), Toast.LENGTH_SHORT).show()
+                    val switchActivityIntent = Intent(
+                        this,
+                        LoginActivity::class.java)
+                    try {
+                        hideKeyboard()
+                        startActivity(switchActivityIntent)
+                        val editor: SharedPreferences.Editor =
+                            sharedPreferencesIker.edit()
+                        editor.putString("iker", getIkerleltar().toString())
+                        editor.putString(
+                            "raktar",
+                            binding.spnLeltarhely.selectedItemPosition.toString()
+                        )
+                        editor.apply()
+                    } catch (e: CanceledException) {
+                        e.printStackTrace()
+                    }}
         }else{
                 Toast.makeText(this, getString(R.string.nemnulla), Toast.LENGTH_SHORT).show()
             }
@@ -280,7 +300,8 @@ private val viewModel: InventoryViewModel by viewModels {
     private fun updateItem() {
         val sharedPreferences = this.getSharedPreferences("Users", Context.MODE_PRIVATE)
         val userId: String? = sharedPreferences.getString("id", "0")
-        if (isEntryValid() && binding.itemCount.text.toString().toInt() != 0) {
+        if (binding.itemCount.text.toString().isNotEmpty() &&
+            binding.itemCount.text.toString().toInt() != 0) {
             viewModel.updateItem(
                 this.navigationArgs.itemId,
                 item.itemAruid,
@@ -364,19 +385,13 @@ private val viewModel: InventoryViewModel by viewModels {
         }
     }*/
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-    fun Fragment.hideKeyboard() {
-        view?.let { activity?.hideKeyboard(it) }
-    }
-
-    fun Activity.hideKeyboard() {
+    private fun Activity.hideKeyboard() {
         hideKeyboard(currentFocus ?: View(this))
     }
 
-    fun Context.hideKeyboard(view: View) {
-        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    private fun Context.hideKeyboard(view: View) {
+        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE)
+                as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
     }

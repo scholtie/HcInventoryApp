@@ -2,7 +2,6 @@ package com.example.inventory.viewmodel
 
 import androidx.lifecycle.*
 import com.example.inventory.data.*
-import kotlinx.coroutines.launch
 
 class UsersViewModel(private val usersDao: UsersDao) : ViewModel() {
 

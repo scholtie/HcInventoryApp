@@ -19,6 +19,7 @@ import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -64,7 +65,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun connectFtp(){
-        val sharedPreferencesFtp = this.getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val sharedPreferencesFtp = this.getSharedPreferences(
+            "FtpDetails", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
         val username: String? = sharedPreferencesFtp.getString("username", "")
         val password: String? = sharedPreferencesFtp.getString("password", "")
@@ -88,7 +90,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun downloadFtp(){
-        val sharedPreferencesFtp = this.getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val sharedPreferencesFtp = this.getSharedPreferences(
+            "FtpDetails", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
         val srcFileNameCikk = "cikk.txt"
         val srcFileNameVonalkod = "vonalkod.txt"
@@ -181,6 +184,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 startActivity(switchActivityIntent)
                 true
             }
+            R.id.action_logout -> {
+                val sharedPreferences = this
+                    .getSharedPreferences("Users", Context.MODE_PRIVATE)
+                val editor: SharedPreferences.Editor = sharedPreferences.edit()
+                editor.putString("user", "")
+                editor.putString("id", "")
+                editor.apply()
+                val switchActivityIntent = Intent(this, LoginActivity::class.java)
+                startActivity(switchActivityIntent)
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -198,13 +212,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private suspend fun fetchDocs() =
         coroutineScope {
             val deferredOne =
-                async { populateDbAllProducts(ItemRoomDatabase.getDatabase(this@MainActivity)) }
+                async { populateDbAllProducts(
+                    ItemRoomDatabase.getDatabase(this@MainActivity)) }
             val deferredTwo =
-                async { populateDbUserek(ItemRoomDatabase.getDatabase(this@MainActivity)) }
+                async { populateDbUserek(
+                    ItemRoomDatabase.getDatabase(this@MainActivity)) }
             val deferredThree =
-                async { populateDbVonalkodok(ItemRoomDatabase.getDatabase(this@MainActivity)) }
+                async { populateDbVonalkodok(
+                    ItemRoomDatabase.getDatabase(this@MainActivity)) }
             val deferredFour =
-                async {populateDbLeltarhely(ItemRoomDatabase.getDatabase(this@MainActivity))}
+                async {populateDbLeltarhely(
+                    ItemRoomDatabase.getDatabase(this@MainActivity))}
             deferredOne.await()
             deferredTwo.await()
             deferredThree.await()
@@ -218,7 +236,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
                 allProductsDao.clear()
 
-                val file = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "cikk.txt")
+                val file = File(getExternalFilesDir(
+                    Environment.DIRECTORY_DOCUMENTS), "cikk.txt")
                 var br: BufferedReader? = null
                 val characters =
                     arrayOfNulls<String>(100000) //just an example - you have to initialize it to be big enough to hold all the lines!
@@ -249,12 +268,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    runOnUiThread { Toast.makeText(this@MainActivity, "cikk.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity,
+                            "cikk.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         br?.close()
                         println("Termékek beolvasva")
-                        runOnUiThread { Toast.makeText(this@MainActivity, "cikk.txt beolvasva", Toast.LENGTH_SHORT).show() }
+                        runOnUiThread {
+                            Toast.makeText(this@MainActivity,
+                                "cikk.txt beolvasva", Toast.LENGTH_SHORT).show() }
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
@@ -271,7 +294,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 vonalkodDao.clear()
 
                 val fileVk =
-                    File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "vonalkod.txt")
+                    File(getExternalFilesDir(
+                        Environment.DIRECTORY_DOCUMENTS), "vonalkod.txt")
                 var brVk: BufferedReader? = null
                 val charactersVk =
                     arrayOfNulls<String>(200000) //just an example - you have to initialize it to be big enough to hold all the lines!
@@ -295,7 +319,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    runOnUiThread { Toast.makeText(this@MainActivity, "vonalkod.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity,
+                            "vonalkod.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         brVk?.close()
@@ -303,7 +329,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         runOnUiThread {
                             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                             findViewById<ProgressBar>(R.id.progressBar).isVisible = false
-                            Toast.makeText(this@MainActivity, "vonalkod.txt beolvasva", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@MainActivity,
+                                "vonalkod.txt beolvasva", Toast.LENGTH_SHORT).show()
                         }
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -321,7 +348,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 usersDao.clear()
 
                 val fileUs =
-                    File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "ugyintezo.txt")
+                    File(getExternalFilesDir(
+                        Environment.DIRECTORY_DOCUMENTS), "ugyintezo.txt")
                 var brUs: BufferedReader? = null
                 val charactersUs =
                     arrayOfNulls<String>(50) //just an example - you have to initialize it to be big enough to hold all the lines!
@@ -343,12 +371,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    runOnUiThread { Toast.makeText(this@MainActivity, "ugyintezo.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity,
+                            "ugyintezo.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         brUs?.close()
                         println("Userek beolvasva")
-                        runOnUiThread { Toast.makeText(this@MainActivity, "ugyintezo.txt beolvasva", Toast.LENGTH_SHORT).show() }
+                        runOnUiThread {
+                            Toast.makeText(this@MainActivity,
+                                "ugyintezo.txt beolvasva", Toast.LENGTH_SHORT).show() }
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
@@ -365,7 +397,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 leltarhelyDao.clear()
 
                 val fileUs =
-                    File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "leltarhely.txt")
+                    File(getExternalFilesDir(
+                        Environment.DIRECTORY_DOCUMENTS), "leltarhely.txt")
                 var brUs: BufferedReader? = null
                 val charactersUs =
                     arrayOfNulls<String>(10) //just an example - you have to initialize it to be big enough to hold all the lines!
@@ -386,12 +419,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    runOnUiThread { Toast.makeText(this@MainActivity, "leltarhely.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity,
+                            "leltarhely.txt fájl nem létezik", Toast.LENGTH_SHORT).show() }
                 } finally {
                     try {
                         brUs?.close()
                         println("Leltarhely beolvasva")
-                        runOnUiThread { Toast.makeText(this@MainActivity, "leltarhely.txt beolvasva", Toast.LENGTH_SHORT).show() }
+                        runOnUiThread {
+                            Toast.makeText(this@MainActivity,
+                                "leltarhely.txt beolvasva", Toast.LENGTH_SHORT).show() }
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
@@ -424,7 +461,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .setCancelable(false)
             .setNegativeButton(R.string.no) { _, _ -> }
             .setPositiveButton(R.string.yes) { _, _ ->
-                GlobalScope.launch(Dispatchers.IO){deleteCurrentListData(ItemRoomDatabase.getDatabase(this@MainActivity))}
+                GlobalScope.launch(Dispatchers.IO)
+                {deleteCurrentListData(ItemRoomDatabase.getDatabase(this@MainActivity))}
             }
             .show()
     }

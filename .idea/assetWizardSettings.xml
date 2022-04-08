@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/arrow_downward/baseline_arrow_downward_24.xml" />
+                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/arrow_back_ios_new/baseline_arrow_back_ios_new_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,7 +29,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="323232" />
-                            <entry key="outputName" value="ic_baseline_arrow_downward_24_gray" />
+                            <entry key="outputName" value="ic_baseline_arrow_back_ios_new_24" />
                             <entry key="sourceFile" value="E:\AndroidStudioProjects\android-basics-kotlin-inventory-app-main" />
                           </map>
                         </option>

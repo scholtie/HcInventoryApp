@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -14,9 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.example.inventory.databinding.ActivityFtpLoginBinding
 import com.example.inventory.service.MyFTPClientFunctions
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 
 class FtpLoginActivity : AppCompatActivity() {
 
@@ -34,7 +30,8 @@ class FtpLoginActivity : AppCompatActivity() {
     }
 
     private fun initData(){
-        val sharedPreferencesFtp = this.getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val sharedPreferencesFtp = this.getSharedPreferences(
+            "FtpDetails", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
         val username: String? = sharedPreferencesFtp.getString("username", "")
         val password: String? = sharedPreferencesFtp.getString("password", "")
@@ -81,12 +78,13 @@ class FtpLoginActivity : AppCompatActivity() {
                 runOnUiThread {
                     findViewById<ProgressBar>(R.id.progressBar2).isVisible = false }
                 Log.d(ContentValues.TAG, "Connection failed")
-                runOnUiThread { Toast.makeText(this@FtpLoginActivity, "Bejelentkezés sikertelen", Toast.LENGTH_SHORT).show() }
+                runOnUiThread { Toast.makeText(this@FtpLoginActivity,
+                    getString(R.string.unsuccessfulloig), Toast.LENGTH_SHORT).show() }
             }
         }.start()
     }
 
-    private fun uploadFtp(){
+    /*private fun uploadFtp(){
         val srcFilePath = binding.editTextFilePath.text.toString()
         val sdf = SimpleDateFormat("yyyy.M.dd.hh.mm.ss")
         val currentDate = sdf.format(Date()).toString()
@@ -140,5 +138,5 @@ class FtpLoginActivity : AppCompatActivity() {
                 Log.d(ContentValues.TAG, "Disconnection failed")
             }
         }.start()
-    }
+    }*/
 }

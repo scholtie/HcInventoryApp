@@ -29,18 +29,7 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
 
     // Cache all items form the database using LiveData.
     val allItems: LiveData<List<Item>> = itemDao.getItems()
-    //val itemsList: LiveData<List<Item>>
 
-    /**
-     * Returns true if stock is available to sell, false otherwise.
-     */
-    fun isStockAvailable(item: Item): Boolean {
-        return (item.itemMennyiseg > 0)
-    }
-
-    /*init {
-        itemsList = itemDao.allItems
-    }*/
 
     /**
      * Updates an existing Item in the database.
@@ -69,21 +58,6 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
         }
     }
 
-    fun retrieveMatchingAruid(vonalkod: Int): LiveData<Item>{
-        return itemDao.searchBarcodeByAruid(vonalkod).asLiveData()
-    }
-
-    /**
-     * Decreases the stock by one unit and updates the database.
-     */
-    fun sellItem(item: Item) {
-        if (item.itemMennyiseg > 0) {
-            // Decrease the quantity by 1
-            val newItem = item.copy(itemMennyiseg = item.itemMennyiseg - 1)
-            updateItem(newItem)
-        }
-    }
-
     /**
      * Inserts the new Item into database.
      */
@@ -107,10 +81,6 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
         }
     }
 
-    fun deleteAll()
-    {
-
-    }
     /**
      * Launching a new coroutine to delete an item in a non-blocking way
      */

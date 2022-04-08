@@ -5,6 +5,6 @@
     <item
         android:id="@+id/action_db_delete"
         android:orderInCategory="1"
-        android:title="FTP bejelentkezési adatok"
+        android:title="@string/ftplogindetails"
         app:showAsAction="never" />
 </menu>
