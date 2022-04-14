@@ -93,6 +93,7 @@
     <string name="writedbfromfiles">Adatbázis írása a fájlokból. Biztosan folytatni szeretné? A folyamat akár 10 percig is tarthat.</string>
     <string name="állományoknemtalálh">Állományok nem találhatók a szerveren!</string>
     <string name="unsuccessfulloig">Bejelentkezés sikertelen</string>
+    <string name="scannersettings">Scanner Beállítások</string>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

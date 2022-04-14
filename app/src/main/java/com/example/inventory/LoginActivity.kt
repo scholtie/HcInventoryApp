@@ -45,6 +45,13 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DWUtilities.CreateDWProfile(this)
+        val sharedPreferencesFtp = this.getSharedPreferences("Users", Context.MODE_PRIVATE)
+        val user: String? = sharedPreferencesFtp.getString("user", "")
+        val userid: String? = sharedPreferencesFtp.getString("id", "")
+        if (user != "" && userid != ""){
+            val switchActivityIntent = Intent(this, MainActivity::class.java)
+            startActivity(switchActivityIntent)
+        }
         binding = LoginActivityBinding.inflate(layoutInflater)
         val view = binding.root
         ftpclient = MyFTPClientFunctions()
@@ -61,13 +68,6 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 binding.loginBtn.isVisible = false
             }
-        }
-        val sharedPreferencesFtp = this.getSharedPreferences("Users", Context.MODE_PRIVATE)
-        val user: String? = sharedPreferencesFtp.getString("user", "")
-        val userid: String? = sharedPreferencesFtp.getString("id", "")
-        if (user != "" && userid != ""){
-            val switchActivityIntent = Intent(this, MainActivity::class.java)
-            startActivity(switchActivityIntent)
         }
     }
 
@@ -420,6 +420,11 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this@LoginActivity,
                         "Letöltés Sikertelen", Toast.LENGTH_SHORT).show()
                 binding.btnLoadData.isEnabled = true}
+                isLoading = true
+                runOnUiThread {
+                    binding.progressBar4.isVisible = true
+                }
+                GlobalScope.launch(Dispatchers.IO) { fetchDocs() }
             }
         }.start()
     }

@@ -142,12 +142,12 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
             itemCount.setText(item.itemMennyiseg.toString(), TextView.BufferType.SPANNABLE)
             txtName.setText(item.itemArunev,TextView.BufferType.SPANNABLE )
             txtAruid.setText(item.itemAruid.toString(),TextView.BufferType.SPANNABLE)
-            binding.checkBox.isChecked = item.itemIker
-            binding.spnLeltarhely.setSelection(item.itemTarolohelyid)
+            checkBox.isChecked = item.itemIker
+            spnLeltarhely.setSelection(item.itemTarolohelyid)
             saveAction.setOnClickListener { updateItem() }
-            binding.itemCount.isFocusableInTouchMode = true
-            binding.itemCount.requestFocus()
-            binding.itemCount.setSelection(binding.itemCount.length())
+            itemCount.isFocusableInTouchMode = true
+            itemCount.requestFocus()
+            itemCount.setSelection(itemCount.length())
             itemBarcode.isVisible = false
             itemBarcodeLabel.isVisible = false
         }
@@ -262,6 +262,9 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
                             }
                     } catch (e: Exception) {
                         showNewItemConfirmationDialog()
+                        binding.txtName.text = ""
+                        binding.txtAruid.text = ""
+                        binding.txtPrice.text = ""
                     }
 
                 }}

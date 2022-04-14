@@ -22,9 +22,16 @@
         android:title="@string/ftpsettings"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_scannersettings"
+        android:enabled="false"
+        android:icon="@drawable/ic_baseline_settings_24"
+        android:orderInCategory="4"
+        android:title="@string/scannersettings"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_logout"
         android:icon="@drawable/ic_baseline_arrow_back_ios_new_24"
-        android:orderInCategory="4"
+        android:orderInCategory="5"
         android:title="@string/logout"
         app:showAsAction="never" />
 </menu>

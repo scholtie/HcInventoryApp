@@ -41,12 +41,14 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.io.IOException
+import java.util.*
 
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var navController: NavController
     private var ftpclient: MyFTPClientFunctions? = null
+    private var version65OrOver = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,6 +86,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 ftpclient!!.ftpPrintFilesList(srcFilePath)
             } else {
                 Log.d(TAG, "Connection failed")
+                GlobalScope.launch(Dispatchers.IO) { fetchDocs() }
             }
         }.start()
     }
@@ -181,6 +184,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
             R.id.action_ftpsettings -> {
                 val switchActivityIntent = Intent(this, FtpLoginActivity::class.java)
+                startActivity(switchActivityIntent)
+                true
+            }
+            R.id.action_scannersettings -> {
+                val switchActivityIntent = Intent(this, ScannerSettingsActivity::class.java)
+                switchActivityIntent.putExtra(ScannerSettingsActivity.SETTINGS_KEY_VERSION, version65OrOver)
                 startActivity(switchActivityIntent)
                 true
             }
