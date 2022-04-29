@@ -17,10 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.navArgs
-import com.example.inventory.data.AllProducts
-import com.example.inventory.data.Item
-import com.example.inventory.data.ItemRoomDatabase
-import com.example.inventory.data.Vonalkod
+import com.example.inventory.data.*
 import com.example.inventory.databinding.ActivityAddNewItemBinding
 import com.example.inventory.databinding.ActivityAddNewItemBinding.inflate
 import com.example.inventory.service.DWUtilities
@@ -78,7 +75,16 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
                 addNewItem()
             }
         }
-        loadSpinnerData()
+        lifecycleScope.launch {
+            val leltarhelyList: List<Leltarhely> =
+                ItemRoomDatabase.getDatabase(this@AddNewItemActivity).leltarhelyDao().getLeltarhelyek()
+            if (leltarhelyList.isNotEmpty()) {
+                loadSpinnerData()
+                binding.spnLeltarhely.isEnabled = true
+            } else {
+                binding.spnLeltarhely.isEnabled = false
+            }
+        }
         if (intent.hasExtra(resources.getString(R.string.datawedge_intent_key_data))){onNewIntent(intent)}
     }
 
@@ -218,7 +224,7 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
         //val dateTime = Calendar.getInstance().time.time
         //val dateTimeAsDouble = dateTime.toDouble()
         if (isEntryValid()) {
-            if (binding.itemCount.text.toString().toInt() != 0) {
+            if (binding.itemCount.text.toString().toDouble() != 0.0) {
                 if (userId != ""){
             val barcodeValue = binding.itemBarcode.text.toString()
             vonalkodViewModel.retrieveMatchingAruid(barcodeValue)
@@ -231,8 +237,9 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
                                     barcode = aruid
                                     viewModel.addNewItem(
                                         barcode.productId,
+                                        aruid.productCikkszam,
                                         aruid.productCikknev,
-                                        binding.itemCount.text.toString().toInt(),
+                                        binding.itemCount.text.toString().toDouble(),
                                         dateDiff(),
                                         binding.spnLeltarhely.selectedItemPosition,
                                         userId!!.toInt(),
@@ -304,12 +311,13 @@ class AddNewItemActivity : AppCompatActivity(), View.OnTouchListener {
         val sharedPreferences = this.getSharedPreferences("Users", Context.MODE_PRIVATE)
         val userId: String? = sharedPreferences.getString("id", "0")
         if (binding.itemCount.text.toString().isNotEmpty() &&
-            binding.itemCount.text.toString().toInt() != 0) {
+            binding.itemCount.text.toString().toDouble() != 0.0) {
             viewModel.updateItem(
                 this.navigationArgs.itemId,
                 item.itemAruid,
+                item.itemCikkszam,
                 item.itemArunev,
-                binding.itemCount.text.toString().toInt(),
+                binding.itemCount.text.toString().toDouble(),
                 dateDiff(),
                 binding.spnLeltarhely.selectedItemPosition,
                 userId!!.toInt(),

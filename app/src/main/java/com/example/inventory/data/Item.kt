@@ -31,12 +31,14 @@ data class Item(
     val id: Int = 0,
     @ColumnInfo(name = "aruid")
     val itemAruid: Int,
+    @ColumnInfo(name = "cikkszam")
+    val itemCikkszam: String,
     @ColumnInfo(name = "arunev")
     val itemArunev: String,
     @ColumnInfo(name = "tarolohelyid")
     val itemTarolohelyid: Int,
     @ColumnInfo(name = "mennyiseg")
-    val itemMennyiseg: Int,
+    val itemMennyiseg: Double,
     @ColumnInfo(name = "userid")
     val itemUserid: Int,
     @ColumnInfo(name = "datum")

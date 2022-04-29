@@ -71,15 +71,19 @@ class MyFTPClientFunctions {
 
     // Method to change working directory:
     fun ftpChangeDirectory(directory_path: String): Boolean {
-        try {
+        return try {
+            Log.d(
+                TAG,
+                "Change directory to $directory_path"
+            )
             mFTPClient!!.changeWorkingDirectory(directory_path)
         } catch (e: Exception) {
             Log.d(
                 TAG,
                 "Error: could not change directory to $directory_path"
             )
+            false
         }
-        return false
     }
 
     // Method to list all files in a directory:
@@ -106,6 +110,28 @@ class MyFTPClientFunctions {
             fileList
         }
     }
+
+    /*fun ftpShowFiles(dir_path: String?): Array<String?>? {
+        var fileList: Array<String?>? = null
+        return try {
+            val ftpFiles = mFTPClient!!.listFiles(dir_path)
+            val length = ftpFiles.size
+            fileList = arrayOfNulls(length)
+            for (i in 0 until length) {
+                val name = ftpFiles[i].name
+                val isFile = ftpFiles[i].isFile
+                if (isFile) {
+                    fileList[i] = "File :: $name"
+                } else {
+                    fileList[i] = "Directory :: $name"
+                }
+            }
+            fileList
+        } catch (e: Exception) {
+            e.printStackTrace()
+            fileList
+        }
+    }*/
 
     // Method to create new directory:
     fun ftpMakeDirectory(new_dir_path: String): Boolean {

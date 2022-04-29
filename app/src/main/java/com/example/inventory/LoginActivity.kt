@@ -65,8 +65,10 @@ class LoginActivity : AppCompatActivity() {
             if (userList.isNotEmpty()) {
                 loadSpinnerData()
                 binding.btnLoadData.isVisible = false
+                binding.userSpinner.isEnabled = true
             } else {
                 binding.loginBtn.isVisible = false
+                binding.userSpinner.isEnabled = false
             }
         }
     }
@@ -327,6 +329,8 @@ class LoginActivity : AppCompatActivity() {
         database?.let { db ->
             withContext(Dispatchers.IO) {
                 val leltarhelyDao: LeltarhelyDao = db.leltarhelyDao()
+                val sharedPreferencesIker = this@LoginActivity.getSharedPreferences(
+                    "IkerRaktar", Context.MODE_PRIVATE)
 
                 leltarhelyDao.clear()
 
@@ -360,6 +364,13 @@ class LoginActivity : AppCompatActivity() {
                     try {
                         brUs?.close()
                         println("Leltarhely beolvasva")
+                        val editor: SharedPreferences.Editor =
+                            sharedPreferencesIker.edit()
+                        editor.putString(
+                            "raktar",
+                            "0"
+                        )
+                        editor.apply()
                         runOnUiThread {
                             Toast.makeText(this@LoginActivity,
                                 "leltarhely.txt beolvasva", Toast.LENGTH_SHORT).show() }
@@ -392,7 +403,7 @@ class LoginActivity : AppCompatActivity() {
             findViewById<ProgressBar>(com.example.inventory.R.id.progressBar4).isVisible = true }
         val sharedPreferencesFtp = this.getSharedPreferences(
             "FtpDetails", Context.MODE_PRIVATE)
-        val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
+        val srcFilePath: String? = sharedPreferencesFtp.getString("pathSend", "")
         val username: String? = sharedPreferencesFtp.getString("username", "")
         val password: String? = sharedPreferencesFtp.getString("password", "")
         val host: String? = sharedPreferencesFtp.getString("host", "")
@@ -407,9 +418,23 @@ class LoginActivity : AppCompatActivity() {
                 runOnUiThread {
                     Toast.makeText(this@LoginActivity,
                         "Sikeres csatlakozás a szerverhez", Toast.LENGTH_SHORT).show() }
-                ftpclient!!.ftpChangeDirectory(srcFilePath!!)
-                downloadFtp()
-                isLoading = true
+                val areThereFiles: Array<String?>? = ftpclient!!.ftpPrintFilesList(srcFilePath)
+                if (areThereFiles!!.isNotEmpty())
+                {
+                    downloadFtp()
+                    isLoading = true
+                }
+                else{
+                    runOnUiThread {
+                        findViewById<ProgressBar>(com.example.inventory.R.id.progressBar4).isVisible =
+                            false
+                        Toast.makeText(
+                            this,
+                            getString(com.example.inventory.R.string.állományoknemtalálh),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
                 //ftpclient!!.ftpPrintFilesList(srcFilePath)
             } else {
                 runOnUiThread {
@@ -434,10 +459,11 @@ class LoginActivity : AppCompatActivity() {
         return true
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun downloadFtp(){
         val sharedPreferencesFtp = this.getSharedPreferences(
             "FtpDetails", Context.MODE_PRIVATE)
-        val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
+        val srcFilePath: String? = sharedPreferencesFtp.getString("pathSend", "")
         val srcFileNameCikk = "cikk.txt"
         val srcFileNameVonalkod = "vonalkod.txt"
         val srcFileNameLeltarhely = "leltarhely.txt"
@@ -456,32 +482,51 @@ class LoginActivity : AppCompatActivity() {
             fileLeltarfej.delete()
             val fileUgyintezo = File(desFileP, srcFileNameUgyintezo)
             fileUgyintezo.delete()
-            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameCikk",
-                "$desFilePath/$srcFileNameCikk"
-            )
-            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameVonalkod",
-                "$desFilePath/$srcFileNameVonalkod"
-            )
-            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarhely",
-                "$desFilePath/$srcFileNameLeltarhely"
-            )
-            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarfej",
-                "$desFilePath/$srcFileNameLeltarfej"
-            )
-            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameUgyintezo",
-                "$desFilePath/$srcFileNameUgyintezo"
-            )
+            try {
+                ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameCikk",
+                    "$desFilePath/$srcFileNameCikk"
+                )
+                ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameVonalkod",
+                    "$desFilePath/$srcFileNameVonalkod"
+                )
+                ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarhely",
+                    "$desFilePath/$srcFileNameLeltarhely"
+                )
+                ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarfej",
+                    "$desFilePath/$srcFileNameLeltarfej"
+                )
+                ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameUgyintezo",
+                    "$desFilePath/$srcFileNameUgyintezo"
+                )
+                GlobalScope.launch(Dispatchers.IO) { fetchDocs()}
+            }catch(e: Exception){
+                e.printStackTrace()
+                runOnUiThread {
+                    findViewById<ProgressBar>(com.example.inventory.R.id.progressBar4).isVisible =
+                        false
+                    Toast.makeText(
+                        this,
+                        getString(com.example.inventory.R.string.állományoknemtalálh),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            finally {
+
+            }
         }
         catch (e: Exception) {
             e.printStackTrace()
             runOnUiThread {
-                findViewById<ProgressBar>(com.example.inventory.R.id.progressBar3).isVisible = false
-                Toast.makeText(this,
-                    getString(com.example.inventory.R.string.állományoknemtalálh),
-                    Toast.LENGTH_SHORT).show()}
+                findViewById<ProgressBar>(com.example.inventory.R.id.progressBar4).isVisible = false }
         }
         finally {
-            GlobalScope.launch(Dispatchers.IO) { fetchDocs() }
+            ftpclient!!.ftpRemoveFile("$srcFilePath/$srcFileNameCikk")
+            ftpclient!!.ftpRemoveFile("$srcFilePath/$srcFileNameVonalkod")
+            ftpclient!!.ftpRemoveFile("$srcFilePath/$srcFileNameLeltarhely")
+            ftpclient!!.ftpRemoveFile("$srcFilePath/$srcFileNameLeltarfej")
+            ftpclient!!.ftpRemoveFile("$srcFilePath/$srcFileNameUgyintezo")
+
         }
 
     }

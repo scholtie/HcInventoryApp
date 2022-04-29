@@ -23,26 +23,28 @@
 
     <Button
         android:id="@+id/loginBtn4"
-        android:layout_width="209dp"
-        android:layout_height="66dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:enabled="true"
         android:text="@string/bejelentkezes"
         android:textSize="18sp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextFilePath" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextFilePathSend" />
 
     <EditText
         android:id="@+id/editPasswordFtp"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="@string/prompt_password"
         android:inputType="textPassword"
         android:minHeight="48dp"
         android:text="sodpointer"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextUserFtp" />
@@ -57,6 +59,7 @@
         android:inputType="textPersonName"
         android:minHeight="48dp"
         android:text="ftp.pointer.hu"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -71,35 +74,101 @@
         android:inputType="textPersonName"
         android:minHeight="48dp"
         android:text="pointer_sod"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextHost" />
 
     <EditText
         android:id="@+id/editTextPortFtp"
-        android:layout_width="wrap_content"
+        android:layout_width="60dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Port"
         android:inputType="number"
         android:minHeight="48dp"
         android:text="21"
+        android:visibility="invisible"
+        app:layout_constraintStart_toEndOf="@+id/editPasswordFtp"
+        app:layout_constraintTop_toBottomOf="@+id/editTextUserFtp" />
+
+    <EditText
+        android:id="@+id/editTextFilePath"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:ems="10"
+        android:hint="Elérési út - RECEIVE (pl./proffit/eProffit/AndroidTest/)"
+        android:inputType="textPersonName"
+        android:minHeight="48dp"
+        android:text="/proffit/eProffit/AndroidTest/"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editPasswordFtp" />
 
     <EditText
-        android:id="@+id/editTextFilePath"
-        android:layout_width="348dp"
-        android:layout_height="59dp"
+        android:id="@+id/editTextFilePathSend"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:ems="10"
-        android:hint="Elérési út (pl./proffit/eProffit/AndroidTest/)"
+        android:hint="Elérési út - SEND (pl./proffit/eProffit/AndroidTest/)"
         android:inputType="textPersonName"
+        android:minHeight="48dp"
         android:text="/proffit/eProffit/AndroidTest/"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.492"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextFilePath" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Receive"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/editTextFilePath"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextPortFtp" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextFilePath" />
+
+    <EditText
+        android:id="@+id/editLoginPass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:ems="10"
+        android:inputType="numberPassword"
+        android:minHeight="48dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="214dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="16dp"
+        android:text="Bejelentkezés"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editLoginPass" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

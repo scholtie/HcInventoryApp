@@ -94,6 +94,7 @@
     <string name="állományoknemtalálh">Állományok nem találhatók a szerveren!</string>
     <string name="unsuccessfulloig">Bejelentkezés sikertelen</string>
     <string name="scannersettings">Scanner Beállítások</string>
+    <string name="pathnotexist">Az elérési út nem létezik!</string>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

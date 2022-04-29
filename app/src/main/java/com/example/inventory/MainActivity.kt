@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private fun connectFtp(){
         val sharedPreferencesFtp = this.getSharedPreferences(
             "FtpDetails", Context.MODE_PRIVATE)
-        val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
+        val srcFilePath: String? = sharedPreferencesFtp.getString("pathSend", "")
         val username: String? = sharedPreferencesFtp.getString("username", "")
         val password: String? = sharedPreferencesFtp.getString("password", "")
         val host: String? = sharedPreferencesFtp.getString("host", "")
@@ -82,8 +82,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             if (status) {
                 Log.d(TAG, "Connection Success")
                 ftpclient!!.ftpChangeDirectory(srcFilePath!!)
-                downloadFtp()
-                ftpclient!!.ftpPrintFilesList(srcFilePath)
+                val areThereFiles: Array<String?>? = ftpclient!!.ftpPrintFilesList(srcFilePath)
+                if (areThereFiles!!.isNotEmpty())
+                {
+                    downloadFtp()
+                }
+                else{
+                    runOnUiThread {
+                        findViewById<ProgressBar>(com.example.inventory.R.id.progressBar).isVisible =
+                            false
+                        Toast.makeText(
+                            this,
+                            getString(R.string.állományoknemtalálh),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             } else {
                 Log.d(TAG, "Connection failed")
                 GlobalScope.launch(Dispatchers.IO) { fetchDocs() }
@@ -95,7 +109,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private fun downloadFtp(){
         val sharedPreferencesFtp = this.getSharedPreferences(
             "FtpDetails", Context.MODE_PRIVATE)
-        val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
+        val srcFilePath: String? = sharedPreferencesFtp.getString("pathSend", "")
         val srcFileNameCikk = "cikk.txt"
         val srcFileNameVonalkod = "vonalkod.txt"
         val srcFileNameLeltarhely = "leltarhely.txt"
@@ -114,21 +128,38 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             fileLeltarfej.delete()
             val fileUgyintezo = File(desFileP, srcFileNameUgyintezo)
             fileUgyintezo.delete()
-            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameCikk",
-                "$desFilePath/$srcFileNameCikk"
-            )
-            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameVonalkod",
-                "$desFilePath/$srcFileNameVonalkod"
-            )
-            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarhely",
-                "$desFilePath/$srcFileNameLeltarhely"
-            )
-            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarfej",
-                "$desFilePath/$srcFileNameLeltarfej"
-            )
-            ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameUgyintezo",
-                "$desFilePath/$srcFileNameUgyintezo"
-            )
+            try {
+                ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameCikk",
+                    "$desFilePath/$srcFileNameCikk"
+                )
+                ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameVonalkod",
+                    "$desFilePath/$srcFileNameVonalkod"
+                )
+                ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarhely",
+                    "$desFilePath/$srcFileNameLeltarhely"
+                )
+                ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameLeltarfej",
+                    "$desFilePath/$srcFileNameLeltarfej"
+                )
+                ftpclient!!.ftpDownload("$srcFilePath/$srcFileNameUgyintezo",
+                    "$desFilePath/$srcFileNameUgyintezo"
+                )
+                GlobalScope.launch(Dispatchers.IO) { fetchDocs()}
+            }catch(e: Exception){
+                e.printStackTrace()
+                runOnUiThread {
+                        findViewById<ProgressBar>(com.example.inventory.R.id.progressBar).isVisible =
+                            false
+                        Toast.makeText(
+                            this,
+                            getString(R.string.állományoknemtalálh),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                }
+            }
+            finally {
+
+            }
         }
         catch (e: Exception) {
             e.printStackTrace()
@@ -136,7 +167,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 findViewById<ProgressBar>(R.id.progressBar).isVisible = false }
         }
         finally {
-            GlobalScope.launch(Dispatchers.IO) { fetchDocs() }
+            ftpclient!!.ftpRemoveFile("$srcFilePath/$srcFileNameCikk")
+            ftpclient!!.ftpRemoveFile("$srcFilePath/$srcFileNameVonalkod")
+            ftpclient!!.ftpRemoveFile("$srcFilePath/$srcFileNameLeltarhely")
+            ftpclient!!.ftpRemoveFile("$srcFilePath/$srcFileNameLeltarfej")
+            ftpclient!!.ftpRemoveFile("$srcFilePath/$srcFileNameUgyintezo")
+
         }
 
     }
@@ -220,18 +256,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private suspend fun fetchDocs() =
         coroutineScope {
+            val db = ItemRoomDatabase.getDatabase(this@MainActivity)
             val deferredOne =
                 async { populateDbAllProducts(
-                    ItemRoomDatabase.getDatabase(this@MainActivity)) }
+                    db) }
             val deferredTwo =
                 async { populateDbUserek(
-                    ItemRoomDatabase.getDatabase(this@MainActivity)) }
+                    db) }
             val deferredThree =
                 async { populateDbVonalkodok(
-                    ItemRoomDatabase.getDatabase(this@MainActivity)) }
+                    db) }
             val deferredFour =
                 async {populateDbLeltarhely(
-                    ItemRoomDatabase.getDatabase(this@MainActivity))}
+                    db)}
             deferredOne.await()
             deferredTwo.await()
             deferredThree.await()
@@ -402,7 +439,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         database?.let { db ->
             withContext(Dispatchers.IO) {
                 val leltarhelyDao: LeltarhelyDao = db.leltarhelyDao()
-
+                val sharedPreferencesIker = this@MainActivity.getSharedPreferences(
+                    "IkerRaktar", Context.MODE_PRIVATE)
                 leltarhelyDao.clear()
 
                 val fileUs =
@@ -435,6 +473,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     try {
                         brUs?.close()
                         println("Leltarhely beolvasva")
+
+                        val editor: SharedPreferences.Editor =
+                            sharedPreferencesIker.edit()
+                        editor.putString(
+                            "raktar",
+                            "0"
+                        )
+                        editor.apply()
                         runOnUiThread {
                             Toast.makeText(this@MainActivity,
                                 "leltarhely.txt beolvasva", Toast.LENGTH_SHORT).show() }

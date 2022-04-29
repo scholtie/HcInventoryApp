@@ -1,11 +1,14 @@
 package com.example.inventory
 
+import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -13,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.example.inventory.databinding.ActivityFtpLoginBinding
 import com.example.inventory.service.MyFTPClientFunctions
+import java.util.*
 
 class FtpLoginActivity : AppCompatActivity() {
 
@@ -25,14 +29,45 @@ class FtpLoginActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
         ftpclient = MyFTPClientFunctions()
+        binding.btnLogin.isVisible = true
+        binding.btnLogin.setOnClickListener { checkPassword() }
         binding.loginBtn4.setOnClickListener { connectFtp() }
-        initData()
+    }
+
+    private fun checkPassword() {
+        if (binding.editLoginPass.text.toString() != "")
+        {
+            if (binding.editLoginPass.text.toString().toInt() == Pointer8000())
+            {
+                binding.btnLogin.isVisible = false
+                binding.editLoginPass.isVisible = false
+                hideKeyboard()
+                initData()
+            }
+            else{
+                runOnUiThread { Toast.makeText(this@FtpLoginActivity,
+                    getString(R.string.invalid_password), Toast.LENGTH_SHORT).show() }
+            }
+        }
+        else{
+            runOnUiThread { Toast.makeText(this@FtpLoginActivity,
+                getString(R.string.invalid_password), Toast.LENGTH_SHORT).show() }
+        }
+
+    }
+
+    private fun Pointer8000(): Int{
+        val today = Date()
+        val month: Int = today.getMonth() + 1
+        val day: Int = today.getDate()
+        return 8731 - ((month + day) * 100 + Math.abs(month - day))
     }
 
     private fun initData(){
         val sharedPreferencesFtp = this.getSharedPreferences(
             "FtpDetails", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
+        val srcFilePathSend : String? = sharedPreferencesFtp.getString("pathSend", "")
         val username: String? = sharedPreferencesFtp.getString("username", "")
         val password: String? = sharedPreferencesFtp.getString("password", "")
         val host: String? = sharedPreferencesFtp.getString("host", "")
@@ -42,6 +77,17 @@ class FtpLoginActivity : AppCompatActivity() {
         binding.editTextPortFtp.setText(port, TextView.BufferType.SPANNABLE)
         binding.editTextFilePath.setText(srcFilePath, TextView.BufferType.SPANNABLE)
         binding.editTextUserFtp.setText(username, TextView.BufferType.SPANNABLE)
+        binding.editTextFilePathSend.setText(srcFilePathSend, TextView.BufferType.SPANNABLE)
+        binding.editPasswordFtp.isVisible = true
+        binding.editTextHost.isVisible = true
+        binding.editTextPortFtp.isVisible = true
+        binding.editTextFilePath.isVisible = true
+        binding.editTextUserFtp.isVisible = true
+        binding.editTextFilePathSend.isVisible = true
+        binding.loginBtn4.isVisible = true
+        binding.textView2.isVisible = true
+        binding.textView3.isVisible = true
+        binding.editTextHost.requestFocus()
     }
 
     private fun connectFtp(){
@@ -52,28 +98,40 @@ class FtpLoginActivity : AppCompatActivity() {
         val host = binding.editTextHost.text.toString()
         val port = binding.editTextPortFtp.text.toString()
         val srcFilePath = binding.editTextFilePath.text.toString()
+        val srcFilePathSend = binding.editTextFilePathSend.text.toString()
         Thread {
             // host – your FTP address
             // username & password – for your secured login
             // 21 default gateway for FTP
             val status: Boolean = ftpclient!!.ftpConnect(host, username, password, port.toInt())
+            val directoryExists: Boolean = ftpclient!!.ftpChangeDirectory(srcFilePath)
+            val directoryExistsSend : Boolean = ftpclient!!.ftpChangeDirectory(srcFilePathSend)
             if (status) {
                 Log.d(ContentValues.TAG, "Connection Success")
-                ftpclient!!.ftpChangeDirectory(srcFilePath)
-                val sharedPreferences = this
-                    .getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
-                val editor: SharedPreferences.Editor = sharedPreferences.edit()
-                editor.putString("path", srcFilePath)
-                editor.putString("host", host)
-                editor.putString("username", username)
-                editor.putString("password", password)
-                editor.putString("port", port)
-                editor.apply()
-                //downloadFtp()
-                //uploadFtp()
-                //ftpclient!!.ftpPrintFilesList(srcFilePath)
-                val switchActivityIntent = Intent(this, LoginActivity::class.java)
-                startActivity(switchActivityIntent)
+                if (directoryExists && directoryExistsSend){
+                    ftpclient!!.ftpChangeDirectory(srcFilePath)
+                    val sharedPreferences = this
+                        .getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+                    val editor: SharedPreferences.Editor = sharedPreferences.edit()
+                    editor.putString("path", srcFilePath)
+                    editor.putString("host", host)
+                    editor.putString("username", username)
+                    editor.putString("password", password)
+                    editor.putString("port", port)
+                    editor.putString("pathSend", srcFilePathSend)
+                    editor.apply()
+                    //downloadFtp()
+                    //uploadFtp()
+                    //ftpclient!!.ftpPrintFilesList(srcFilePath)
+                    val switchActivityIntent = Intent(this, LoginActivity::class.java)
+                    startActivity(switchActivityIntent)
+                }else{
+                    runOnUiThread {
+                        findViewById<ProgressBar>(R.id.progressBar2).isVisible = false }
+                    Log.d(ContentValues.TAG, "Elérési út nem létezik!")
+                    runOnUiThread { Toast.makeText(this@FtpLoginActivity,
+                        getString(R.string.pathnotexist), Toast.LENGTH_SHORT).show() }
+                }
             } else {
                 runOnUiThread {
                     findViewById<ProgressBar>(R.id.progressBar2).isVisible = false }
@@ -82,6 +140,16 @@ class FtpLoginActivity : AppCompatActivity() {
                     getString(R.string.unsuccessfulloig), Toast.LENGTH_SHORT).show() }
             }
         }.start()
+    }
+
+    private fun Activity.hideKeyboard() {
+        hideKeyboard(currentFocus ?: View(this))
+    }
+
+    private fun Context.hideKeyboard(view: View) {
+        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE)
+                as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     /*private fun uploadFtp(){

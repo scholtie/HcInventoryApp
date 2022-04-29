@@ -152,8 +152,19 @@ class ItemListFragment : Fragment() {
 
     private fun exportDatabaseToCSVFile() {
         //removeFtp()
+        val sharedPreferencesSaveDate = activity?.getSharedPreferences("SaveDate", Context.MODE_PRIVATE)
+        val editor: SharedPreferences.Editor =
+            sharedPreferencesSaveDate!!.edit()
+        val sdf = SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
+        val currentDate = sdf.format(Date()).toString()
+        editor.putString(
+            "datum",
+            currentDate
+        )
+        editor.apply()
+        val currentDateShared: String? = sharedPreferencesSaveDate.getString("datum", "")
         binding.deleteActionButton.isEnabled = false
-        val csvFile = generateFile(requireContext(), "items.txt")
+        val csvFile = generateFile(requireContext(), "items$currentDateShared.txt")
         if (csvFile != null) {
             (exportToCSVFile(csvFile))
             Toast.makeText(requireContext(), getString(R.string.csv_file_generated_text), Toast.LENGTH_LONG).show()
@@ -167,7 +178,7 @@ class ItemListFragment : Fragment() {
         //val currentDate = sdf.format(Date())
         csvWriter{delimiter=';'}.open(csvFile, append = false) {
             itemsList.forEachIndexed { _, item ->
-                writeRow(listOf(item.itemAruid, item.itemTarolohelyid, "", item.itemMennyiseg, 0,
+                writeRow(listOf(item.itemAruid, item.itemCikkszam, item.itemTarolohelyid, "", item.itemMennyiseg, 0,
                     item.itemUserid, item.itemDatum ,
                     if (!item.itemIker){
                     "False"
@@ -176,10 +187,32 @@ class ItemListFragment : Fragment() {
                 }, ""))
             }
         }
+
+        val path = requireContext().
+        getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).toString()
+        Log.d("Files", "Path: $path")
+        val directory = File(path)
+        val files = directory.listFiles()
+        Log.d("Files", "Size: " + files.size)
+        for (i in files!!.indices) {
+            Log.d("Files", "FileName:" + files[i].name)
+            val diff: Long = Date().time - files[i].lastModified()
+            val cutoff: Long = 24 * (24 * 60 * 60 * 1000)
+
+            if (files[i].name.startsWith("items"))
+            {
+                if (diff > cutoff) {
+                    files[i].delete()
+                }
+            }
+        }
+
         if (networkAvailable!!.isOnline(requireContext()))
-        {connectFtp()}else{
+        {connectFtp()}
+        else{
             Toast.makeText(requireContext(), "Nincs internetkapcsolat",
                 Toast.LENGTH_SHORT).show()
+            activity?.runOnUiThread { binding.deleteActionButton.isEnabled = true }
         }
 
     }
@@ -197,16 +230,27 @@ class ItemListFragment : Fragment() {
             // username & password – for your secured login
             // 21 default gateway for FTP
             val status: Boolean = ftpclient!!.ftpConnect(host!!, username, password, port!!.toInt())
+            val directoryExists: Boolean = ftpclient!!.ftpChangeDirectory(srcFilePath!!)
             if (status) {
                 Log.d(ContentValues.TAG, "Connection Success")
-                ftpclient!!.ftpChangeDirectory(srcFilePath!!)
-                uploadFtp()
-                //ftpclient!!.ftpPrintFilesList(srcFilePath)
-                activity?.runOnUiThread { binding.deleteActionButton.isEnabled = true }
+                if (directoryExists)
+                {
+                    ftpclient!!.ftpChangeDirectory(srcFilePath!!)
+                    uploadFtp()
+                    //ftpclient!!.ftpPrintFilesList(srcFilePath)
+                    activity?.runOnUiThread { binding.deleteActionButton.isEnabled = true }
+                }
+                else{
+                    Log.d(ContentValues.TAG, "Upload failed")
+                    Toast.makeText(requireContext(), "Feltöltés sikertelen, elérési út nem létezik",
+                        Toast.LENGTH_SHORT).show()
+                    activity?.runOnUiThread { binding.deleteActionButton.isEnabled = true }
+                }
             } else {
                 Log.d(ContentValues.TAG, "Connection failed")
                 Toast.makeText(requireContext(), "Feltöltés sikertelen",
                     Toast.LENGTH_SHORT).show()
+                activity?.runOnUiThread { binding.deleteActionButton.isEnabled = true }
             }
         }.start()
     }
@@ -214,21 +258,33 @@ class ItemListFragment : Fragment() {
     private fun uploadFtp(){
         val sharedPreferencesFtp = this.requireActivity().
         getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
+        val sharedPreferencesSaveDate = activity?.getSharedPreferences("SaveDate", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
         val sdf = SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
         val currentDate = sdf.format(Date()).toString()
+        val currentDateShared: String? = sharedPreferencesSaveDate!!.getString("datum", "")
         println()
         val desFilePath = requireContext().
-        getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).toString()
-        ftpclient!!.ftpUpload("$desFilePath/items.txt",
-            "leltar$currentDate.txt", srcFilePath, requireContext())
-        requireActivity().runOnUiThread { Toast.makeText(requireContext(),
-            "Sikeresen feltöltve a szerverre", Toast.LENGTH_SHORT).show() }
+        getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).toString()
+
+        ftpclient!!.ftpUpload("$desFilePath/items$currentDateShared.txt",
+            "leltar$currentDateShared.txt", srcFilePath, requireContext())
+
         val lastFileSharedPreferences = this.requireActivity()
             .getSharedPreferences("LastFile", Context.MODE_PRIVATE)
+        val deleteFilePath: String? = lastFileSharedPreferences.getString("fileName", "")
+        if (deleteFilePath != "")
+        {
+            ftpclient!!.ftpRemoveFile("$srcFilePath/$deleteFilePath")
+        }
         val editor: SharedPreferences.Editor = lastFileSharedPreferences.edit()
-        editor.putString("fileName", srcFilePath + "leltar" + currentDate + ".txt")
+        editor.putString("fileName", "leltar$currentDateShared.txt")
         editor.apply()
+
+
+        requireActivity().runOnUiThread { Toast.makeText(requireContext(),
+            "Sikeresen feltöltve a szerverre", Toast.LENGTH_SHORT).show() }
+
     }
 
     private fun removeFtp(){
@@ -238,10 +294,9 @@ class ItemListFragment : Fragment() {
         val sharedPreferencesFileName = this.requireActivity().
         getSharedPreferences("LastFile", Context.MODE_PRIVATE)
         val deleteFilePath: String? = sharedPreferencesFileName.getString("fileName", "")
-        ftpclient!!.ftpChangeDirectory(srcFilePath!!)
         println(srcFilePath)
         Thread{
-            ftpclient!!.ftpRemoveFile(deleteFilePath)
+            ftpclient!!.ftpRemoveFile("$srcFilePath/leltar2022.04.29.09.18.15.txt")
         }
     }
 

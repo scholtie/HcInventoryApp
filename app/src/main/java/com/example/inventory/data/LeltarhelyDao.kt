@@ -15,6 +15,9 @@ interface LeltarhelyDao {
     @Query("SELECT name FROM leltarhely")
     suspend fun getAllLeltarhely(): List<String>
 
+    @Query("SELECT * from leltarhely")
+    suspend fun getLeltarhelyek(): List<Leltarhely>
+
     @Query("SELECT * from leltarhely WHERE name = :leltarhelyName")
     fun searchIdByLeltarhely(leltarhelyName: String): Flow<Leltarhely>
 

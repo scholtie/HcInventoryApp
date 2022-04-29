@@ -8,7 +8,7 @@ import androidx.core.content.FileProvider
 import java.io.File
 
 fun generateFile(context: Context, fileName: String): File? {
-    val csvFile = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), fileName)
+    val csvFile = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
     csvFile.createNewFile()
 
     return if (csvFile.exists()) {
