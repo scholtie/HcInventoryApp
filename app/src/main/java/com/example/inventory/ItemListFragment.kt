@@ -26,6 +26,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
@@ -164,12 +165,13 @@ class ItemListFragment : Fragment() {
         editor.apply()
         val currentDateShared: String? = sharedPreferencesSaveDate.getString("datum", "")
         binding.deleteActionButton.isEnabled = false
-        val csvFile = generateFile(requireContext(), "items$currentDateShared.txt")
+        val csvFile = generateFile(requireContext(), "leltar$currentDateShared.txt")
         if (csvFile != null) {
             (exportToCSVFile(csvFile))
             Toast.makeText(requireContext(), getString(R.string.csv_file_generated_text), Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(requireContext(), getString(R.string.csv_file_not_generated_text), Toast.LENGTH_LONG).show()
+            requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
         }
     }
 
@@ -199,7 +201,7 @@ class ItemListFragment : Fragment() {
             val diff: Long = Date().time - files[i].lastModified()
             val cutoff: Long = 24 * (24 * 60 * 60 * 1000)
 
-            if (files[i].name.startsWith("items"))
+            if (files[i].name.startsWith("leltar"))
             {
                 if (diff > cutoff) {
                     files[i].delete()
@@ -212,7 +214,9 @@ class ItemListFragment : Fragment() {
         else{
             Toast.makeText(requireContext(), "Nincs internetkapcsolat",
                 Toast.LENGTH_SHORT).show()
-            activity?.runOnUiThread { binding.deleteActionButton.isEnabled = true }
+
+            activity?.runOnUiThread { binding.deleteActionButton.isEnabled = true
+                requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)}
         }
 
     }
@@ -235,7 +239,7 @@ class ItemListFragment : Fragment() {
                 Log.d(ContentValues.TAG, "Connection Success")
                 if (directoryExists)
                 {
-                    ftpclient!!.ftpChangeDirectory(srcFilePath!!)
+                    ftpclient!!.ftpChangeDirectory(srcFilePath)
                     uploadFtp()
                     //ftpclient!!.ftpPrintFilesList(srcFilePath)
                     activity?.runOnUiThread { binding.deleteActionButton.isEnabled = true }
@@ -244,7 +248,9 @@ class ItemListFragment : Fragment() {
                     Log.d(ContentValues.TAG, "Upload failed")
                     Toast.makeText(requireContext(), "Feltöltés sikertelen, elérési út nem létezik",
                         Toast.LENGTH_SHORT).show()
-                    activity?.runOnUiThread { binding.deleteActionButton.isEnabled = true }
+                    activity?.runOnUiThread {
+                        requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+                        binding.deleteActionButton.isEnabled = true }
                 }
             } else {
                 Log.d(ContentValues.TAG, "Connection failed")
@@ -260,14 +266,14 @@ class ItemListFragment : Fragment() {
         getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
         val sharedPreferencesSaveDate = activity?.getSharedPreferences("SaveDate", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
-        val sdf = SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
-        val currentDate = sdf.format(Date()).toString()
+        //val sdf = SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
+        //val currentDate = sdf.format(Date()).toString()
         val currentDateShared: String? = sharedPreferencesSaveDate!!.getString("datum", "")
         println()
         val desFilePath = requireContext().
         getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).toString()
 
-        ftpclient!!.ftpUpload("$desFilePath/items$currentDateShared.txt",
+        ftpclient!!.ftpUpload("$desFilePath/leltar$currentDateShared.txt",
             "leltar$currentDateShared.txt", srcFilePath, requireContext())
 
         val lastFileSharedPreferences = this.requireActivity()
@@ -283,7 +289,8 @@ class ItemListFragment : Fragment() {
 
 
         requireActivity().runOnUiThread { Toast.makeText(requireContext(),
-            "Sikeresen feltöltve a szerverre", Toast.LENGTH_SHORT).show() }
+            "Sikeresen feltöltve a szerverre", Toast.LENGTH_SHORT).show()
+            requireActivity().window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)}
 
     }
 
@@ -291,9 +298,8 @@ class ItemListFragment : Fragment() {
         val sharedPreferencesFtp = this.requireActivity().
         getSharedPreferences("FtpDetails", Context.MODE_PRIVATE)
         val srcFilePath: String? = sharedPreferencesFtp.getString("path", "")
-        val sharedPreferencesFileName = this.requireActivity().
-        getSharedPreferences("LastFile", Context.MODE_PRIVATE)
-        val deleteFilePath: String? = sharedPreferencesFileName.getString("fileName", "")
+        //val sharedPreferencesFileName = this.requireActivity(). getSharedPreferences("LastFile", Context.MODE_PRIVATE)
+        //val deleteFilePath: String? = sharedPreferencesFileName.getString("fileName", "")
         println(srcFilePath)
         Thread{
             ftpclient!!.ftpRemoveFile("$srcFilePath/leltar2022.04.29.09.18.15.txt")
@@ -312,6 +318,9 @@ class ItemListFragment : Fragment() {
                     .setCancelable(false)
                     .setNegativeButton(getString(R.string.no)) { _, _ -> }
                     .setPositiveButton(getString(R.string.yes)) { _, _ -> exportDatabaseToCSVFile()
+                        requireActivity().window.setFlags(
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                     }
                     .show()
             } else {
