@@ -195,7 +195,9 @@ class ItemListFragment : Fragment() {
         Log.d("Files", "Path: $path")
         val directory = File(path)
         val files = directory.listFiles()
-        Log.d("Files", "Size: " + files.size)
+        if (files != null) {
+            Log.d("Files", "Size: " + files.size)
+        }
         for (i in files!!.indices) {
             Log.d("Files", "FileName:" + files[i].name)
             val diff: Long = Date().time - files[i].lastModified()

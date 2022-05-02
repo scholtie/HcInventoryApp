@@ -41,7 +41,6 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.io.IOException
-import java.util.*
 
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -89,7 +88,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 }
                 else{
                     runOnUiThread {
-                        findViewById<ProgressBar>(com.example.inventory.R.id.progressBar).isVisible =
+                        findViewById<ProgressBar>(R.id.progressBar).isVisible =
                             false
                         Toast.makeText(
                             this,
@@ -148,7 +147,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }catch(e: Exception){
                 e.printStackTrace()
                 runOnUiThread {
-                        findViewById<ProgressBar>(com.example.inventory.R.id.progressBar).isVisible =
+                        findViewById<ProgressBar>(R.id.progressBar).isVisible =
                             false
                         Toast.makeText(
                             this,
@@ -528,9 +527,4 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
 }
