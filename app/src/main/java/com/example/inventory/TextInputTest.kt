@@ -85,9 +85,9 @@ class TextInputTest : AppCompatActivity() {
             e.printStackTrace()
         } finally {
             try {
-                br?.close();
+                br?.close()
             } catch (e: IOException) {
-                e.printStackTrace();
+                e.printStackTrace()
             }
         }
         val tv = findViewById<View>(R.id.textInputTestText) as TextView

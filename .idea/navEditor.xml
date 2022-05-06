@@ -8,53 +8,6 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
-                  <entry key="addAllProductsFragment">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="-134" />
-                            <option name="y" value="-350" />
-                          </Point>
-                        </option>
-                        <option name="myPositions">
-                          <map>
-                            <entry key="action_addAllProductsFragment_to_itemListFragment">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                          </map>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="addItemFragment">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="173" />
-                            <option name="y" value="-527" />
-                          </Point>
-                        </option>
-                        <option name="myPositions">
-                          <map>
-                            <entry key="action_addItemFragment_to_addAllProductsFragment">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                            <entry key="action_addItemFragment_to_itemListFragment">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                          </map>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
                   <entry key="addNewItemActivity">
                     <value>
                       <LayoutPositions>
@@ -62,6 +15,18 @@
                           <Point>
                             <option name="x" value="419" />
                             <option name="y" value="-405" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="cloudStorageTestActivity">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="53" />
+                            <option name="y" value="-197" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -78,11 +43,6 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_itemDetailFragment_to_addItemFragment">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
                             <entry key="action_itemDetailFragment_to_addNewItemActivity">
                               <value>
                                 <LayoutPositions />
@@ -104,16 +64,6 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_itemListFragment_to_addAllProductsFragment">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                            <entry key="action_itemListFragment_to_addItemFragment">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
                             <entry key="action_itemListFragment_to_addNewItemActivity">
                               <value>
                                 <LayoutPositions />

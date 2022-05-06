@@ -47,14 +47,14 @@ class TestActivity : AppCompatActivity(), View.OnTouchListener {
     }
 
     override fun onTouch(view: View?, motionEvent: MotionEvent?): Boolean {
-        if (view?.getId() == R.id.btnScan) {
-            if (motionEvent?.getAction() == MotionEvent.ACTION_DOWN) {
+        if (view?.id == R.id.btnScan) {
+            if (motionEvent?.action == MotionEvent.ACTION_DOWN) {
                 //  Button pressed, start scan
                 val dwIntent = Intent()
                 dwIntent.action = "com.symbol.datawedge.api.ACTION"
                 dwIntent.putExtra("com.symbol.datawedge.api.SOFT_SCAN_TRIGGER", "START_SCANNING")
                 sendBroadcast(dwIntent)
-            } else if (motionEvent?.getAction() == MotionEvent.ACTION_UP) {
+            } else if (motionEvent?.action == MotionEvent.ACTION_UP) {
                 //  Button released, end scan
                 val dwIntent = Intent()
                 dwIntent.action = "com.symbol.datawedge.api.ACTION"

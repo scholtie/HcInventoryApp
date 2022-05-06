@@ -91,4 +91,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <Button
+        android:id="@+id/btnDownloadFromCloud"
+        android:layout_width="150dp"
+        android:layout_height="84dp"
+        android:layout_marginTop="16dp"
+        android:text="CloudTest"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -58,8 +58,8 @@ class FtpLoginActivity : AppCompatActivity() {
 
     private fun Pointer8000(): Int{
         val today = Date()
-        val month: Int = today.getMonth() + 1
-        val day: Int = today.getDate()
+        val month: Int = today.month + 1
+        val day: Int = today.date
         return 8731 - ((month + day) * 100 + Math.abs(month - day))
     }
 

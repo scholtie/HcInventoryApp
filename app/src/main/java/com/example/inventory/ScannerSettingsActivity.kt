@@ -15,7 +15,7 @@ import java.util.*
 
 class ScannerSettingsActivity : AppCompatActivity(), Observer, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     private val dwInterface = DataWedgeInterface()
-    private var activeProfile = "";
+    private var activeProfile = ""
     private var ean8 = false
     private var ean13 = false
     private var code39 = false
@@ -132,7 +132,7 @@ class ScannerSettingsActivity : AppCompatActivity(), Observer, View.OnClickListe
                 }
                 val adapter = ArrayAdapter<String>(baseContext, android.R.layout.simple_spinner_item, scannerList)
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                binding.spinnerScanners.setAdapter(adapter)
+                binding.spinnerScanners.adapter = adapter
                 binding.spinnerScanners.setSelection(selected_scanner_index)
                 binding.spinnerScanners.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
                     override fun onNothingSelected(p0: AdapterView<*>?) {}
@@ -152,29 +152,30 @@ class ScannerSettingsActivity : AppCompatActivity(), Observer, View.OnClickListe
             //  DataWedge has sent the current configuration, update the UI switches with the current
             //  values for the configurable items.  Again, for readability, I have kept the bundle
             //  keys as Strings rather than constants.
-            val configurationBundle = receivedIntent.getBundleExtra(DataWedgeInterface.DATAWEDGE_RETURN_GET_CONFIG);
+            val configurationBundle = receivedIntent.getBundleExtra(DataWedgeInterface.DATAWEDGE_RETURN_GET_CONFIG)
             val pluginConfig = configurationBundle!!.getParcelableArrayList<Bundle>("PLUGIN_CONFIG") as ArrayList<Bundle>
             val barcodeProps = pluginConfig.get(0).getBundle("PARAM_LIST")!!
             val ean8Enabled = barcodeProps.getString("decoder_ean8")
-            if (ean8Enabled != null && ean8Enabled.toLowerCase() == "true")
+            if (ean8Enabled != null && ean8Enabled.lowercase(Locale.getDefault()) == "true")
                 ean8 = true
             val ean13Enabled = barcodeProps.getString("decoder_ean13")
-            if (ean13Enabled != null && ean13Enabled.toLowerCase() == "true")
+            if (ean13Enabled != null && ean13Enabled.lowercase(Locale.getDefault()) == "true")
                 ean13 = true
             val code39Enabled = barcodeProps.getString("decoder_code39")
-            if (code39Enabled != null && code39Enabled.toLowerCase() == "true")
+            if (code39Enabled != null && code39Enabled.lowercase(Locale.getDefault()) == "true")
                 code39 = true
             val code128Enabled = barcodeProps.getString("decoder_code128")
-            if (code128Enabled != null && code128Enabled.toLowerCase() == "true")
+            if (code128Enabled != null && code128Enabled.lowercase(Locale.getDefault()) == "true")
                 code128 = true
             val illuminationModeEnabled = barcodeProps.getString("illumination_mode")
-            if (illuminationModeEnabled != null && illuminationModeEnabled.toLowerCase().equals("torch"))
+            if (illuminationModeEnabled != null && illuminationModeEnabled.lowercase(Locale.getDefault())
+                    .equals("torch"))
             {
                 illuminationMode = true
                 illuminationModeValue = "torch"
             }
             val picklistModeEnabled = barcodeProps.getString("picklist")
-            if (picklistModeEnabled != null && picklistModeEnabled.toLowerCase() != "0")
+            if (picklistModeEnabled != null && picklistModeEnabled.lowercase(Locale.getDefault()) != "0")
             {
                 picklistMode = true
                 picklistModeValue = "2"

@@ -1,9 +1,13 @@
 package com.example.inventory
 
 import android.R
+import android.app.DownloadManager
 import android.content.*
+import android.content.pm.PackageInfo
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.ContactsContract.Directory.PACKAGE_NAME
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -14,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import androidx.preference.PreferenceManager
 import com.example.inventory.data.*
 import com.example.inventory.databinding.LoginActivityBinding
 import com.example.inventory.service.DWUtilities
@@ -21,6 +26,8 @@ import com.example.inventory.service.MyFTPClientFunctions
 import com.example.inventory.viewmodel.UsersViewModel
 import com.example.inventory.viewmodel.UsersViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.*
 import java.io.BufferedReader
 import java.io.File
@@ -34,6 +41,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private var ftpclient: MyFTPClientFunctions? = null
     private var isLoading: Boolean = false
+    private val storage = Firebase.storage
+    private val storageRef = storage.reference
 
     private val usersViewModel : UsersViewModel by viewModels{
         UsersViewModelFactory(
@@ -45,6 +54,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DWUtilities.CreateDWProfile(this)
+        downloadFromCloud()
         val sharedPreferencesFtp = this.getSharedPreferences("Users", Context.MODE_PRIVATE)
         val user: String? = sharedPreferencesFtp.getString("user", "")
         val userid: String? = sharedPreferencesFtp.getString("id", "")
@@ -58,6 +68,7 @@ class LoginActivity : AppCompatActivity() {
         binding.btnLoadData.setOnClickListener { showConfirmationDialog() }
         binding.btnLoadUsers.setOnClickListener { loadSpinnerData() }
         binding.loginBtn.setOnClickListener {loginAction() }
+        binding.btnDownloadFromCloud.setOnClickListener { downloadFromCloud() }
         setContentView(view)
         lifecycleScope.launch {
             val userList: List<Users> =
@@ -87,6 +98,62 @@ class LoginActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun downloadFromCloud(){
+        val ref = storageRef.child("app-debug.apk")
+        val sharedPreferencesUpdate = this.getSharedPreferences("Update", Context.MODE_PRIVATE)
+        val creationTime: Long = sharedPreferencesUpdate.getLong("creationTime", 0)
+        /*ref.downloadUrl.addOnSuccessListener{ uri ->
+            val url = uri.toString()
+            downloadFiles(this, "app-debug", ".apk",
+                Environment.DIRECTORY_DOWNLOADS.toString(), url)
+        }.addOnFailureListener{
+
+        }*/
+        ref.metadata.addOnSuccessListener { metadata->
+            if (metadata.creationTimeMillis != creationTime){
+                println("Frissítés elérhető!")
+                ref.downloadUrl.addOnSuccessListener{ uri ->
+                    val url = uri.toString()
+                    downloadFiles(this, "app-debug", ".apk",
+                        Environment.DIRECTORY_DOWNLOADS.toString(), url)
+                    val sharedPreferences = this
+                        .getSharedPreferences("Update", Context.MODE_PRIVATE)
+                    val editor: SharedPreferences.Editor = sharedPreferences.edit()
+                    editor.putLong("creationTime", metadata.creationTimeMillis)
+                    editor.apply()
+                }.addOnFailureListener{
+
+                }
+            }
+            else{
+                println("Nincs elérhető frissítés!")
+            }
+        }.addOnFailureListener{
+
+        }
+
+    }
+
+    fun downloadFiles(
+        context: Context,
+        fileName: String,
+        fileExtension: String,
+        destinationDirectory: String?,
+        url: String?
+    ) {
+        val downloadManager = context.getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+        val uri = Uri.parse(url)
+        val request = DownloadManager.Request(uri)
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+        request.setDestinationInExternalFilesDir(
+            context,
+            destinationDirectory,
+            fileName + fileExtension
+        )
+        downloadManager.remove(0)
+        downloadManager.enqueue(request)
     }
 
     private fun loadSpinnerData() {

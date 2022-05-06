@@ -16,12 +16,15 @@
 package com.example.inventory
 
 import android.annotation.SuppressLint
+import android.app.DownloadManager
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.ContactsContract
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -36,6 +39,8 @@ import androidx.navigation.fragment.NavHostFragment
 import com.example.inventory.data.*
 import com.example.inventory.service.MyFTPClientFunctions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.*
 import java.io.BufferedReader
 import java.io.File
@@ -48,6 +53,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var navController: NavController
     private var ftpclient: MyFTPClientFunctions? = null
     private var version65OrOver = false
+    val storage = Firebase.storage
+    val storageRef = storage.reference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -519,6 +526,93 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 {deleteCurrentListData(ItemRoomDatabase.getDatabase(this@MainActivity))}
             }
             .show()
+    }
+
+    private fun downloadFromCloud(){
+        val ref = storageRef.child("app-debug.apk")
+        ref.downloadUrl.addOnSuccessListener {
+            downloadFiles(this, "app-debug", ".apk",
+                getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).toString(), "gs://hcinventory-e834e.appspot.com")
+        }.addOnFailureListener{
+
+        }
+
+    }
+
+    fun downloadFiles(
+        context: Context,
+        fileName: String,
+        fileExtension: String,
+        destinationDirectory: String?,
+        url: String?
+    ) {
+        val downloadManager = context.getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+        val uri = Uri.parse(url)
+        val request = DownloadManager.Request(uri)
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+        request.setDestinationInExternalFilesDir(
+            context,
+            destinationDirectory,
+            fileName + fileExtension
+        )
+        downloadManager.enqueue(request)
+    }
+
+    /*override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        // If there's a download in progress, save the reference so you can query it later
+        outState.putString("reference", storageRef.toString())
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        // If there was a download in progress, get its reference and create a new StorageReference
+        val stringRef = savedInstanceState.getString("reference") ?: return
+
+        val storageRef = Firebase.storage.getReferenceFromUrl(stringRef)
+
+        // Find all DownloadTasks under this StorageReference (in this example, there should be one)
+        val tasks = storageRef.activeDownloadTasks
+
+        if (tasks.size > 0) {
+            // Get the task monitoring the download
+            val task = tasks[0]
+
+            // Add new listeners to the task using an Activity scope
+            task.addOnSuccessListener(this) {
+                // Success!
+                // ...
+            }
+        }
+    }*/
+
+
+    private fun uploadToCloud(){
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+
+// Create a reference to "mountains.jpg"
+        val mountainsRef = storageRef.child("mountains.jpg")
+
+// Create a reference to 'images/mountains.jpg'
+        val mountainImagesRef = storageRef.child("images/mountains.jpg")
+
+// While the file names are the same, the references point to different files
+        mountainsRef.name == mountainImagesRef.name // true
+        mountainsRef.path == mountainImagesRef.path // false
+        var file = Uri.fromFile(File("path/to/images/rivers.jpg"))
+        val riversRef = storageRef.child("images/${file.lastPathSegment}")
+        val uploadTask = riversRef.putFile(file)
+
+// Register observers to listen for when the download is done or if it fails
+        uploadTask.addOnFailureListener {
+            // Handle unsuccessful uploads
+        }.addOnSuccessListener { taskSnapshot ->
+            // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
+            // ...
+        }
     }
 
     /**

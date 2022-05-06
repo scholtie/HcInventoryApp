@@ -34,15 +34,15 @@ import java.io.Writer;
  */
 public class CSVWriter {
 
-    private PrintWriter pw;
+    private final PrintWriter pw;
 
-    private char separator;
+    private final char separator;
 
-    private char quotechar;
+    private final char quotechar;
 
-    private char escapechar;
+    private final char escapechar;
 
-    private String lineEnd;
+    private final String lineEnd;
 
     /** The character used for escaping quotes. */
     public static final char DEFAULT_ESCAPE_CHARACTER = '"';
